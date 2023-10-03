@@ -6,5 +6,7 @@
 
 ## Paquetes ya instalados
 library(dplyr)
+library(dplyr)
+
 
 ### Datos ###
