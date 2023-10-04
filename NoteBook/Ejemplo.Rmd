@@ -1,0 +1,134 @@
+---
+title: "Buenas Practicas"
+author: "Celina"
+date: "2023-10-04"
+output: 
+  html_document:
+    df_print: paged
+---
+[RMarkdowm cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
+esto esta muy __dificil__
+
+RMarkdown o RNotebook = nos sirve para escribir y convertir en un word, HTML, PDF, se pueden insertar CHUNK que son códigos que se ponen en medio del texto. pero la desventaja es que es mas tardado a la hora de revisar ya que es más pesado. 
+
+Otra cosa interesante es que se puede poner texto, titulos o lo que quieras en letra cursiva o en negritas, también puedes colocar títulos y subtítulos con ayuda de # que van desde 1 a 6 dependiendo de la importancia de tu texto. 
+
+Algo más que puedes realizar en RMarkdown y transformar en _word_, _PDF_, _HTML_ es que puedes realizar tablas ya sean ordenadas y desordenadas, gráficos, etc. POR EJEMPLO =
+
+### Graficos
+
+### Tablas ordenadas
+
+1. Veamos como se ve
+
+ + uno
+ + dos
+ + tres
+
+### Tablas desordenadas
+
+* Veamos como se ve 
+
+  + uno
+  + dos
+  + tres
+
+Alto interesante es que se pueden colocar imágenes, veamos.
+image: ![https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf](path/to/smallorb.png)
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+__EJEMPLOS DE CHUNK__
+
+_VALORES_
+
+```{r}
+
+a <- 18
+b <- a / 2
+
+var <- "ejemplos de como se hace"
+
+```
+
+_VECTORES_
+
+```{r}
+vect <- c(1,2,3,4,5)
+nombres <- c("Larissa","Celina","Mariana","Daniel","Hugo")
+
+Part_1 <- "Larissa"
+
+particip <- c(Part_1, "Celina")
+
+camp <- c(1,"temperatura", 14, "precipitación")
+
+## Todo lo que esta antes de la flecha es el objeto
+
+```
+
+
+_MATRICES_
+
+```{r}
+
+#Para que aparezca la matriz, ósea una tabla, primero coloco el objeto (que es como lo quiero llamar y va antes de la flecha) luego coloco el código y los datos que te pide para procesarlo, luego de que se colocan los datos se da CTRL + ENTER para que se procese y después algo muy IMPORTANTE es que, se vuelve a escribir el objeto solo para que te aparezca el proceso del código
+
+matriz_ejemplo <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), 
+                         nrow = 3, 
+                         ncol = 3)
+matriz_ejemplo 
+
+#Para asignar los nombres de las filas y las columnas sería de la siguiente manera (rown es para filas y col para columnas, es importante entender que si queremos que los ponga las filas en vertical y las columnas en horizontal hay que colocar la opción en un inicio de byrow = TRUE, de esta manera la forma en la que se realizara la tabla sera filas en vertical, si en un inicio no coloco esa opción como TRUE automaticamente se tomara fomo falso y la forma en la que aparecera sera las filas en horizontal y las columnas en vertical)
+
+rownames(matriz_ejemplo) <- c("a", "b", "c")
+colnames(matriz_ejemplo) <- c("d", "e", "f")
+
+```
+
+_DATA FRAMES_
+
+
+```{r}
+
+primera_columna <- c("Zanahoria", "Tomate", "Manzana", "Uva")
+Segunda_columna <- c("Naranja", "Rojo", "Verde", "Morada")
+
+Intento_tabla <- data.frame(primera_columna, Segunda_columna)
+
+df <- data.frame(primera_columna = c("Zanahoria", "Tomate", "Manzana", "Uva"), Segunda_columna = c("Naranja", "Rojo", "Verde", "Morada"))
+
+
+#Cuando termino de realizar la tabla para poder verla, me tengo que ir a la opción del apartado environment y le das click al objeto que fue el nombre que le pusiste, y luego en el apartado de source me aparecera la tabla
+
+
+
+```
+
+
+
