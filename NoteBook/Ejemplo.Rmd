@@ -3,8 +3,7 @@ title: "Buenas Practicas"
 author: "Celina"
 date: "2023-10-04"
 output: 
-  html_document:
-    df_print: paged
+  html_notebook:
 ---
 [RMarkdowm cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
 
@@ -128,6 +127,141 @@ df <- data.frame(primera_columna = c("Zanahoria", "Tomate", "Manzana", "Uva"), S
 
 
 
+```
+
+_SUBIENDO UNA TABLA DESDE EXCEL_
+
+```{r}
+
+#Para cuando lo quieres hacer manual tienes que poner el objeto osea como lo quieres llamar luego la flecha y el codigo y entre los parentesis colocar la carpeta de donde se encuentra la tambla que quiero cargar
+
+Datos_clase <-read.csv("~/Rstudio/CursoInnovak/Materiales/ejemplo 2 5 oct.csv")
+
+
+Datos_clase2 <-read.csv("~/Rstudio/CursoInnovak/Materiales/ejemplo 5 oct.csv")
+
+#Si quiero hacerlo con codigo de R se cambia el .csv por _csv
+
+
+#Para abrirlo como matriz sería: 
+
+Acidos <-as.matrix(Datos_clase)
+rownames(Datos_clase2) <-Datos_clase2[,1] #Tabla [filas,columnas]
+
+Datos_clase2 <- Datos_clase2[,-1]
+
+#TODO ESTO NO SIRVE PORQUE ME EQUICOQUE 
+
+```
+
+_SUBIENDO UNA TABLA DESDE EXCEL_
+
+```{r}
+
+Acidos <- read.csv("~/Rstudio/CursoInnovak/Materiales/Acidos_ex.csv")
+
+Acidos <- as.matrix(Acidos)
+rownames(Acidos) <- Acidos[,1] #Tabla [filas,columnas]
+Acidos <- Acidos[,-1]
+
+
+#De vuelta a dataframe
+Acidos <-as.data.frame(Acidos) 
+
+
+
+
+
+```
+
+
+_Listas y otros objetos raros_
+
+Las listas en Rstudio son una coleccion de otros objetos en R. Rara vez van a crear una desde cero pero es importante reconocerlas cuando algunas formulas da como resultado una lista. De esta manera se puede extraer objetos especificos de una lista en Rstudio para algun analisis en especifico 
+
+Craendo una lista 
+```{r}
+lista_ejemplo <- list(c("Jan","Feb","Mar"),
+                      matrix(c(3,9,5,1,-2,8), nrow = 2),
+                      list("green",12.3))
+
+#Nombres de los elementos en la lista 
+
+names(lista_ejemplo) <- c("Meses", "Matriz", "Lista interna")
+
+#Ver la lista 
+
+print(lista_ejemplo)
+
+#Extraer objetos de la lista 
+
+matriz_lista <- lista_ejemplo$Matriz
+
+```
+
+_Otros objetos raros_
+
+```{r}
+library(phyloseq)
+load("ITS_filt.RData")
+
+
+
+```
+
+
+_PAQUETES_
+
+Son extensiones al programa base de RStudio
+Contienen codigos, datos y documentacion que pueden ayudar a su entendimiento
+
+Como instalar un paquete: 
+
+*Manera Facil: desde la consola
+*Manera Dificil: con codigo
+
+```{r}
+library(tidyverse)
+
+```
+
+No se puede usar un paquete si no esta descargado sin embargo si lo tienes descargado pero no quieres usarlo en todo tu script esta la siguiente opcion: 
+
+```{r}
+Acidos <- tidyverse::read_csv("Materiales/Acidos_ex.csv") #no es tan util solo es un ejemplo, para ver que con dos paquetes con codigos distintos se puede hacer y llegar a lo mismo
+Acidos <- read.csv("~/Rstudio/...") #usar este de preferencia 
+
+
+#De preferencia trabajar con puntos en lugar de _ por ejemplo en los codigos de read.csv y read_csv
+??tidyverse
+
+?matrix
+
+```
+
+La cual tambien es util si un codigo tiene el mismo nombre en diferentes paquetes
+
+
+
+_COMANDOS_
+
+Todo el codigo que hemos estado escribiendo puede definirse como comandos los cuales usando un formato estandar piden un input para entregarle al usuario un output
+```{r}
+?as.matrix
+
+
+```
+
+
+##Intalacion por nuestra parte de un paquete llamado car
+Se puede instalar de dos formas, desde la consola de packages o bien directo de la siguiente manera...
+
+install.packages("car"), yo decidí cargarlo directo de la consola. 
+
+```{r}
+library(car)
+
+?Anova(car)   #cuando poneds el signo de interrogación es para pedir ayuda en help y te explica en relación a lo que pones en parentesis
 ```
 
 

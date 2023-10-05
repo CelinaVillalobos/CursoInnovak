@@ -1,0 +1,124 @@
+---
+title: "Funciones, For loops, If else"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+_INTRODUCCIÓN_
+
+Para la clase de hoy vamos a ver comandos en RStudio que puede ayudar a automatizar nuestro codigo condensando pasos repetitivos en un solo comando (pero varias lineas de codigo) 
+
+##Funciones
+
+Set de argumentos que se organizan juntos para realizar una tarea especifica. 
+
+En realidad todos los comandos que hemos usado son la funciones que ya vienen incluidos en R pero RStudio tambien nos da la posibilidad de crear nuestras pripias funciones. 
+
+###Componentes de una funcion
+
+*__Nombre de la funcion:__Nosotros se la damos
+*__Argumentos:__Los elementos necesarios para llevar a cabo la funcion. _input_
+*__Cuerpo de la función:__Define lo que va a hacer la funcion
+*__Respuesta:__El valor o resultado de la tarea asignada a una funcion _output_
+
+
+```{r}
+nombre_funcion <- function(argumentos) {#es lo que necesitas para calcular la funcion 
+respuesta <- haz_algo (argumentos) #calculos o modificaciones que haras con los argumentos
+return(respuesta) #lo que se va a "imprimir"} #todo loq ue esta entre corchetes es la funcion
+
+```
+
+Piensen en las funciones como una accion por lo general el nombre empieza con un verbo: 
+
+
+```{r}
+calc_vol_foliar <-function(longit, ancho, altura) {
+  area <- longit * ancho
+  volumen <- area * altura
+  return(volumen)
+  }
+
+#Ahora usemos la funcion
+
+calc_vol_foliar(longit = 1,
+                ancho = 2.5,
+                altura = 2)
+
+#hay que tener muy encuanta el orden de la longitud, ancho y altura
+#tambien hay que tener en cuanta que el resultado me va a aparecer en la consola pero no me va a aparecer en el environment ya que no colocamos un objeto antes, si queremos guardar el dato tenddríamos que hacer lo siguiente: 
+
+arbusto1 <- calc_vol_foliar(longit = 1,
+                            ancho = 2.5,
+                            altura = 2)
+
+
+#ya con el echo de colocar antes un objeto se te va a guardar el dato y te aparecera no solo en la consola sino tambien en el apartado del environment
+#tambien es importante que llevemos a cabo el orden de los corchetes
+
+
+
+#Ahora usemos datos desde un dataframe
+
+###Crearemos un set de datos artificiales###
+
+
+df <- data.frame(arbustos= c("arbusto1", "arbusto2"),
+                 longitud= c(20, 17), 
+                 ancho= c(11, 9),
+                 altura= c(30, 28))
+
+#esto fue un ejemplo creado por mi 
+
+#ejemplo grupal 
+
+calc_vol_foliar(df$longitud[2], #en estos brackets no hay como porque es una columna osea solo una dimension
+     df$ancho[1],
+     df$altura[2])
+
+#sin la funcion
+
+df$longitud[1]*df$ancho[1]*df$altura[1]
+
+#valores default
+
+calc_vol_foliar <- function(longitud, ancho, altura = 1) {
+  area <- longitud * ancho
+  volumen <- area * altura
+  return(volumen)
+  }
+
+calc_vol_foliar(longitud = 3,
+                 ancho = 2.5)
+
+#valores default igual se pueden modificar 
+
+calc_vol_foliar(longitud = 4,
+                ancho = 2.5,
+                altura = 3)
+
+
+```
+
+
+
+_EJERCICIO_
+
+van a crear una funcion que calcule el area foliar de una especie de arboles unica en el mundo que tiene hojas triangulares; dato el area de un triangulo es base por altura entre 2. 
+
+
+
