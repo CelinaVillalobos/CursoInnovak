@@ -1,0 +1,157 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+#INTRODUCCION
+
+En este modulo vamos a empezar haciendo estadistica basica con RStudio, sin embargo, antes de hace4r cualquier analisis estadistico es necesario que sepamos como podemos manupular nuestros datos modificando tablas y matrices. A partir de ahora todas las actividades que hagamos seran usando data frame y usando todo lo aprendido organizaremos nuestas notas. 
+
+
+```{r}
+#Librerias
+
+library(dplyr) #manupulacion de datos, funciones, modificar columnas, filtrar, reordenar, calculos, etc 
+library(tidyr)  # modificar las funciones de datos 
+library(readr) #leer y escribir csvs
+library(udunits2) # conversion de unidades
+
+Acidos <- read.csv("~/RStudio/CursoInnovak/Materiales/Acidos_ex.csv")
+
+Medidas_clase <- read.csv("~/RStudio/CursoInnovak/Materiales/Class-data.csv")
+
+Metadata <- read.csv("~/RStudio/CursoInnovak/Materiales/Exud_metadata.csv")
+
+Plantas <- read.csv("~/RStudio/CursoInnovak/Materiales/Tabla_plantas.csv")
+
+Roedores <- read.csv("~/RStudio/CursoInnovak/Materiales/Roedores.csv")
+
+#rm () es para borrar objetos
+
+```
+
+
+#Modificacion de datos con R base 
+
+si bien el paquete mas comun (y util) para manupular datos es tidyverse, R base tambien tiene varias funciones muy utiles para hacer modificaciones basicas
+
+##Como checamos la estructura de nuestros datos?
+
+```{r}
+str(Medidas_clase) #Estructura interna, tipo de cada variable y nombre de las variables
+
+dim(Medidas_clase) #Filas y comlumnas
+
+nrow(Medidas_clase) ; ncol(Medidas_clase) #separar comandos cortos
+
+head(Medidas_clase) #Imprime las primeras 6 filas de una tabla 
+
+```
+
+## Reordenar datos
+
+si bien ni las filas ni las columnas no necesitan realmente orden particular al momento de analizar los datos, muchas veces es conviente visualmente
+
+```{r}
+# Reordenar columnas 
+
+Medidas_clase <- Medidas_clase[,c(1,9,4,2,3,5,6,7,8)]
+
+###Ejercicio: Reordenar nuevmente todas las columnas menos ID en orden alfabetico
+
+# Reordenar de mas a menos la tabla 
+Acidos <- Acidos[order(Acidos[,2],decreasing = TRUE),] #si lo quiero de mas a menos pongo TRUE y si lo quiereo de menos a mas ponemos FALSE 
+```
+
+Asimismo muchas veces es convieniente combiar filas a columnas y viseversa. Para ellos tenemos el comando de _transporse()_
+
+```{r}
+# t() transpose
+
+Acidos <- as.data.frame(t(Acidos)) # Tambien tenemos que especificar que tipo de objeto queremos como resultado
+
+colnames(Acidos) <- Acidos[1,] # renombrar las columnas con el nombre de los acidos
+
+Acidos <- Acidos[-1,] # Es para borrar las filas 
+
+```
+
+##Renombrar variales 
+
+Otro comando muy util que tiene R es el de cambiar el nombre de varialbes dentro de nuestro data frame. A diferencia de excel, en RStudio uno no puede cmabiar directamente los valores de una celda dentro de una tabla para proteger los datos. Para ello se puede usar el siguiente comando: 
+
+```{r}
+Metadata$Plant_type[Metadata$Plant_type == "No plant"] <- "Bulk soil"
+
+Metadata$Treatment[Metadata$Treatment == "Pi"] <- "Fosfato"
+Metadata$Treatment[Metadata$Treatment == "Phi"] <- "Fosfito"
+```
+
+## Subset de datos
+
+A veces es necesario analizar los datos por separado por lo que es util seleccionar solo algunos de nuestros datos basados en una o mas variables 
+
+```{r}
+# Seleccionar ciertas columnas 
+Medidas_filt <- Medidas_clase[,c("ID", "Height.cm", "Sex")]
+
+# Basado en valores de las variables (filas)
+
+mujeres_altas <- Medidas_clase[which(Medidas_clase$Sex=="F" & Medidas_clase$Height.cm > 165),] #cuando ponemos una coma si todo lo tengo del lado derecho de la coma es folumna y si la tengo del lado izquiero es filas, entonces lo que le este pidiendo se aplicara a filas o columnas
+
+###Ejercicio: seleccionar hombres cabezones, es decir con la circunferencia mas de 60cm 
+
+hombreds_cabezones <- Medidas_clase[which(Medidas_clase$Sex=="M" & Medidas_clase$CircumferenceHead.com > 60),]
+
+```
+
+Finalmente otra funcion que sera util mas adelante es cambiar de orden los factores. Usualmete los factoreds dentro de una variable se ordenan y muestran de forma alfabetica. Sin embargo, estos cambios no se van a ver hasta el momento de graficar
+
+```{r}
+
+Metadata <- factor(Metadata$Treatment, levels = c("Low P", "Fosfato", "Fosfito", "Pi/phi mix"), ordered = TRUE)
+
+```
+
+###Ejercicio 
+
+Al data frame _Plantas_ hacer las siguientes modificaciones:
+
+1. Cambiar de orden las columnas para que TOC y MBC sean las primera variables que se ven despues de los metadatos
+
+2. Reorganizar la tabla con las plantas con mayor masa foliar hasta arriba _shoots_
+
+3. En tipo de planta renombrar No plant a Bulk Soil y en tratamiento Control a Pi
+
+4. Finalmente crear un nuevo data frame en el que seleccionen todas las plantas _wild type_ con _tip count_ menor a 100
+
+```{r}
+Plantas <- Plantas[,c(1,2,3,4,5,15,16,6,7,8,9,10,11,12,13,14)]
+
+Plantas <- Plantas[order(Plantas[,9],decreasing = TRUE),]
+
+Metadata$Plant_type[Metadata$Plant_type == "No plant"] <- "Bulk soil"
+
+Plantas$Plant_Type[Plantas$Plant_Type == "No plant"] <- "Bulk soil"
+Plantas$Treatment[Plantas$Treatment == "Control"] <- "Pi"
+
+Otros <- Plantas[which(Plantas$Plant_Type == "Wild Type" & Plantas$root_tip_count < 100),]
+View(Otros)
+
+```
+
