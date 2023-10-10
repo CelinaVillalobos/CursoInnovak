@@ -155,3 +155,257 @@ View(Otros)
 
 ```
 
+#Manupulacion de datos usando dplyr
+
+Dpylr es uno de los paquetes incluidos en el tidyverse y su funcion principal es la manupulacion y modificacion de tablas. Con este paquete se puede hacer varias de las funciones que ya aprendimos y muchas otras mas. Sin embargo, la principal diferencia entre R base y dplyr es la capacidad de usar piping al omento de hacer codigo 
+
+##Subset de datos 
+
+```{r}
+# por filas (filter) y columnas (select)
+
+filter(Roedores, year == 1995)
+select(Roedores, month, species, genus) #no se necesita el signo de dolares con este paquete
+
+select(Roedores, -record_id, -day) #quitar columnas con el signo de menos
+```
+### Creando un nuevo objeto con estos comandos 
+
+Ahora veremos como usar la funcion de piping
+
+```{r}
+Reod_mini <- Roedores %>% #funciona como una cadena que une varias funciones juntas
+  filter(weight <= 5) %>% #el resultado de esta funcion es el input de la siguiente
+  select(species_id, sex, weight) #mas facil de leer y no tienen que crear nuevos objetos para cada comando 
+  
+```
+ ###Ejercicio
+ 
+ usando una estructura de codigo similar a la anterior quiero que ahora filtren a los mega roedores con un peso mayor a 200 y que solo sean machos. Por ultimo quiero que solo se muestren el año de colecta, species_id y el peso
+ 
+```{r}
+Roed_mega <- Roedores %>%
+  filter(weight > 200) %>%
+  filter(sex == "M") %>% #se pone en parentesis porque es texto no numero y se ponen dos iguales porque queremos que nos diga que es igual a 
+  select(year, species_id, weight)
+```
+ 
+## Agregar una nueva columna calculada 
+
+Para calcular nuevas calumnas se puede usar la funcion _mutate_. En esta seccion el codigo estaremos usando ademas fuinciones del paquete units
+
+```{r}
+Roedores %>%
+  mutate(weight_kg = weight/1000) #usando las unidades originales y sin el paquete 
+
+#Usando paquete unit 
+Roedores %>%
+  filter(!is.na(weight)) %>% #borrar todos los NA (celdad sin valores) #el signo de admiración te dice que te filtre lo que no esta vacio, el puro is.na que te seleccione solo lo que esta vacio. DAME TODOS LOS VALORES DE WEIGHT QUE NO! ESTAN VACIOS
+  select(weight) %>%
+  mutate(weight_kg = ud.convert(weight, "g", "kg")) %>% #automaticamente cambia entre dos unidades
+  mutate(weight_lb = ud.convert(weight, "g", "lb")) # a libras
+
+```
+
+##Agrupar y analizar datos
+
+Otras funciones muy util es la de _group_by_ en la que se pueden agrupar los datos para calcular ciertas medidas de estadistica descriptiva. 
+
+```{r}
+##Media y desviacion estandar 
+
+summ <- Roedores %>%
+  group_by(sex, species_id) %>% #variables por las que se van a agrupar los datos 
+  summarise(mean_weight = mean(weight, na.rm = TRUE),
+            sd_weight = sd(weight, na.rm = TRUE)) #en este caso le pedimos especificamente media y desviacion estandar 
+
+##Remover variables de las que no se tenga el peso ni el sexo
+
+summ <- Roedores %>%
+  filter(!is.na(sex), !is.na(weight)) %>% #filtrar NA
+  group_by(sex, species_id) %>%
+  summarise(mean_weight = mean(weight),
+            sd_weight = sd(weight))
+
+
+### Contar
+
+# Contar: count() vs n()
+
+count(Roedores, species, sex) #count junta la funcion group by y summarize n=n en un solo comando 
+
+Roedores %>%
+  filter(!is.na(sex), !is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarise(mean_weight = mean(weight),
+            sd_weight = sd(weight),
+            n = n())
+
+```
+
+Estas son otras funciones utiles que se pueden usar dentro del comando de _summarise()_
+
+* Center: mean(), median(
+* Spread: sd(), IQR(), mad()
+* Count: sd(), n_distinct()
+* Range: min(), max(), quantile()
+* Position: first(), last(), nth()
+* logical: any(), max(), all()
+
+#EJERCICIO 1
+
+```{r}
+quantile(Roedores$weight, na.rm =TRUE)
+
+Roedores %>%
+  filter(!is.na(species), !is.na(weight)) %>%
+  group_by(species) %>% 
+  summarise(cuartiles = quantile(weight, na.rm = TRUE)) 
+
+```
+
+#Ejercico 2
+
+```{r}
+
+planta <- Plantas %>%
+  filter(!is.na(root_Pi), !is.na(shoot_Pi)) %>%
+  group_by(Plant_Type, Treatment) %>%
+  summarise(media = min(root_Pi, na.rm = TRUE),
+            desviacion = sd(root_Pi, na.rm = TRUE),
+            media2 = min(shoot_Pi, na.rm = TRUE),
+            desviacion2 = sd(shoot_Pi, na.rm = TRUE))
+
+
+
+summ <- Roedores %>%
+  group_by(sex, species_id) %>% #variables por las que se van a agrupar los datos 
+  summarise(mean_weight = mean(weight, na.rm = TRUE),
+            sd_weight = sd(weight, na.rm = TRUE)) #en este caso le pedimos especificamente media y desviacion estandar
+
+```
+
+## Ordenar los datos 
+
+Usando _Select_ y _arrange_ se puede modificar el orden de columnas y filas respectivamente con dplyr
+
+```{r}
+# Cambiar de orden las columnas
+ 
+Roedores %>%
+  filter(!is.na(sex), !is.na(weight)) %>%
+  select(record_id, species_id, weight:taxa) # para eso son los : para indicar de donde a donde
+
+
+## Ordenar arrange() : por filas 
+
+Roedores %>%
+  filter(!is.na(sex), !is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarise(mean_weight = mean(weight),
+            sd_weight = sd(weight),
+            n = n()) %>%
+  arrange(mean_weight) #de menor a mayor
+
+Roedores %>%
+  filter(!is.na(sex), !is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarise(mean_weight = mean(weight), #aqui esta sacando las medias de los pesos
+            sd_weight = sd(weight),
+            n = n()) %>%
+  arrange(desc(mean_weight)) # significa descending de mayor a menor
+
+```
+
+### Ejercicio
+
+usando el data frame de  _plantas_ seleccionar unicamente tipo de planta y tratamiento junto con las variables relacionadas a raices y ordernarlas de mayor a menor por el peso de la raiz 
+
+```{r}
+Plantas %>%
+  select(Plant_Type, Treatment, Roots, root_diam_mean:root_Pi) %>%
+  arrange(Roots)
+
+
+```
+
+## Modificar los dataframe
+
+En dplyr la funcion _pivot()_ es parcecida a la funcion de _transpose_ en R base cambiar de filas a columnas y viceversa. Sin embargo en este caso ademas se agrupan  los valoreds: 
+
+* _pivot_wider():_ para modificar de filas a columnas 
+* _pivot_longer():_ modificar de columnas a filas 
+
+```{r}
+## pivot_wider(): longer a wider
+
+Roedores_gw <- Roedores %>%
+  filter(!is.na(weight)) %>%
+  group_by(plot_id, genus) %>%
+  summarise(mean_weight = mean(weight)) #aqui agregariamos la funcion de pivot para hacerlo de todo en un solo codigo
+
+Roedores_wide <- Roedores_gw %>% # usando el nuevo objeto
+  pivot_wider(names_from = genus, # nombres de las columnas
+              values_from = mean_weight) # como separar los valores 
+
+View(Roedores_wide) # util para PCA's y heatmaps
+
+
+### Ejercicio: traten de juntar todo este proceso en un solo paso para no tener objetos intermedios
+
+Roedores_gw <- Roedores %>%
+  filter(!is.na(weight))%>%
+  group_by(plot_id, genus) %>%
+  summarise(mean_weight = mean(weight)) %>%
+  pivot_wider(names_from = genus,
+              values_from = mean_weight) 
+
+## pivot_longer(): wider a longer, vamos a revertir lo que hicimos
+
+Roedores_long <- Roedores_wide %>% # tabla anterior
+  pivot_longer(-plot_id, # quitar plot_id porque no es un genero o tambien se puede hacer usando columnas 2:11
+               names_to = "genus", # sera el nombre de la nueva columnas y usara los genero como variables
+               values_to = "mean_weight") %>%
+  filter(!is.na(mean_weight)) # esta funcion no quita los NA's automaticamente por lo que nosotros tambien tenemos que agregarlo
+
+```
+
+### Ejercicio 
+
+Usando la tabla de _roedores_ crear una nueva tabla filtrando valores vacios en longitud de la pata, agrupando por tipo de plot y genero y obteniendo el promedio de la longitud d ela pata. 
+Finalmente modificar la tabla para que las columnas sean los generos
+
+```{r}
+
+Roedores_pata <- Roedores %>%
+  filter(!is.na(hindfoot_length)) %>%
+  group_by(plot_type, genus) %>%
+  summarise(mean_hindfoot_lenght = mean(hindfoot_length)) %>%
+  pivot_wider(names_from = genus,
+              values_from = mean_hindfoot_lenght) 
+
+```
+# Guardar los datos
+
+En esta clase aprendimos a crear muchas tablas nueves. Pero ahora...como las guardo?
+
+```{r}
+# Create un directorio nuevo (solo una vez) y en consola
+dir.create("Datos_procesados") # nuevo folder
+
+# Crear un csv de un objeto en Rsutdio
+
+# R Base 
+
+write.csv(Roedores_gw, "~/RStudio/CursoInnovak/Materiales/Datos_procesados/Roedores_gen_peso.csv")
+
+# Otra manera de guardarlo sería 
+
+# tidyverse 
+write_csv(Roedores_gw, "Datos_procesados/Roed_gen_pierna.csv")
+```
+
+
+
+
+
