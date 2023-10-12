@@ -1,0 +1,110 @@
+---
+title: "ANOVA y Tukey HSD"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+
+# INTRODUCCION
+
+A un nivel mayor de complejidad que las pruebas de T el ANOVA (Analysis of variance) es una formula estadistica que se utiliza para comparar varianzas entre las medias de diferencia (_mas de dos_) grupos.
+
+Existe el ANOVA de una via en la que solo se tiene una variable independiente ( con varios grupos) y se quiere ver la diferencia entre dichos grupos sobre una variable dependiente. 
+
+El ANOVA de 2 vias añade otra variable independiente por lo que mide el efecto de dos variables independientes sobre una variable dependiente. Tambien existe la ANOVA de tres vias pero la complejidad en comparaciones y tratamientos crece bastate. 
+
+```{r}
+# Library
+
+library(dplyr)
+library(tidyverse)
+library(car)
+
+
+# DATA
+
+Rodillas <- read.csv("~/RStudio/CursoInnovak/Materiales/Rodillas.csv")
+```
+
+
+# ANOVA de una via
+
+Es decir solo UN tratamiento independiente 
+
+# ANOVA con R base
+
+R base puede calcular ANOVA de dos maneras diferentes, una de ellas usando el codigo _anova()_. Sin embargo, esta funcion base calcula automaticamente una ANOVA tipo I la cual da por sentado que los datos son balanceados por lo que cuando no sea asi se debe de usar la funcion del paquete _car_
+
+```{r}
+
+# variable dep ~ variable indep, datos
+summary(aov(shift~treatment, data = Rodillas)) #aov es anova
+
+anova(lm(shift~treatment, data = Rodillas)) #lm quiere decir modelo lineal, es el recomendable para usar. puedes cambiar el lm por aov ya que es lo mismo pero pueden llegar a tener difernecias por lo que mejor usar el lm.
+```
+La diferencia entre lm y aov es el tipo de modelo y mas que nada la presentacion de los datos. Si quieren sabedr mas al respecto pueden leer aqui: 
+
+pegar liga 
+
+sin embargo, para fines utiles siempre usar el aov() ya que por definicion significa analisis de varianza 
+
+# ANOVA con el paquete CAR
+
+Este paquete esta enfocado a varios tipos de analisis estadisticos y su funcion de ANOVA tiene un argumento para lidiar con datos desbalanceados (Tipo II y III). Ademas que este paquete tambien cuenta con la funcion _levene_ para checar igualdad de varianzas. 
+*si no tienen correlacion o son desbalanceados usar el paquete tipo II
+pegar liga
+
+```{r}
+# Revisar por homogeneidad de varianzas 
+
+leveneTest(shift~treatment, data = Rodillas) # mayor a 0.05, no utilizar levene.test porque no sirve 
+
+plot(rod_anova,1) # Interpretacion: los residuals tienen que estar distribuidos de manera aleatoria y tienen varianza constante. Este casi no lo vamos a ocupar. Solo se ocuparia si el levene no pasa.
+
+## ANOVA
+
+rod_anova <- aov(shift~treatment, data = Rodillas) # se puede usar lm o aov pero mejor aov
+
+Anova(rod_anova) # fijarse que va con mayuscula 
+
+#automaticamente da el tipo II
+
+## ANOVA tipo III
+Anova(rod_anova, type=3) # esge no es el correcto de correr para este set de datos 
+
+```
+La diferencia principal entre el tipo II y tipo III es la interaccion de los grupos de las variables independientes. Por ejemplo es recomendable usar tipo II si no estan seguros si sus variables interactucan entre si osea que esten desbalanceados 
+
+_CONCLUSION_ si p<0.05 es diferente osea hay diferencias
+
+# Tukey HSD
+
+En el caso que una ANOVA nos muestre que existen diferencias significativas entre tratamientos, el paso siguiente es correr un test de Tukey HSD en el cual nos "desglosa" la ANOVA y nos dice cuales de los tratamientos son diferentes. 
+
+Para esto solo hay un codigo el cual es _TukeyHSD()_
+
+IMPORTANTE; el ANOVA te dice que si hay diferencias y el TUKEY te dice cuales son las diferencias. 
+
+```{r}
+TukeyHSD(rod_anova) # los que son diferentes son los que son menores a 0.05 en este caso los diferentes son los ojos-control y rodilla-ojos
+
+
+
+```
+
+
+

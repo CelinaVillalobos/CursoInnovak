@@ -32,6 +32,7 @@ DOC <- read.csv("~/RStudio/CursoInnovak/Materiales/Pond.Lake.DOC.csv")
 
 Calidad_Agua <- read.csv("~/RStudio/CursoInnovak/Materiales/WQ.August.csv")
 
+Soya <- read.csv("~/RStudio/CursoInnovak/Materiales/ejercicio_t_student_pareada.csv")
 ```
 
 # Prueba de T de una muestra 
@@ -46,6 +47,113 @@ _Cuando usarla?_
 
 t.test(Fosf$TDP, mu = 75.6) # mu es un valor de referencia
 
+t.test(log(Fosf$TDP), mu = log(75.6)) # este seria para corregir el codigo con datos normalizados 
+
 ```
-# Prueba de T 
+# Prueba de T pareada
+
+La prueba T pareada es un metodo que se usa para comprobar si la media entre pares de medidas es o no igual a cero 
+
+_cuando usarla?_
+
+* Para pruebas de antes y despues (tienen que ser dos variables dependientes conectadas entre si)
+
+```{r}
+# Checar normalidad en la diferencia no en el set de datos 
+
+Dif <- Profundidad$Thaw.2010s - Profundidad$Thaw.1970s
+
+shapiro.test(Dif)
+
+par(mfrow=c(1,2))
+hist(Dif)
+qqnorm(Dif)
+
+t.test(Profundidad$Thaw.1970s, Profundidad$Thaw.2010s,
+       alternative = c("two.sided"),
+       mu=0, paried=TRUE)
+```
+## Ejercicio 
+
+Encontrar o crear un mini set de datos que podria ser analizado usando una prueba de t pareada. Realizar el test y concluir si existe o no diferencia estadistica. 
+
+```{r}
+Soya_soya <- Soya$Control - Soya$NAA
+
+shapiro.test(Soya_soya)
+
+par(mfrow=c(1,2))
+hist(Soya_soya)
+qqnorm(Soya_soya)
+
+t.test(Soya$Control, Soya$NAA,
+       alternative = c("two.sided"),
+       mu=0, paried=TRUE)
+
+####TODO LO QUE REALICE EN ESTE CHUNK ESTA MAL PORQUE DESDE LA TABLA TENGO LOS DATOS ACOMODADOS INCORRECTAMENTE. PARA PODER UTILIZAR UNA TABLA EN CSV Y PODER USARLA AQUI EN T STUDENT TENDIRA QUE ACOMODARLA D ELA SIGUIENTE MANERA; LOS TRATAMIENTOS SERIAN EN LAS FILAS OSEA HACIA ABAJO Y LOS DIAS SERIAN NUESTAS COLUMNAS LAS DE ARRIBA Y SOLO HABRIA 2 COLUMNAS YA QUE ESTARIAMOS COMPARANDO POR EJEMPLO EL CRECIMIENTO DE LA RAIZ DEL DIA 1 Y DIA 7 Y LAS FILAS SERIAN LOS TRATAMIENTOS OSEA CONTROL Y NAA, ES IMPORTANTE MENCIONAR QUE LAS FILAS TENDIRAN QUE SER VARIOS CONTROLES Y VARIOS NAA OSEA EN ESTE CASO SERIAN 5 SEMILLAS OSEA 5 CONTROLES Y 5 SEMILLAS OSEA 5 NAA POR LO QUE TENRIAMOS 10 DATOS EN TRATAMIENTOS Y 2 DATOS DE CADA UNO DE ESOS 10 QUE SERAN LAS COMPARACIONES, IMPORTANTE GUARDARLO EN CSV Y CON ESA TABLA YA PODRIAMOS CORRER TODO LO QUE SE ENCUENTRA EN ARRIBA DE ESTE CHUNK
+
+```
+
+_Nota_ codigo abs() es oara valor absoluto 
+
+##Prueba de T para dos muestras 
+
+Esta es la mas comun y la mas conocida (tambien llamada prueba t de muestas independientes) es un metodo utilizado para probar si las medias de poblacion desconocidad de dos grupos son iguales o no. 
+
+De este tipo de pruebas hay dos variables la T de student y el test Welch's (no asume varianzas iguales)
+
+_Cuando usarla?_
+
+Comparar dos grupos diferentes en realcion con una variable dependiente:
+
+* Biomasa de UNA especie de planta e dos regimenes diferentes de crecimiento 
+* Concentracion de metales pesados entre dos campos de cultivos 
+
+```{r}
+# Estructura: (variable dep ~ variable indep, data= tabla)
+
+t.test(DOC ~ Habitat, data = DOC) #data es el nombre del archivo
+```
+Como pueden observar la estructura del codigo de estas pruebas no es tan complicada como todo el codigo previo que ya hemos hecho. Sin embargo, lo complicado a partir de aqui es usar criterio para ver CUAL de todas las pruebas se debe usar para analizar los datos que tengas. 
+
+## Ejercicio 
+
+Usando el dataframe _Calidad_agua_ comparar DOC (ppm), fosforo reactivo soluble (SRP; ug/L), y clorofila en fitoplantacion (ug/L) en estanques de Alaska entre los años 1970 y 2010. 
+
+```{r}
+# SRP 
+shapiro.test(Calidad_Agua$SRP)
+par(nfrow=c(1,2))
+hist(Calidad_Agua$SRP)
+qqnorm(Calidad_Agua$SRP)
+
+par(nfrow=c(1,2))
+hist(log(Calidad_Agua$SRP))
+qqnorm(log(Calidad_Agua$SRP))
+shapiro.test(log(Calidad_Agua$SRP))
+t.test(log(SRP) ~ Era, data = Calidad_Agua)
+
+
+# Phyto
+shapiro.test(Calidad_Agua$Phyto)
+par(nfrow=c(1,2))
+hist(Calidad_Agua$Phyto)
+qqnorm(Calidad_Agua$Phyto)
+
+par(nfrow=c(1,2))
+hist(log(Calidad_Agua$Phyto))
+qqnorm(log(Calidad_Agua$Phyto))
+shapiro.test(log(Calidad_Agua$Phyto))
+t.test(log(Phyto) ~ Era, data = Calidad_Agua)
+
+
+# DOC1
+shapiro.test(Calidad_Agua$DOC1)
+par(nfrow=c(1,2))
+hist(Calidad_Agua$DOC1)
+qqnorm(Calidad_Agua$DOC1)
+
+t.test(DOC1 ~ Era, data = Calidad_Agua)
+
+```
 
