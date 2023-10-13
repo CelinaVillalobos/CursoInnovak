@@ -33,11 +33,17 @@ El ANOVA de 2 vias añade otra variable independiente por lo que mide el efecto 
 library(dplyr)
 library(tidyverse)
 library(car)
+library(agricolae)
 
 
 # DATA
 
 Rodillas <- read.csv("~/RStudio/CursoInnovak/Materiales/Rodillas.csv")
+
+Estanques <- read.csv("~/RStudio/CursoInnovak/Materiales/BRW.ponds.csv")
+
+Comp_suelos <- read.csv("~/RStudio/CursoInnovak/Materiales/Soil_Comparison.csv")
+
 ```
 
 
@@ -100,11 +106,133 @@ Para esto solo hay un codigo el cual es _TukeyHSD()_
 IMPORTANTE; el ANOVA te dice que si hay diferencias y el TUKEY te dice cuales son las diferencias. 
 
 ```{r}
-TukeyHSD(rod_anova) # los que son diferentes son los que son menores a 0.05 en este caso los diferentes son los ojos-control y rodilla-ojos
+TukeyHSD(rod_anova) # los que son diferentes son los que son menores a 0.05 en este caso los diferentes son los ojos-control y rodilla-ojos = p<0.05
 
+TukeyHSD(aov(shift~treatment, data = Rodillas))
+plot(TukeyHSD(rod_anova)) # si el intervalo de ocnfianza no se superpone con la diferencia media no son significativos
+
+### en la grafica vemos que no se supoerponen en la media los ojos-contol y ojos rodillas por o cual son significativas eso quiere decir que son diferentes osea que hay diferencia significativa 
 
 
 ```
 
+## Ejercicio 
 
+Usando el dataframe de _Estanques_ vamos a comparar la calidad del agua en los estanques entre tres regiones diferentes de Alaska. Para ello cada uno de ustedes seleccionar una de las variables y llevar a cabo un test ANOVA. No olviden tomar en cuenta los pasos: 
+
+* checar normalidad y de no estar estandarizado  transformar
+* checar si el set de datos esta balanceado (para elegir el tipo de ANOVA)
+*checar homogeneidad de varianza 
+*Calcular ANOVA y si es significativa calcular Tukey HSD 
+*Hacer un grafica del resultado Tukey
+
+```{r}
+
+# NORMALIDAD 
+shapiro.test(Estanques$TP)
+
+par(mfrow=c(1,2))
+hist(Estanques$TP)
+qqnorm(Estanques$TP)
+
+# TRANSFORMADO
+par(nfrow=c(1,2))
+hist(log(Estanques$TP))
+qqnorm(log(Estanques$TP))
+shapiro.test(log(Estanques$TP))
+
+
+# BALANCE; 
+Estanques %>%
+  group_by(Region) %>%
+  summarise(n()) #asi es el codigo 
+
+# HOMOGENEIDAD
+leveneTest(log(TP)~Region, data = Estanques) # mayor a 0.05, una vez que transforme en shapiro se tiene que utilizar el log en homogeneidad 
+
+
+## ANOVA
+estanque_anova <- aov(log(TP)~Region, data = Estanques) 
+
+Anova(estanque_anova) 
+
+#CONCLUSION: p<0.05 por lo que hay diferencia significativa en los datos 
+
+
+#TUKEY
+TukeyHSD(estanque_anova) # los que son diferentes son los que son menores a 0.05 en este caso los diferentes son los BRW-BEO Y IBP-BRW = p<0.05
+
+plot(TukeyHSD(estanque_anova)) # si el intervalo de ocnfianza no se superpone con la diferencia media no son significativos
+
+### en la grafica vemos que no se supoerponen en la media los BRW-BEO y IBP-BRW por Lo cual son significativas eso quiere decir que son diferentes osea que hay diferencia significativa 
+
+
+```
+# IMPORTANTE SABER QUE 
+Cuando hay datos con 0 los tomaria el programa como datos infinitos y al programa no le sirven esos datos por lo cual hay que ponerle un +1 a la columna que tiene esos datos y asi correra. 
+
+
+# ANOVA DE 2 VIAS 
+
+Aunque este tipo de analisis es sumamente util, muchas veces nuestros experimentos incluyen mas de una variable independiente que manipulamos. Para ello los datos se pueden comparar usando una ANOVA es de 2 o mas vias. 
+
+```{r}
+leveneTest(logNH3~Temperature*Soil, data = Comp_suelos)
+
+#Balanceado?
+Comp_suelos %>%
+  group_by(Temperature,Soil) %>%
+  summarise(n())
+
+# ejecto aditivo
+
+est_anova <- aov(logNH3 ~ Temperature+Soil, data = Comp_suelos)
+Anova(est_anova)
+
+#Interracion entre variables 
+est_anova <- aov(logNH3 ~ Temperature*Soil, data = Comp_suelos)
+Anova(est_anova)
+
+#Tukey
+est_Tukey <- TukeyHSD(est_anova)
+plot(est_Tukey)
+
+# El camino facil: Agricolae 
+
+summary(est_anova)
+
+rtout <- HSD.test(est_anova, trt = c("Temperature", "Soil"),
+                  alpha = 0.05) #este es el codigo de tukey en la libreria agricolae, como es de dos filas en la C le pones cuales columnas y le pones el valor de significancia que es el 0.05
+
+```
+
+#### EJERCICIO
+
+Ahora les toca a ustedes cada quien va a elegir 1 variable y comparar los efectos de temperatura y tipo de suelo en ellas. Tienen que seguir el mismo proceso y al final me van a explicar porque si o no hay diferencia significatica entre los grupos. 
+
+```{r}
+#Homogeneidad de datos
+leveneTest(logTDP ~ Temperature*Soil, data = Comp_suelos) #mayor a 0.05
+
+#Balance
+Comp_suelos %>%
+  group_by(Temperature,Soil) %>%
+  summarise(n())
+
+#Interaccion
+TDP_anova <- aov(logTDP ~ Temperature*Soil, data = Comp_suelos)
+Anova(TDP_anova)
+
+#Tukey
+TDP_Tukey <- TukeyHSD(TDP_anova)
+plot(TDP_Tukey)
+
+# El camino facil: Agricolae 
+
+summary(TDP_anova)
+
+r <- HSD.test(TDP_anova, trt = c("Temperature", "Soil"),
+                  alpha = 0.05) #este es el codigo de tukey en la libreria agricolae, como es de dos filas en la C le pones cuales columnas y le pones el valor de significancia que es el 0.05
+
+```
 

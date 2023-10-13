@@ -11,7 +11,7 @@
 
 
 
-<title>ANOVA y Tukey HSD</title>
+<title>Regreciones y Correlaciones</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1746,7 +1746,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">ANOVA y Tukey HSD</h1>
+<h1 class="title toc-ignore">Regreciones y Correlaciones</h1>
 
 </div>
 
@@ -1775,199 +1775,187 @@ editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not
 run any R code chunks. Instead, the output of the chunk when it was last
 run in the editor is displayed.</p>
 <div id="introduccion" class="section level1">
-<h1>INTRODUCCION</h1>
-<p>A un nivel mayor de complejidad que las pruebas de T el ANOVA
-(Analysis of variance) es una formula estadistica que se utiliza para
-comparar varianzas entre las medias de diferencia (<em>mas de dos</em>)
-grupos.</p>
-<p>Existe el ANOVA de una via en la que solo se tiene una variable
-independiente ( con varios grupos) y se quiere ver la diferencia entre
-dichos grupos sobre una variable dependiente.</p>
-<p>El ANOVA de 2 vias añade otra variable independiente por lo que mide
-el efecto de dos variables independientes sobre una variable
-dependiente. Tambien existe la ANOVA de tres vias pero la complejidad en
-comparaciones y tratamientos crece bastate.</p>
+<h1>Introduccion</h1>
+<p>Para el ultimo tema del curso vamos a ver como calcular regresiones y
+hacer correlaciones lineales en RStudio. Muchas veces confundidas entre
+si las regresiones y las correlaciones son las tecnicas mas comunes para
+determinar si existe una relacion entre dos variables cuantitativas.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShjYXIpXG5cbmBgYCJ9 -->
-<pre class="r"><code>library(car)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuRWplcmNpY2lvIFJlQ28gPC0gcmVhZC5jc3YoXCJ+L1JTdHVkaW8vQ3Vyc29Jbm5vdmFrL01hdGVyaWFsZXMvZWplcmNpY2lvIHJlZ3Jlc2lvbiB5IGNvcnJlbGFjaW9uLmNzdlwiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>Ejercicio ReCo &lt;- read.csv(&quot;~/RStudio/CursoInnovak/Materiales/ejercicio regresion y correlacion.csv&quot;)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBjYXJEYXRhXG5cbkF0dGFjaGluZyBwYWNrYWdlOiDigJhjYXLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpwdXJycuKAmTpcblxuICAgIHNvbWVcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpkcGx5cuKAmTpcblxuICAgIHJlY29kZVxuIn0= -->
-<pre><code>Loading required package: carData
-
-Attaching package: ‘car’
-
-The following object is masked from ‘package:purrr’:
-
-    some
-
-The following object is masked from ‘package:dplyr’:
-
-    recode</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IHVuZXhwZWN0ZWQgc3ltYm9sIGVuIFwiRWplcmNpY2lvIFJlQ29cIlxuIn0= -->
+<pre><code>Error: unexpected symbol en &quot;Ejercicio ReCo&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="anova-de-una-via" class="section level1">
-<h1>ANOVA de una via</h1>
-<p>Es decir solo UN tratamiento independiente</p>
-</div>
-<div id="anova-con-r-base" class="section level1">
-<h1>ANOVA con R base</h1>
-<p>R base puede calcular ANOVA de dos maneras diferentes, una de ellas
-usando el codigo <em>anova()</em>. Sin embargo, esta funcion base
-calcula automaticamente una ANOVA tipo I la cual da por sentado que los
-datos son balanceados por lo que cuando no sea asi se debe de usar la
-funcion del paquete <em>car</em></p>
+<div id="correlacion" class="section level1">
+<h1>Correlacion</h1>
+<p>Por un lado, la correlacion o mas propiamente dicho <em>el
+coeficiente de correlacion</em> (hay varios metodos el mas comun es el
+de Pearson) <em>r</em> cuantifica la fuerza con la cual dos variables
+estan correlacionadas. Al ser un coeficiente <em>r</em> no tiene
+unidades y sus valores oscilan entre <span class="math inline">\(-1
+=&lt; r =&lt; 1\)</span>. Valores cercano a 1 o -1 indican una fuerte
+relacion entre ambas variables y valores cercanas a 0 una relacion
+debil.</p>
+<p>Las suposiciones para correr una correlacion de pearson son el nivel
+de las medidas que los pares esten relacionados, idealmente que no hayan
+outliers, y que la correlacion se vea linear</p>
+<p>El nivel de las medidas en el caso de pearson se refiere a que ambas
+variables deben de ser continuas. Si una o ambas variables son ordinales
+entonces se debe de llevar acavo otro tipo de correlacion como
+Spearman.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYW5vdmEobG0oc2hpZnR+dHJlYXRtZW50LCBkYXRhID0gUm9kaWxsYXMpKVxuXG5gYGAifQ== -->
-<pre class="r"><code>anova(lm(shift~treatment, data = Rodillas))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yLnRlc3QoRmx1am9zQyRDSDQuY29uYyxGbHVqb3NDJENPMi5jb25jKVxuXG5gYGAifQ== -->
+<pre class="r"><code>cor.test(FlujosC$CH4.conc,FlujosC$CO2.conc)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiQW5hbHlzaXMgb2YgVmFyaWFuY2UgVGFibGVcblxuUmVzcG9uc2U6IHNoaWZ0XG4gICAgICAgICAgRGYgU3VtIFNxIE1lYW4gU3EgRiB2YWx1ZSAgIFByKD5GKSAgIFxudHJlYXRtZW50ICAyIDcuMjI0NSAgMy42MTIyICA3LjI4OTQgMC4wMDQ0NzIgKipcblJlc2lkdWFscyAxOSA5LjQxNTMgIDAuNDk1NSAgICAgICAgICAgICAgICAgICAgXG4tLS1cblNpZ25pZi4gY29kZXM6ICAwIOKAmCoqKuKAmSAwLjAwMSDigJgqKuKAmSAwLjAxIOKAmCrigJkgMC4wNSDigJgu4oCZIDAuMSDigJgg4oCZIDFcbiJ9 -->
-<pre><code>Analysis of Variance Table
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBlYXJzb24ncyBwcm9kdWN0LW1vbWVudCBjb3JyZWxhdGlvblxuXG5kYXRhOiAgRmx1am9zQyRDSDQuY29uYyBhbmQgRmx1am9zQyRDTzIuY29uY1xudCA9IC0yOS44MDYsIGRmID0gMjgsIHAtdmFsdWUgPCAyLjJlLTE2XG5hbHRlcm5hdGl2ZSBoeXBvdGhlc2lzOiB0cnVlIGNvcnJlbGF0aW9uIGlzIG5vdCBlcXVhbCB0byAwXG45NSBwZXJjZW50IGNvbmZpZGVuY2UgaW50ZXJ2YWw6XG4gLTAuOTkyNzI5OSAtMC45Njc1NDU3XG5zYW1wbGUgZXN0aW1hdGVzOlxuICAgICAgIGNvciBcbi0wLjk4NDYwNDUgXG4ifQ== -->
+<pre><code>
+    Pearson&#39;s product-moment correlation
 
-Response: shift
-          Df Sum Sq Mean Sq F value   Pr(&gt;F)   
-treatment  2 7.2245  3.6122  7.2894 0.004472 **
-Residuals 19 9.4153  0.4955                    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</code></pre>
+data:  FlujosC$CH4.conc and FlujosC$CO2.conc
+t = -29.806, df = 28, p-value &lt; 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.9927299 -0.9675457
+sample estimates:
+       cor 
+-0.9846045 </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>La diferencia entre lm y aov es el tipo de modelo y mas que nada la
-presentacion de los datos. Si quieren sabedr mas al respecto pueden leer
-aqui:</p>
-<p>pegar liga</p>
-<p>sin embargo, para fines utiles siempre usar el aov() ya que por
-definicion significa analisis de varianza</p>
+<p>Es importante notar que en este caso tambien hay un p-value y para
+que esta correlacion sea significativa p&lt;0.05. Incluso aunque
+<em>r</em> sea bajo si p&lt;0.05 esta relacion es significativa</p>
 </div>
-<div id="anova-con-el-paquete-car" class="section level1">
-<h1>ANOVA con el paquete CAR</h1>
-<p>Este paquete esta enfocado a varios tipos de analisis estadisticos y
-su funcion de ANOVA tiene un argumento para lidiar con datos
-desbalanceados (Tipo II y III). Ademas que este paquete tambien cuenta
-con la funcion <em>levene</em> para checar igualdad de varianzas. *si no
-tienen correlacion o son desbalanceados usar el paquete tipo II pegar
-liga</p>
+<div id="regresion" class="section level1">
+<h1>Regresion</h1>
+<p>Una vez que sabemos si dos variables cuantitativas estan
+correlacionadas el siguiente paso es expresar esta relacion en la forma
+de una ecuacion. Usando esta ecuacion uno podria calcular una de las
+variables si se sabe la otra</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQW5vdmEocm9kX2Fub3ZhLCB0eXBlPTMpXG5cbmBgYCJ9 -->
-<pre class="r"><code>Anova(rod_anova, type=3)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiQW5vdmEgVGFibGUgKFR5cGUgSUlJIHRlc3RzKVxuXG5SZXNwb25zZTogc2hpZnRcbiAgICAgICAgICAgIFN1bSBTcSBEZiBGIHZhbHVlICAgUHIoPkYpICAgXG4oSW50ZXJjZXB0KSAwLjc2MjYgIDEgIDEuNTM4OSAwLjIyOTg3NyAgIFxudHJlYXRtZW50ICAgNy4yMjQ1ICAyICA3LjI4OTQgMC4wMDQ0NzIgKipcblJlc2lkdWFscyAgIDkuNDE1MyAxOSAgICAgICAgICAgICAgICAgICAgXG4tLS1cblNpZ25pZi4gY29kZXM6ICAwIOKAmCoqKuKAmSAwLjAwMSDigJgqKuKAmSAwLjAxIOKAmCrigJkgMC4wNSDigJgu4oCZIDAuMSDigJgg4oCZIDFcbiJ9 -->
-<pre><code>Anova Table (Type III tests)
-
-Response: shift
-            Sum Sq Df F value   Pr(&gt;F)   
-(Intercept) 0.7626  1  1.5389 0.229877   
-treatment   7.2245  2  7.2894 0.004472 **
-Residuals   9.4153 19                    
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>La diferencia principal entre el tipo II y tipo III es la interaccion
-de los grupos de las variables independientes. Por ejemplo es
-recomendable usar tipo II si no estan seguros si sus variables
-interactucan entre si osea que esten desbalanceados</p>
-<p><em>CONCLUSION</em> si p&lt;0.05 es diferente osea hay
-diferencias</p>
-</div>
-<div id="tukey-hsd" class="section level1">
-<h1>Tukey HSD</h1>
-<p>En el caso que una ANOVA nos muestre que existen diferencias
-significativas entre tratamientos, el paso siguiente es correr un test
-de Tukey HSD en el cual nos “desglosa” la ANOVA y nos dice cuales de los
-tratamientos son diferentes.</p>
-<p>Para esto solo hay un codigo el cual es <em>TukeyHSD()</em></p>
-<p>IMPORTANTE; el ANOVA te dice que si hay diferencias y el TUKEY te
-dice cuales son las diferencias.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-plot-begin eyJoZWlnaHQiOjMzOC42ODk3LCJ3aWR0aCI6NTQ4LCJzaXplX2JlaGF2aW9yIjowLCJjb25kaXRpb25zIjpbXX0= -->
-<p><img src="data:image/png;base64,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" /></p>
+<!-- rnb-plot-begin eyJoZWlnaHQiOjM0My42MzQxLCJ3aWR0aCI6NTU2LCJzaXplX2JlaGF2aW9yIjowLCJjb25kaXRpb25zIjpbXX0= -->
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAiQAAAFSCAMAAAD1vjQDAAAAclBMVEUAAAAAADoAAGYAOpAAZmYAZrY6AAA6ADo6AGY6Ojo6ZmY6kNtmAABmADpmAGZmOpBmZgBmkJBmtrZmtv+QOgCQOjqQZgCQ2/+2ZgC2/7a2/9u2///bkDrb25Db/7bb////tmb/trb/25D//7b//9v////G48WvAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAOm0lEQVR4nO2da2OjuBVAyaTObBtvt7uTNm7H3bhx+P9/sSCBjW3ERS+QxDkfktkECwXO6nERV1UNIFCtXQFIHyQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBkcCSVJARa0ni+/n5NQdfcpWkLQJNFiInSR5aD5qTZchIkmrsY2iyAPlIUhk+hybRyV8Sep3olCBJTXMSl3wkGR+TXH+LJ9FYWBL7+Mzth4Xfu1UKBDJqSeaUiiYxyFYSQ7NCrxOBXCWZGKCgSWgylWRyqkNzEhgXSQ7PH/Wpel3mvFMfn+hw0CQgDpK0jtT1eb9b5LxTHx+NrPU/pzkJhr0k5/0P9f307ecS5534vMmRy2/QJAz2kny96Y7muKokNw3F4N93Tcz4QWCHQ3dzrNqm5PPFa1AS8oYNW5WHfqh3YzpeC1O4DFw/X5or//S+zHnnFjW05GHZiTQdgkkynQI/FjXoYR67mGFz8nAQSJQnyd1vLmPY+04JS2bjIMnXm35Et+7A9a4seaYzaD3oe+xwiZN42WF73lmFGZ7j3Jxp8PAZSexwiZP4xVotz+t9jtszDXodJJmLezBtErFLWuQOjfZDbXMyb0zC6LbDJZi2Ew8+9k92jI94lrn85vUEM+4/o9sehzHJqZKakj4o23BUD3o8zhuHmY6sXs80cOluKml2M+iRTE94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" /></p>
 <!-- rnb-plot-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<div id="ejercicio" class="section level2">
-<h2>Ejercicio</h2>
-<p>Usando el dataframe de <em>Estanques</em> vamos a comparar la calidad
-del agua en los estanques entre tres regiones diferentes de Alaska. Para
-ello cada uno de ustedes seleccionar una de las variables y llevar a
-cabo un test ANOVA. No olviden tomar en cuenta los pasos:</p>
-<ul>
-<li>checar normalidad y de no estar estandarizado transformar</li>
-<li>checar si el set de datos esta balanceado (para elegir el tipo de
-ANOVA) <em>checar homogeneidad de varianza </em>Calcular ANOVA y si es
-significativa calcular Tukey HSD *Hacer un grafica del resultado
-Tukey</li>
-</ul>
+<p>En este caso el modelo linear da los valores de la interseccion en y
+la pendiente para nosotros escribir la ecuacion: y= mx + b</p>
+<p><strong>CO2= -2.10941x+215.72</strong></p>
+<p>En la ecuacion la pendiente nos senala que cada minuto el CO2
+disminuye <em>-2.1 ppm</em></p>
+<p>Asimismo, esta funcion nos da el valor de <strong>r2= 0.97</strong>
+(no confundir con r) que en este caso significa que el 97% de la
+variacion en CO2 es explicada por el tiempo. Esta ecuacion tambien
+cuenta con su nivel de significancia y en este caso es menor a
+p&lt;0.0001</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-plot-begin eyJoZWlnaHQiOjMzOC42ODk3LCJ3aWR0aCI6NTQ4LCJzaXplX2JlaGF2aW9yIjowLCJjb25kaXRpb25zIjpbXX0= -->
-<p><img src="data:image/png;base64,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" /></p>
-<!-- rnb-plot-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-</div>
-<div id="importante-saber-que" class="section level1">
-<h1>IMPORTANTE SABER QUE</h1>
-<p>Cuando hay datos con 0 los tomaria el programa como datos infinitos y
-al programa no le sirven esos datos por lo cual hay que ponerle un +1 a
-la columna que tiene esos datos y asi correra.</p>
-</div>
-<div id="anova-de-2-vias" class="section level1">
-<h1>ANOVA DE 2 VIAS</h1>
-<p>Aunque este tipo de analisis es sumamente util, muchas veces nuestros
-experimentos incluyen mas de una variable independiente que manipulamos.
-Para ello los datos se pueden comparar usando una ANOVA es de 2 o mas
-vias.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucnRvdXQgPC0gSFNELnRlc3QocnRtb2RlbCwgdHJ0ID0gYyhcIlRlbXBlcmF0dXJlXCIsIFwiU29pbFwiKSlcblxuYGBgIn0= -->
-<pre class="r"><code>rtout &lt;- HSD.test(rtmodel, trt = c(&quot;Temperature&quot;, &quot;Soil&quot;))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShsbShGbHVqb3NDJENINC5jb25jfkZsdWpvc0MkTWludXRlKSlcblxuYGBgIn0= -->
+<pre class="r"><code>summary(lm(FlujosC$CH4.conc~FlujosC$Minute))
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IG9iamV0byAncnRtb2RlbCcgbm8gZW5jb250cmFkb1xuIn0= -->
-<pre><code>Error: objeto &#39;rtmodel&#39; no encontrado</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="ejercicio-1" class="section level4">
-<h4>EJERCICIO</h4>
-<p>Ahora les toca a ustedes cada quien va a elegir 1 variable y comparar
-los efectos de temperatura y tipo de suelo en ellas. Tienen que seguir
-el mismo proceso y al final me van a explicar porque si o no hay
-diferencia significatica entre los grupos.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShURFBfYW5vdmEpXG5cbmBgYCJ9 -->
-<pre class="r"><code>summary(TDP_anova)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICAgICBEZiBTdW0gU3EgTWVhbiBTcSBGIHZhbHVlICAgUHIoPkYpICAgIFxuVGVtcGVyYXR1cmUgICAgICAgMSAwLjY1NzIgIDAuNjU3MiAxMDUuOTY4IDEuOTRlLTA5ICoqKlxuU29pbCAgICAgICAgICAgICAgMSAwLjAwMDcgIDAuMDAwNyAgIDAuMTE1IDAuNzM3Njg3ICAgIFxuVGVtcGVyYXR1cmU6U29pbCAgMSAwLjEwMTEgIDAuMTAxMSAgMTYuMjk2IDAuMDAwNjQ2ICoqKlxuUmVzaWR1YWxzICAgICAgICAyMCAwLjEyNDAgIDAuMDA2MiAgICAgICAgICAgICAgICAgICAgIFxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG4ifQ== -->
-<pre><code>                 Df Sum Sq Mean Sq F value   Pr(&gt;F)    
-Temperature       1 0.6572  0.6572 105.968 1.94e-09 ***
-Soil              1 0.0007  0.0007   0.115 0.737687    
-Temperature:Soil  1 0.1011  0.1011  16.296 0.000646 ***
-Residuals        20 0.1240  0.0062                     
+<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IEZsdWpvc0MkQ0g0LmNvbmMgfiBGbHVqb3NDJE1pbnV0ZSlcblxuUmVzaWR1YWxzOlxuICAgICBNaW4gICAgICAgMVEgICBNZWRpYW4gICAgICAgM1EgICAgICBNYXggXG4tMC4zMjEzOSAtMC4wOTY3OSAtMC4wMDEyMCAgMC4wODY1MCAgMC4yODMwMiBcblxuQ29lZmZpY2llbnRzOlxuICAgICAgICAgICAgICAgIEVzdGltYXRlIFN0ZC4gRXJyb3IgdCB2YWx1ZSBQcig+fHR8KSAgICBcbihJbnRlcmNlcHQpICAgIDEyLjI5MjM4MCAgIDAuMDU4Mjg4ICAgMjEwLjkgICA8MmUtMTYgKioqXG5GbHVqb3NDJE1pbnV0ZSAgMC40MTM2NzkgICAwLjAwMzExNyAgIDEzMi43ICAgPDJlLTE2ICoqKlxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG5cblJlc2lkdWFsIHN0YW5kYXJkIGVycm9yOiAwLjE1IG9uIDMxIGRlZ3JlZXMgb2YgZnJlZWRvbVxuTXVsdGlwbGUgUi1zcXVhcmVkOiAgMC45OTgyLFx0QWRqdXN0ZWQgUi1zcXVhcmVkOiAgMC45OTgyIFxuRi1zdGF0aXN0aWM6IDEuNzYyZSswNCBvbiAxIGFuZCAzMSBERiwgIHAtdmFsdWU6IDwgMi4yZS0xNlxuIn0= -->
+<pre><code>
+Call:
+lm(formula = FlujosC$CH4.conc ~ FlujosC$Minute)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.32139 -0.09679 -0.00120  0.08650  0.28302 
+
+Coefficients:
+                Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    12.292380   0.058288   210.9   &lt;2e-16 ***
+FlujosC$Minute  0.413679   0.003117   132.7   &lt;2e-16 ***
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</code></pre>
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.15 on 31 degrees of freedom
+Multiple R-squared:  0.9982,    Adjusted R-squared:  0.9982 
+F-statistic: 1.762e+04 on 1 and 31 DF,  p-value: &lt; 2.2e-16</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>##porque en este caso no corrimos este:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShsbShGbHVqb3NDJENINC5jb25jfkZsdWpvc0MkQ08yLmNvbmMpKVxuXG5gYGAifQ== -->
+<pre class="r"><code>summary(lm(FlujosC$CH4.conc~FlujosC$CO2.conc))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IEZsdWpvc0MkQ0g0LmNvbmMgfiBGbHVqb3NDJENPMi5jb25jKVxuXG5SZXNpZHVhbHM6XG4gICAgIE1pbiAgICAgICAxUSAgIE1lZGlhbiAgICAgICAzUSAgICAgIE1heCBcbi0xLjIxMDE0IC0wLjM2NjU3ICAwLjA1NzMyICAwLjQxNDYwICAwLjk0MjM1IFxuXG5Db2VmZmljaWVudHM6XG4gICAgICAgICAgICAgICAgICBFc3RpbWF0ZSBTdGQuIEVycm9yIHQgdmFsdWUgUHIoPnx0fCkgICAgXG4oSW50ZXJjZXB0KSAgICAgIDUzLjQzMTM3NCAgIDEuMTM0MzEzICAgNDcuMTAgICA8MmUtMTYgKioqXG5GbHVqb3NDJENPMi5jb25jIC0wLjE4OTUwMSAgIDAuMDA2MzU4ICAtMjkuODEgICA8MmUtMTYgKioqXG4tLS1cblNpZ25pZi4gY29kZXM6ICAwIOKAmCoqKuKAmSAwLjAwMSDigJgqKuKAmSAwLjAxIOKAmCrigJkgMC4wNSDigJgu4oCZIDAuMSDigJgg4oCZIDFcblxuUmVzaWR1YWwgc3RhbmRhcmQgZXJyb3I6IDAuNTY3OSBvbiAyOCBkZWdyZWVzIG9mIGZyZWVkb21cbiAgKDMgb2JzZXJ2YXRpb25zIGRlbGV0ZWQgZHVlIHRvIG1pc3NpbmduZXNzKVxuTXVsdGlwbGUgUi1zcXVhcmVkOiAgMC45Njk0LFx0QWRqdXN0ZWQgUi1zcXVhcmVkOiAgMC45Njg0IFxuRi1zdGF0aXN0aWM6IDg4OC40IG9uIDEgYW5kIDI4IERGLCAgcC12YWx1ZTogPCAyLjJlLTE2XG4ifQ== -->
+<pre><code>
+Call:
+lm(formula = FlujosC$CH4.conc ~ FlujosC$CO2.conc)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.21014 -0.36657  0.05732  0.41460  0.94235 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      53.431374   1.134313   47.10   &lt;2e-16 ***
+FlujosC$CO2.conc -0.189501   0.006358  -29.81   &lt;2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.5679 on 28 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.9694,    Adjusted R-squared:  0.9684 
+F-statistic: 888.4 on 1 and 28 DF,  p-value: &lt; 2.2e-16</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>si bien el codigo corre de igual menera en este caso ambas son
+varialbes dependientes por lo que fueron variablews que medimos. Al
+haberlas medido no seria tan util predecir una usando la otra ya que
+tendriamos que de iugal manera medir una de ellas.</p>
+</div>
+<div id="ejercicio" class="section level1">
+<h1>Ejercicio</h1>
+<p>Busquen o creen un set de datos en el que se pueda analizar una
+correlacion y regresion lineal. Justifiquen su respuesta</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShsbShkYXRvcyR0aWVtcG9+ZGF0b3MkdnVlbHRhcykpXG5cbmBgYCJ9 -->
+<pre class="r"><code>summary(lm(datos$tiempo~datos$vueltas))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IGRhdG9zJHRpZW1wbyB+IGRhdG9zJHZ1ZWx0YXMpXG5cblJlc2lkdWFsczpcbiAgIDEgICAgMiAgICAzICAgIDQgICAgNSBcbi0xLjQgIDAuNCAgMS4yICAyLjAgLTIuMiBcblxuQ29lZmZpY2llbnRzOlxuICAgICAgICAgICAgICBFc3RpbWF0ZSBTdGQuIEVycm9yIHQgdmFsdWUgUHIoPnx0fCkgIFxuKEludGVyY2VwdCkgICAgMTIuMjAwMCAgICAgMi4xMzIzICAgNS43MjIgICAwLjAxMDYgKlxuZGF0b3MkdnVlbHRhcyAgIDEuMDY2NyAgICAgMC4yMTQzICAgNC45NzcgICAwLjAxNTYgKlxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG5cblJlc2lkdWFsIHN0YW5kYXJkIGVycm9yOiAyLjAzMyBvbiAzIGRlZ3JlZXMgb2YgZnJlZWRvbVxuTXVsdGlwbGUgUi1zcXVhcmVkOiAgMC44OTIsXHRBZGp1c3RlZCBSLXNxdWFyZWQ6ICAwLjg1NiBcbkYtc3RhdGlzdGljOiAyNC43NyBvbiAxIGFuZCAzIERGLCAgcC12YWx1ZTogMC4wMTU1OFxuIn0= -->
+<pre><code>
+Call:
+lm(formula = datos$tiempo ~ datos$vueltas)
+
+Residuals:
+   1    2    3    4    5 
+-1.4  0.4  1.2  2.0 -2.2 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)    12.2000     2.1323   5.722   0.0106 *
+datos$vueltas   1.0667     0.2143   4.977   0.0156 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.033 on 3 degrees of freedom
+Multiple R-squared:  0.892, Adjusted R-squared:  0.856 
+F-statistic: 24.77 on 1 and 3 DF,  p-value: 0.01558</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
-</div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkFOT1ZBIHkgVHVrZXkgSFNEIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gDQoNClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKlJ1biogYnV0dG9uIHdpdGhpbiB0aGUgY2h1bmsgb3IgYnkgcGxhY2luZyB5b3VyIGN1cnNvciBpbnNpZGUgaXQgYW5kIHByZXNzaW5nICpDdHJsK1NoaWZ0K0VudGVyKi4gDQoNCmBgYHtyfQ0KcGxvdChjYXJzKQ0KYGBgDQoNCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDdHJsK0FsdCtJKi4NCg0KV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDdHJsK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuDQoNClRoZSBwcmV2aWV3IHNob3dzIHlvdSBhIHJlbmRlcmVkIEhUTUwgY29weSBvZiB0aGUgY29udGVudHMgb2YgdGhlIGVkaXRvci4gQ29uc2VxdWVudGx5LCB1bmxpa2UgKktuaXQqLCAqUHJldmlldyogZG9lcyBub3QgcnVuIGFueSBSIGNvZGUgY2h1bmtzLiBJbnN0ZWFkLCB0aGUgb3V0cHV0IG9mIHRoZSBjaHVuayB3aGVuIGl0IHdhcyBsYXN0IHJ1biBpbiB0aGUgZWRpdG9yIGlzIGRpc3BsYXllZC4NCg0KDQoNCiMgSU5UUk9EVUNDSU9ODQoNCkEgdW4gbml2ZWwgbWF5b3IgZGUgY29tcGxlamlkYWQgcXVlIGxhcyBwcnVlYmFzIGRlIFQgZWwgQU5PVkEgKEFuYWx5c2lzIG9mIHZhcmlhbmNlKSBlcyB1bmEgZm9ybXVsYSBlc3RhZGlzdGljYSBxdWUgc2UgdXRpbGl6YSBwYXJhIGNvbXBhcmFyIHZhcmlhbnphcyBlbnRyZSBsYXMgbWVkaWFzIGRlIGRpZmVyZW5jaWEgKF9tYXMgZGUgZG9zXykgZ3J1cG9zLg0KDQpFeGlzdGUgZWwgQU5PVkEgZGUgdW5hIHZpYSBlbiBsYSBxdWUgc29sbyBzZSB0aWVuZSB1bmEgdmFyaWFibGUgaW5kZXBlbmRpZW50ZSAoIGNvbiB2YXJpb3MgZ3J1cG9zKSB5IHNlIHF1aWVyZSB2ZXIgbGEgZGlmZXJlbmNpYSBlbnRyZSBkaWNob3MgZ3J1cG9zIHNvYnJlIHVuYSB2YXJpYWJsZSBkZXBlbmRpZW50ZS4gDQoNCkVsIEFOT1ZBIGRlIDIgdmlhcyBhw7FhZGUgb3RyYSB2YXJpYWJsZSBpbmRlcGVuZGllbnRlIHBvciBsbyBxdWUgbWlkZSBlbCBlZmVjdG8gZGUgZG9zIHZhcmlhYmxlcyBpbmRlcGVuZGllbnRlcyBzb2JyZSB1bmEgdmFyaWFibGUgZGVwZW5kaWVudGUuIFRhbWJpZW4gZXhpc3RlIGxhIEFOT1ZBIGRlIHRyZXMgdmlhcyBwZXJvIGxhIGNvbXBsZWppZGFkIGVuIGNvbXBhcmFjaW9uZXMgeSB0cmF0YW1pZW50b3MgY3JlY2UgYmFzdGF0ZS4gDQoNCmBgYHtyfQ0KIyBMaWJyYXJ5DQoNCmxpYnJhcnkoZHBseXIpDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoY2FyKQ0KbGlicmFyeShhZ3JpY29sYWUpDQoNCg0KIyBEQVRBDQoNClJvZGlsbGFzIDwtIHJlYWQuY3N2KCJ+L1JTdHVkaW8vQ3Vyc29Jbm5vdmFrL01hdGVyaWFsZXMvUm9kaWxsYXMuY3N2IikNCg0KRXN0YW5xdWVzIDwtIHJlYWQuY3N2KCJ+L1JTdHVkaW8vQ3Vyc29Jbm5vdmFrL01hdGVyaWFsZXMvQlJXLnBvbmRzLmNzdiIpDQoNCkNvbXBfc3VlbG9zIDwtIHJlYWQuY3N2KCJ+L1JTdHVkaW8vQ3Vyc29Jbm5vdmFrL01hdGVyaWFsZXMvU29pbF9Db21wYXJpc29uLmNzdiIpDQoNCmBgYA0KDQoNCiMgQU5PVkEgZGUgdW5hIHZpYQ0KDQpFcyBkZWNpciBzb2xvIFVOIHRyYXRhbWllbnRvIGluZGVwZW5kaWVudGUgDQoNCiMgQU5PVkEgY29uIFIgYmFzZQ0KDQpSIGJhc2UgcHVlZGUgY2FsY3VsYXIgQU5PVkEgZGUgZG9zIG1hbmVyYXMgZGlmZXJlbnRlcywgdW5hIGRlIGVsbGFzIHVzYW5kbyBlbCBjb2RpZ28gX2Fub3ZhKClfLiBTaW4gZW1iYXJnbywgZXN0YSBmdW5jaW9uIGJhc2UgY2FsY3VsYSBhdXRvbWF0aWNhbWVudGUgdW5hIEFOT1ZBIHRpcG8gSSBsYSBjdWFsIGRhIHBvciBzZW50YWRvIHF1ZSBsb3MgZGF0b3Mgc29uIGJhbGFuY2VhZG9zIHBvciBsbyBxdWUgY3VhbmRvIG5vIHNlYSBhc2kgc2UgZGViZSBkZSB1c2FyIGxhIGZ1bmNpb24gZGVsIHBhcXVldGUgX2Nhcl8NCg0KYGBge3J9DQoNCiMgdmFyaWFibGUgZGVwIH4gdmFyaWFibGUgaW5kZXAsIGRhdG9zDQpzdW1tYXJ5KGFvdihzaGlmdH50cmVhdG1lbnQsIGRhdGEgPSBSb2RpbGxhcykpICNhb3YgZXMgYW5vdmENCg0KYW5vdmEobG0oc2hpZnR+dHJlYXRtZW50LCBkYXRhID0gUm9kaWxsYXMpKSAjbG0gcXVpZXJlIGRlY2lyIG1vZGVsbyBsaW5lYWwsIGVzIGVsIHJlY29tZW5kYWJsZSBwYXJhIHVzYXIuIHB1ZWRlcyBjYW1iaWFyIGVsIGxtIHBvciBhb3YgeWEgcXVlIGVzIGxvIG1pc21vIHBlcm8gcHVlZGVuIGxsZWdhciBhIHRlbmVyIGRpZmVybmVjaWFzIHBvciBsbyBxdWUgbWVqb3IgdXNhciBlbCBsbS4NCmBgYA0KTGEgZGlmZXJlbmNpYSBlbnRyZSBsbSB5IGFvdiBlcyBlbCB0aXBvIGRlIG1vZGVsbyB5IG1hcyBxdWUgbmFkYSBsYSBwcmVzZW50YWNpb24gZGUgbG9zIGRhdG9zLiBTaSBxdWllcmVuIHNhYmVkciBtYXMgYWwgcmVzcGVjdG8gcHVlZGVuIGxlZXIgYXF1aTogDQoNCnBlZ2FyIGxpZ2EgDQoNCnNpbiBlbWJhcmdvLCBwYXJhIGZpbmVzIHV0aWxlcyBzaWVtcHJlIHVzYXIgZWwgYW92KCkgeWEgcXVlIHBvciBkZWZpbmljaW9uIHNpZ25pZmljYSBhbmFsaXNpcyBkZSB2YXJpYW56YSANCg0KIyBBTk9WQSBjb24gZWwgcGFxdWV0ZSBDQVINCg0KRXN0ZSBwYXF1ZXRlIGVzdGEgZW5mb2NhZG8gYSB2YXJpb3MgdGlwb3MgZGUgYW5hbGlzaXMgZXN0YWRpc3RpY29zIHkgc3UgZnVuY2lvbiBkZSBBTk9WQSB0aWVuZSB1biBhcmd1bWVudG8gcGFyYSBsaWRpYXIgY29uIGRhdG9zIGRlc2JhbGFuY2VhZG9zIChUaXBvIElJIHkgSUlJKS4gQWRlbWFzIHF1ZSBlc3RlIHBhcXVldGUgdGFtYmllbiBjdWVudGEgY29uIGxhIGZ1bmNpb24gX2xldmVuZV8gcGFyYSBjaGVjYXIgaWd1YWxkYWQgZGUgdmFyaWFuemFzLiANCipzaSBubyB0aWVuZW4gY29ycmVsYWNpb24gbyBzb24gZGVzYmFsYW5jZWFkb3MgdXNhciBlbCBwYXF1ZXRlIHRpcG8gSUkNCnBlZ2FyIGxpZ2ENCg0KYGBge3J9DQojIFJldmlzYXIgcG9yIGhvbW9nZW5laWRhZCBkZSB2YXJpYW56YXMgDQoNCmxldmVuZVRlc3Qoc2hpZnR+dHJlYXRtZW50LCBkYXRhID0gUm9kaWxsYXMpICMgbWF5b3IgYSAwLjA1LCBubyB1dGlsaXphciBsZXZlbmUudGVzdCBwb3JxdWUgbm8gc2lydmUgDQoNCnBsb3Qocm9kX2Fub3ZhLDEpICMgSW50ZXJwcmV0YWNpb246IGxvcyByZXNpZHVhbHMgdGllbmVuIHF1ZSBlc3RhciBkaXN0cmlidWlkb3MgZGUgbWFuZXJhIGFsZWF0b3JpYSB5IHRpZW5lbiB2YXJpYW56YSBjb25zdGFudGUuIEVzdGUgY2FzaSBubyBsbyB2YW1vcyBhIG9jdXBhci4gU29sbyBzZSBvY3VwYXJpYSBzaSBlbCBsZXZlbmUgbm8gcGFzYS4NCg0KIyMgQU5PVkENCg0Kcm9kX2Fub3ZhIDwtIGFvdihzaGlmdH50cmVhdG1lbnQsIGRhdGEgPSBSb2RpbGxhcykgIyBzZSBwdWVkZSB1c2FyIGxtIG8gYW92IHBlcm8gbWVqb3IgYW92DQoNCkFub3ZhKHJvZF9hbm92YSkgIyBmaWphcnNlIHF1ZSB2YSBjb24gbWF5dXNjdWxhIA0KDQojYXV0b21hdGljYW1lbnRlIGRhIGVsIHRpcG8gSUkNCg0KIyMgQU5PVkEgdGlwbyBJSUkNCkFub3ZhKHJvZF9hbm92YSwgdHlwZT0zKSAjIGVzZ2Ugbm8gZXMgZWwgY29ycmVjdG8gZGUgY29ycmVyIHBhcmEgZXN0ZSBzZXQgZGUgZGF0b3MgDQoNCmBgYA0KTGEgZGlmZXJlbmNpYSBwcmluY2lwYWwgZW50cmUgZWwgdGlwbyBJSSB5IHRpcG8gSUlJIGVzIGxhIGludGVyYWNjaW9uIGRlIGxvcyBncnVwb3MgZGUgbGFzIHZhcmlhYmxlcyBpbmRlcGVuZGllbnRlcy4gUG9yIGVqZW1wbG8gZXMgcmVjb21lbmRhYmxlIHVzYXIgdGlwbyBJSSBzaSBubyBlc3RhbiBzZWd1cm9zIHNpIHN1cyB2YXJpYWJsZXMgaW50ZXJhY3R1Y2FuIGVudHJlIHNpIG9zZWEgcXVlIGVzdGVuIGRlc2JhbGFuY2VhZG9zIA0KDQpfQ09OQ0xVU0lPTl8gc2kgcDwwLjA1IGVzIGRpZmVyZW50ZSBvc2VhIGhheSBkaWZlcmVuY2lhcw0KDQojIFR1a2V5IEhTRA0KDQpFbiBlbCBjYXNvIHF1ZSB1bmEgQU5PVkEgbm9zIG11ZXN0cmUgcXVlIGV4aXN0ZW4gZGlmZXJlbmNpYXMgc2lnbmlmaWNhdGl2YXMgZW50cmUgdHJhdGFtaWVudG9zLCBlbCBwYXNvIHNpZ3VpZW50ZSBlcyBjb3JyZXIgdW4gdGVzdCBkZSBUdWtleSBIU0QgZW4gZWwgY3VhbCBub3MgImRlc2dsb3NhIiBsYSBBTk9WQSB5IG5vcyBkaWNlIGN1YWxlcyBkZSBsb3MgdHJhdGFtaWVudG9zIHNvbiBkaWZlcmVudGVzLiANCg0KUGFyYSBlc3RvIHNvbG8gaGF5IHVuIGNvZGlnbyBlbCBjdWFsIGVzIF9UdWtleUhTRCgpXw0KDQpJTVBPUlRBTlRFOyBlbCBBTk9WQSB0ZSBkaWNlIHF1ZSBzaSBoYXkgZGlmZXJlbmNpYXMgeSBlbCBUVUtFWSB0ZSBkaWNlIGN1YWxlcyBzb24gbGFzIGRpZmVyZW5jaWFzLiANCg0KYGBge3J9DQpUdWtleUhTRChyb2RfYW5vdmEpICMgbG9zIHF1ZSBzb24gZGlmZXJlbnRlcyBzb24gbG9zIHF1ZSBzb24gbWVub3JlcyBhIDAuMDUgZW4gZXN0ZSBjYXNvIGxvcyBkaWZlcmVudGVzIHNvbiBsb3Mgb2pvcy1jb250cm9sIHkgcm9kaWxsYS1vam9zID0gcDwwLjA1DQoNClR1a2V5SFNEKGFvdihzaGlmdH50cmVhdG1lbnQsIGRhdGEgPSBSb2RpbGxhcykpDQpwbG90KFR1a2V5SFNEKHJvZF9hbm92YSkpICMgc2kgZWwgaW50ZXJ2YWxvIGRlIG9jbmZpYW56YSBubyBzZSBzdXBlcnBvbmUgY29uIGxhIGRpZmVyZW5jaWEgbWVkaWEgbm8gc29uIHNpZ25pZmljYXRpdm9zDQoNCiMjIyBlbiBsYSBncmFmaWNhIHZlbW9zIHF1ZSBubyBzZSBzdXBvZXJwb25lbiBlbiBsYSBtZWRpYSBsb3Mgb2pvcy1jb250b2wgeSBvam9zIHJvZGlsbGFzIHBvciBvIGN1YWwgc29uIHNpZ25pZmljYXRpdmFzIGVzbyBxdWllcmUgZGVjaXIgcXVlIHNvbiBkaWZlcmVudGVzIG9zZWEgcXVlIGhheSBkaWZlcmVuY2lhIHNpZ25pZmljYXRpdmEgDQoNCg0KYGBgDQoNCiMjIEVqZXJjaWNpbyANCg0KVXNhbmRvIGVsIGRhdGFmcmFtZSBkZSBfRXN0YW5xdWVzXyB2YW1vcyBhIGNvbXBhcmFyIGxhIGNhbGlkYWQgZGVsIGFndWEgZW4gbG9zIGVzdGFucXVlcyBlbnRyZSB0cmVzIHJlZ2lvbmVzIGRpZmVyZW50ZXMgZGUgQWxhc2thLiBQYXJhIGVsbG8gY2FkYSB1bm8gZGUgdXN0ZWRlcyBzZWxlY2Npb25hciB1bmEgZGUgbGFzIHZhcmlhYmxlcyB5IGxsZXZhciBhIGNhYm8gdW4gdGVzdCBBTk9WQS4gTm8gb2x2aWRlbiB0b21hciBlbiBjdWVudGEgbG9zIHBhc29zOiANCg0KKiBjaGVjYXIgbm9ybWFsaWRhZCB5IGRlIG5vIGVzdGFyIGVzdGFuZGFyaXphZG8gIHRyYW5zZm9ybWFyDQoqIGNoZWNhciBzaSBlbCBzZXQgZGUgZGF0b3MgZXN0YSBiYWxhbmNlYWRvIChwYXJhIGVsZWdpciBlbCB0aXBvIGRlIEFOT1ZBKQ0KKmNoZWNhciBob21vZ2VuZWlkYWQgZGUgdmFyaWFuemEgDQoqQ2FsY3VsYXIgQU5PVkEgeSBzaSBlcyBzaWduaWZpY2F0aXZhIGNhbGN1bGFyIFR1a2V5IEhTRCANCipIYWNlciB1biBncmFmaWNhIGRlbCByZXN1bHRhZG8gVHVrZXkNCg0KYGBge3J9DQoNCiMgTk9STUFMSURBRCANCnNoYXBpcm8udGVzdChFc3RhbnF1ZXMkVFApDQoNCnBhcihtZnJvdz1jKDEsMikpDQpoaXN0KEVzdGFucXVlcyRUUCkNCnFxbm9ybShFc3RhbnF1ZXMkVFApDQoNCiMgVFJBTlNGT1JNQURPDQpwYXIobmZyb3c9YygxLDIpKQ0KaGlzdChsb2coRXN0YW5xdWVzJFRQKSkNCnFxbm9ybShsb2coRXN0YW5xdWVzJFRQKSkNCnNoYXBpcm8udGVzdChsb2coRXN0YW5xdWVzJFRQKSkNCg0KDQojIEJBTEFOQ0U7IA0KRXN0YW5xdWVzICU+JQ0KICBncm91cF9ieShSZWdpb24pICU+JQ0KICBzdW1tYXJpc2UobigpKSAjYXNpIGVzIGVsIGNvZGlnbyANCg0KIyBIT01PR0VORUlEQUQNCmxldmVuZVRlc3QobG9nKFRQKX5SZWdpb24sIGRhdGEgPSBFc3RhbnF1ZXMpICMgbWF5b3IgYSAwLjA1LCB1bmEgdmV6IHF1ZSB0cmFuc2Zvcm1lIGVuIHNoYXBpcm8gc2UgdGllbmUgcXVlIHV0aWxpemFyIGVsIGxvZyBlbiBob21vZ2VuZWlkYWQgDQoNCg0KIyMgQU5PVkENCmVzdGFucXVlX2Fub3ZhIDwtIGFvdihsb2coVFApflJlZ2lvbiwgZGF0YSA9IEVzdGFucXVlcykgDQoNCkFub3ZhKGVzdGFucXVlX2Fub3ZhKSANCg0KI0NPTkNMVVNJT046IHA8MC4wNSBwb3IgbG8gcXVlIGhheSBkaWZlcmVuY2lhIHNpZ25pZmljYXRpdmEgZW4gbG9zIGRhdG9zIA0KDQoNCiNUVUtFWQ0KVHVrZXlIU0QoZXN0YW5xdWVfYW5vdmEpICMgbG9zIHF1ZSBzb24gZGlmZXJlbnRlcyBzb24gbG9zIHF1ZSBzb24gbWVub3JlcyBhIDAuMDUgZW4gZXN0ZSBjYXNvIGxvcyBkaWZlcmVudGVzIHNvbiBsb3MgQlJXLUJFTyBZIElCUC1CUlcgPSBwPDAuMDUNCg0KcGxvdChUdWtleUhTRChlc3RhbnF1ZV9hbm92YSkpICMgc2kgZWwgaW50ZXJ2YWxvIGRlIG9jbmZpYW56YSBubyBzZSBzdXBlcnBvbmUgY29uIGxhIGRpZmVyZW5jaWEgbWVkaWEgbm8gc29uIHNpZ25pZmljYXRpdm9zDQoNCiMjIyBlbiBsYSBncmFmaWNhIHZlbW9zIHF1ZSBubyBzZSBzdXBvZXJwb25lbiBlbiBsYSBtZWRpYSBsb3MgQlJXLUJFTyB5IElCUC1CUlcgcG9yIExvIGN1YWwgc29uIHNpZ25pZmljYXRpdmFzIGVzbyBxdWllcmUgZGVjaXIgcXVlIHNvbiBkaWZlcmVudGVzIG9zZWEgcXVlIGhheSBkaWZlcmVuY2lhIHNpZ25pZmljYXRpdmEgDQoNCg0KYGBgDQojIElNUE9SVEFOVEUgU0FCRVIgUVVFIA0KQ3VhbmRvIGhheSBkYXRvcyBjb24gMCBsb3MgdG9tYXJpYSBlbCBwcm9ncmFtYSBjb21vIGRhdG9zIGluZmluaXRvcyB5IGFsIHByb2dyYW1hIG5vIGxlIHNpcnZlbiBlc29zIGRhdG9zIHBvciBsbyBjdWFsIGhheSBxdWUgcG9uZXJsZSB1biArMSBhIGxhIGNvbHVtbmEgcXVlIHRpZW5lIGVzb3MgZGF0b3MgeSBhc2kgY29ycmVyYS4gDQoNCg0KIyBBTk9WQSBERSAyIFZJQVMgDQoNCkF1bnF1ZSBlc3RlIHRpcG8gZGUgYW5hbGlzaXMgZXMgc3VtYW1lbnRlIHV0aWwsIG11Y2hhcyB2ZWNlcyBudWVzdHJvcyBleHBlcmltZW50b3MgaW5jbHV5ZW4gbWFzIGRlIHVuYSB2YXJpYWJsZSBpbmRlcGVuZGllbnRlIHF1ZSBtYW5pcHVsYW1vcy4gUGFyYSBlbGxvIGxvcyBkYXRvcyBzZSBwdWVkZW4gY29tcGFyYXIgdXNhbmRvIHVuYSBBTk9WQSBlcyBkZSAyIG8gbWFzIHZpYXMuIA0KDQpgYGB7cn0NCmxldmVuZVRlc3QobG9nTkgzflRlbXBlcmF0dXJlKlNvaWwsIGRhdGEgPSBDb21wX3N1ZWxvcykNCg0KI0JhbGFuY2VhZG8/DQpDb21wX3N1ZWxvcyAlPiUNCiAgZ3JvdXBfYnkoVGVtcGVyYXR1cmUsU29pbCkgJT4lDQogIHN1bW1hcmlzZShuKCkpDQoNCiMgZWplY3RvIGFkaXRpdm8NCg0KZXN0X2Fub3ZhIDwtIGFvdihsb2dOSDMgfiBUZW1wZXJhdHVyZStTb2lsLCBkYXRhID0gQ29tcF9zdWVsb3MpDQpBbm92YShlc3RfYW5vdmEpDQoNCiNJbnRlcnJhY2lvbiBlbnRyZSB2YXJpYWJsZXMgDQplc3RfYW5vdmEgPC0gYW92KGxvZ05IMyB+IFRlbXBlcmF0dXJlKlNvaWwsIGRhdGEgPSBDb21wX3N1ZWxvcykNCkFub3ZhKGVzdF9hbm92YSkNCg0KI1R1a2V5DQplc3RfVHVrZXkgPC0gVHVrZXlIU0QoZXN0X2Fub3ZhKQ0KcGxvdChlc3RfVHVrZXkpDQoNCiMgRWwgY2FtaW5vIGZhY2lsOiBBZ3JpY29sYWUgDQoNCnN1bW1hcnkoZXN0X2Fub3ZhKQ0KDQpydG91dCA8LSBIU0QudGVzdChlc3RfYW5vdmEsIHRydCA9IGMoIlRlbXBlcmF0dXJlIiwgIlNvaWwiKSwNCiAgICAgICAgICAgICAgICAgIGFscGhhID0gMC4wNSkgI2VzdGUgZXMgZWwgY29kaWdvIGRlIHR1a2V5IGVuIGxhIGxpYnJlcmlhIGFncmljb2xhZSwgY29tbyBlcyBkZSBkb3MgZmlsYXMgZW4gbGEgQyBsZSBwb25lcyBjdWFsZXMgY29sdW1uYXMgeSBsZSBwb25lcyBlbCB2YWxvciBkZSBzaWduaWZpY2FuY2lhIHF1ZSBlcyBlbCAwLjA1DQoNCmBgYA0KDQojIyMjIEVKRVJDSUNJTw0KDQpBaG9yYSBsZXMgdG9jYSBhIHVzdGVkZXMgY2FkYSBxdWllbiB2YSBhIGVsZWdpciAxIHZhcmlhYmxlIHkgY29tcGFyYXIgbG9zIGVmZWN0b3MgZGUgdGVtcGVyYXR1cmEgeSB0aXBvIGRlIHN1ZWxvIGVuIGVsbGFzLiBUaWVuZW4gcXVlIHNlZ3VpciBlbCBtaXNtbyBwcm9jZXNvIHkgYWwgZmluYWwgbWUgdmFuIGEgZXhwbGljYXIgcG9ycXVlIHNpIG8gbm8gaGF5IGRpZmVyZW5jaWEgc2lnbmlmaWNhdGljYSBlbnRyZSBsb3MgZ3J1cG9zLiANCg0KYGBge3J9DQojSG9tb2dlbmVpZGFkIGRlIGRhdG9zDQpsZXZlbmVUZXN0KGxvZ1REUCB+IFRlbXBlcmF0dXJlKlNvaWwsIGRhdGEgPSBDb21wX3N1ZWxvcykgI21heW9yIGEgMC4wNQ0KDQojQmFsYW5jZQ0KQ29tcF9zdWVsb3MgJT4lDQogIGdyb3VwX2J5KFRlbXBlcmF0dXJlLFNvaWwpICU+JQ0KICBzdW1tYXJpc2UobigpKQ0KDQojSW50ZXJhY2Npb24NClREUF9hbm92YSA8LSBhb3YobG9nVERQIH4gVGVtcGVyYXR1cmUqU29pbCwgZGF0YSA9IENvbXBfc3VlbG9zKQ0KQW5vdmEoVERQX2Fub3ZhKQ0KDQojVHVrZXkNClREUF9UdWtleSA8LSBUdWtleUhTRChURFBfYW5vdmEpDQpwbG90KFREUF9UdWtleSkNCg0KIyBFbCBjYW1pbm8gZmFjaWw6IEFncmljb2xhZSANCg0Kc3VtbWFyeShURFBfYW5vdmEpDQoNCnIgPC0gSFNELnRlc3QoVERQX2Fub3ZhLCB0cnQgPSBjKCJUZW1wZXJhdHVyZSIsICJTb2lsIiksDQogICAgICAgICAgICAgICAgICBhbHBoYSA9IDAuMDUpICNlc3RlIGVzIGVsIGNvZGlnbyBkZSB0dWtleSBlbiBsYSBsaWJyZXJpYSBhZ3JpY29sYWUsIGNvbW8gZXMgZGUgZG9zIGZpbGFzIGVuIGxhIEMgbGUgcG9uZXMgY3VhbGVzIGNvbHVtbmFzIHkgbGUgcG9uZXMgZWwgdmFsb3IgZGUgc2lnbmlmaWNhbmNpYSBxdWUgZXMgZWwgMC4wNQ0KDQpgYGANCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlJlZ3JlY2lvbmVzIHkgQ29ycmVsYWNpb25lcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rLiBXaGVuIHlvdSBleGVjdXRlIGNvZGUgd2l0aGluIHRoZSBub3RlYm9vaywgdGhlIHJlc3VsdHMgYXBwZWFyIGJlbmVhdGggdGhlIGNvZGUuIA0KDQpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ3RybCtTaGlmdCtFbnRlciouIA0KDQpgYGB7cn0NCnBsb3QoY2FycykNCmBgYA0KDQpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ3RybCtBbHQrSSouDQoNCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ3RybCtTaGlmdCtLKiB0byBwcmV2aWV3IHRoZSBIVE1MIGZpbGUpLg0KDQpUaGUgcHJldmlldyBzaG93cyB5b3UgYSByZW5kZXJlZCBIVE1MIGNvcHkgb2YgdGhlIGNvbnRlbnRzIG9mIHRoZSBlZGl0b3IuIENvbnNlcXVlbnRseSwgdW5saWtlICpLbml0KiwgKlByZXZpZXcqIGRvZXMgbm90IHJ1biBhbnkgUiBjb2RlIGNodW5rcy4gSW5zdGVhZCwgdGhlIG91dHB1dCBvZiB0aGUgY2h1bmsgd2hlbiBpdCB3YXMgbGFzdCBydW4gaW4gdGhlIGVkaXRvciBpcyBkaXNwbGF5ZWQuDQoNCg0KIyBJbnRyb2R1Y2Npb24NCg0KUGFyYSBlbCB1bHRpbW8gdGVtYSBkZWwgY3Vyc28gdmFtb3MgYSB2ZXIgY29tbyBjYWxjdWxhciByZWdyZXNpb25lcyB5IGhhY2VyIGNvcnJlbGFjaW9uZXMgbGluZWFsZXMgZW4gUlN0dWRpby4gTXVjaGFzIHZlY2VzIGNvbmZ1bmRpZGFzIGVudHJlIHNpIGxhcyByZWdyZXNpb25lcyB5IGxhcyBjb3JyZWxhY2lvbmVzIHNvbiBsYXMgdGVjbmljYXMgbWFzIGNvbXVuZXMgcGFyYSBkZXRlcm1pbmFyIHNpIGV4aXN0ZSB1bmEgcmVsYWNpb24gZW50cmUgZG9zIHZhcmlhYmxlcyBjdWFudGl0YXRpdmFzLg0KDQoNCmBgYHtyfQ0KI0RhdGENCkZsdWpvc0MgPC0gcmVhZC5jc3YoIn4vUlN0dWRpby9DdXJzb0lubm92YWsvTWF0ZXJpYWxlcy9mbHVqb3MuY3N2IikNCg0KYGBgDQoNCiMgQ29ycmVsYWNpb24gDQoNClBvciB1biBsYWRvLCBsYSAgY29ycmVsYWNpb24gbyBtYXMgcHJvcGlhbWVudGUgZGljaG8gX2VsIGNvZWZpY2llbnRlIGRlIGNvcnJlbGFjaW9uXyAoaGF5IHZhcmlvcyBtZXRvZG9zIGVsIG1hcyBjb211biBlcyBlbCBkZSBQZWFyc29uKSBfcl8gY3VhbnRpZmljYSBsYSBmdWVyemEgY29uIGxhIGN1YWwgZG9zIHZhcmlhYmxlcyBlc3RhbiBjb3JyZWxhY2lvbmFkYXMuIEFsIHNlciB1biBjb2VmaWNpZW50ZSBfcl8gbm8gdGllbmUgdW5pZGFkZXMgeSBzdXMgdmFsb3JlcyBvc2NpbGFuIGVudHJlICQtMSA9PCByID08IDEkLiBWYWxvcmVzIGNlcmNhbm8gYSAxIG8gLTEgaW5kaWNhbiB1bmEgZnVlcnRlIHJlbGFjaW9uIGVudHJlIGFtYmFzIHZhcmlhYmxlcyB5IHZhbG9yZXMgY2VyY2FuYXMgYSAwIHVuYSByZWxhY2lvbiBkZWJpbC4NCg0KTGFzIHN1cG9zaWNpb25lcyBwYXJhIGNvcnJlciB1bmEgY29ycmVsYWNpb24gZGUgcGVhcnNvbiBzb24gZWwgbml2ZWwgZGUgbGFzIG1lZGlkYXMgcXVlIGxvcyBwYXJlcyBlc3RlbiByZWxhY2lvbmFkb3MsIGlkZWFsbWVudGUgcXVlIG5vIGhheWFuIG91dGxpZXJzLCB5IHF1ZSBsYSBjb3JyZWxhY2lvbiBzZSB2ZWEgbGluZWFyDQoNCkVsIG5pdmVsIGRlIGxhcyBtZWRpZGFzIGVuIGVsIGNhc28gZGUgcGVhcnNvbiBzZSByZWZpZXJlIGEgcXVlIGFtYmFzIHZhcmlhYmxlcyBkZWJlbiBkZSBzZXIgY29udGludWFzLiBTaSB1bmEgbyBhbWJhcyB2YXJpYWJsZXMgc29uIG9yZGluYWxlcyBlbnRvbmNlcyBzZSBkZWJlIGRlIGxsZXZhciBhY2F2byBvdHJvIHRpcG8gZGUgY29ycmVsYWNpb24gY29tbyBTcGVhcm1hbi4NCg0KDQpgYGB7cn0NCg0KIyBSZXZpc2FyIHN1cG9zaWNpb25lcw0KcGxvdChGbHVqb3NDJENINC5jb25jLEZsdWpvc0MkQ08yLmNvbmMpDQoNCiMgU2FjYXIgY29ycmVsYWNpb24NCmNvci50ZXN0KEZsdWpvc0MkQ0g0LmNvbmMsRmx1am9zQyRDTzIuY29uYykNCmNvci50ZXN0KEZsdWpvc0MkQ0g0LmNvbmMsRmx1am9zQyRDTzIuY29uYywNCiAgICAgICAgIG1ldGhvZCA9ICJwZWFyc29uIikgI3RhbWJpZW4gc2UgcHVlZGUgcmV2aXNhciBhc2ksIGVuIGVsIG1ldG9kbyBwb2RlbW9zIHBvbmVyIHNpIHF1ZXJlbW9zIHBlYXJzb24gbyBzcGVhcm1hbi4NCg0KIyMjI0FMR08gSU1QT1JUQU5URSBFUyBRVUUgU0kgTk8gU0UgUEFSQSBRVUUgRVMgVU4gQ09ESUdPIEVOIExBIENPTlNPTEEgTEUgUE9OR08gU0lHTk8gREUgSU5URVJST0dBQ0lPTiBZIEVMIENPRElHTyBZIEVOIExBIENPTlNPTEEgREVSRUNIQSBJTkZFUklPUiBNRSBTQUxFIFBBUkEgUVVFIFNJUlZFIA0KYGBgDQoNCg0KRXMgaW1wb3J0YW50ZSBub3RhciBxdWUgZW4gZXN0ZSBjYXNvIHRhbWJpZW4gaGF5IHVuIHAtdmFsdWUgeSBwYXJhIHF1ZSBlc3RhIGNvcnJlbGFjaW9uIHNlYSBzaWduaWZpY2F0aXZhIHA8MC4wNS4gSW5jbHVzbyBhdW5xdWUgX3JfIHNlYSBiYWpvIHNpIHA8MC4wNSBlc3RhIHJlbGFjaW9uIGVzIHNpZ25pZmljYXRpdmENCg0KIyBSZWdyZXNpb24NCg0KVW5hIHZleiBxdWUgc2FiZW1vcyBzaSBkb3MgdmFyaWFibGVzIGN1YW50aXRhdGl2YXMgZXN0YW4gY29ycmVsYWNpb25hZGFzIGVsIHNpZ3VpZW50ZSBwYXNvIGVzIGV4cHJlc2FyIGVzdGEgcmVsYWNpb24gZW4gbGEgZm9ybWEgZGUgdW5hIGVjdWFjaW9uLiBVc2FuZG8gZXN0YSBlY3VhY2lvbiB1bm8gcG9kcmlhIGNhbGN1bGFyIHVuYSBkZSBsYXMgdmFyaWFibGVzIHNpIHNlIHNhYmUgbGEgb3RyYSANCg0KYGBge3J9DQojIGxtOiBtb2RlbG8gbGluZWFsIHl+eA0Kc3VtbWFyeShsbShGbHVqb3NDJENPMi5jb25jfkZsdWpvc0MkTWludXRlKSkgIyBhcXVpIGVzdG95IG1pZGllbmRvIHVuYSByZWdyZXNpb24gbGluZWFsIGRlIGxhIGxpYmVyYWNpb24gZGUgY28yIHBvciBtaW51dG8gDQoNCnBsb3QoRmx1am9zQyRNaW51dGUsRmx1am9zQyRDTzIuY29uYykgI3ggbWkgdmFyaWFibGUgeSB5IGxvIHF1ZSBjb2RpZmljbw0KYWJsaW5lKGxtKEZsdWpvc0MkQ08yLmNvbmN+Rmx1am9zQyRNaW51dGUpKSAjIGFxdWkgdGUgZGljZSBxdWUgbGUgYWdyZWd1ZSB1bmEgbGluZWEgbGluZWFsIGVuIGVsIGdyYWZpY28gDQoNCmBgYA0KDQpFbiBlc3RlIGNhc28gZWwgbW9kZWxvIGxpbmVhciBkYSBsb3MgdmFsb3JlcyBkZSBsYSBpbnRlcnNlY2Npb24gZW4geSBsYSBwZW5kaWVudGUgcGFyYSBub3NvdHJvcyBlc2NyaWJpciBsYSBlY3VhY2lvbjogeT0gbXggKyBiDQoNCiAgX19DTzI9IC0yLjEwOTQxeCsyMTUuNzJfXw0KDQpFbiBsYSBlY3VhY2lvbiBsYSBwZW5kaWVudGUgbm9zIHNlbmFsYSBxdWUgY2FkYSBtaW51dG8gZWwgQ08yIGRpc21pbnV5ZSBfLTIuMSBwcG1fDQoNCkFzaW1pc21vLCBlc3RhIGZ1bmNpb24gbm9zIGRhIGVsIHZhbG9yIGRlIF9fcjI9IDAuOTdfXyAobm8gY29uZnVuZGlyIGNvbiByKSBxdWUgZW4gZXN0ZSBjYXNvIHNpZ25pZmljYSBxdWUgZWwgOTclIGRlIGxhIHZhcmlhY2lvbiBlbiBDTzIgZXMgZXhwbGljYWRhIHBvciBlbCB0aWVtcG8uIEVzdGEgZWN1YWNpb24gdGFtYmllbiBjdWVudGEgY29uIHN1IG5pdmVsIGRlIHNpZ25pZmljYW5jaWEgeSBlbiBlc3RlIGNhc28gZXMgbWVub3IgYSBwPDAuMDAwMQ0KDQoNCmBgYHtyfQ0Kc3VtbWFyeShsbShGbHVqb3NDJENINC5jb25jfkZsdWpvc0MkTWludXRlKSkNCiMgQ0g0PSAwLjQxIG1pbnV0ZSArIDEyLjI5IG9zZWEgcXVlIGVzIGxhIGZvcm11bGEgeT0gbXggKyBiDQpgYGANCg0KIyNwb3JxdWUgZW4gZXN0ZSBjYXNvIG5vIGNvcnJpbW9zIGVzdGU6IA0KDQpgYGB7cn0NCnN1bW1hcnkobG0oRmx1am9zQyRDSDQuY29uY35GbHVqb3NDJENPMi5jb25jKSkNCmBgYA0Kc2kgYmllbiBlbCBjb2RpZ28gY29ycmUgZGUgaWd1YWwgbWVuZXJhIGVuIGVzdGUgY2FzbyBhbWJhcyBzb24gdmFyaWFsYmVzIGRlcGVuZGllbnRlcyBwb3IgbG8gcXVlIGZ1ZXJvbiB2YXJpYWJsZXdzIHF1ZSBtZWRpbW9zLiBBbCBoYWJlcmxhcyBtZWRpZG8gbm8gc2VyaWEgdGFuIHV0aWwgcHJlZGVjaXIgdW5hIHVzYW5kbyBsYSBvdHJhIHlhIHF1ZSB0ZW5kcmlhbW9zIHF1ZSBkZSBpdWdhbCBtYW5lcmEgbWVkaXIgdW5hIGRlIGVsbGFzLiANCg0KIyBFamVyY2ljaW8gDQoNCkJ1c3F1ZW4gbyBjcmVlbiB1biBzZXQgZGUgZGF0b3MgZW4gZWwgcXVlIHNlIHB1ZWRhIGFuYWxpemFyIHVuYSBjb3JyZWxhY2lvbiB5IHJlZ3Jlc2lvbiBsaW5lYWwuIEp1c3RpZmlxdWVuIHN1IHJlc3B1ZXN0YSANCg0KYGBge3J9DQpkYXRvcyA8LSBkYXRhLmZyYW1lKHZ1ZWx0YXM9IGMoMyw2LDksMTIsMTUpLCB0aWVtcG8gPSBjKDE0LDE5LDIzLDI3LDI2KSkNCg0KY29yLnRlc3QoZGF0b3MkdGllbXBvLGRhdG9zJHZ1ZWx0YXMpDQoNCnN1bW1hcnkobG0oZGF0b3MkdGllbXBvfmRhdG9zJHZ1ZWx0YXMpKQ0KDQojICB5ID0gbXggKyBiDQojIFRpZW1wbyA9IDEuMDYgKHZ1ZWx0YXMpICsgMTIuMg0KDQpgYGANCg0KDQoNCg==</div>
 
 
 
@@ -2014,7 +2002,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("ANOVA y Tukey HSD.Rmd");
+  window.initializeSourceEmbed("Regresion y Correlacion.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>
