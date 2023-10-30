@@ -232,6 +232,6 @@ hist(log(Plantas$Roots))
 qqnorm(log(Plantas$Roots))
 
 ```
-### Usando variables con ceros
+
 
 

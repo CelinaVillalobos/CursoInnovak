@@ -1,9 +1,11 @@
 ---
-title: "Proyecto1 Rstudio"
+title: "Proyecto Rstudio"
 author: "Celina Villalobos"
 date: "2023-10-17"
-output: html_document
-   
+output:
+  pdf_document: default
+  html_document: default
+    
 ---
 
 
@@ -12,7 +14,7 @@ output: html_document
 ```{r}
 #DATA: 
 
- Estanque_plantas <- read.csv("~/RStudio/CursoInnovak/Materiales/Estanque_plantas.csv") 
+Estanque_plantas <- read.csv("~/RStudio/CursoInnovak/Materiales/Estanque_plantas.csv") 
 Set_datos <- read.csv("~/RStudio/CursoInnovak/Proyecto_1_RMarkdown/Set de datos proyecto.csv")
 
 #Librerias
@@ -22,6 +24,10 @@ library(tidyr)
 library(tidyverse)
 library(car)
 library(agricolae)
+library(devtools)
+
+devtools::install_github('yihui/tinytex')
+
 ```
 
 ## Ejercicio de correlacion
@@ -34,13 +40,17 @@ Usando los datos "modernos" de la tabla Estanques_Biomasa, determinar si existe 
 
 ```{r}
 #Seleccion de columnas a trabajar 
-Datos_filtrados <- Estanque_plantas[,c("Era","Artophila","Carex")] #Filtramos los datos que solo seran necesarios para realizar la correlación de los datos.
+Datos_filtrados <- Estanque_plantas[,c("Era","Artophila","Carex")] #Filtramos los datos que...
+#...solo seran necesarios para realizar la correlación.
 
 #Eliminacion de datos no necesarios
-Artophila <- Estanque_plantas[-c(20:26,56:62,80:87,27:36),] #Eliminamos los datos que no son necesarios y que nos estorban para proseguir con la correlación
+Artophila <- Estanque_plantas[-c(20:26,56:62,80:87,27:36),] #Eliminamos los datos que nos...
+#...estorban para proseguir con la correlación.
 
 #Correlacion de variables numericas 
-cor.test(Artophila$Artophila, Artophila$Carex) #Realizamos la correlación de la biomasa entre las dos especies de plantas acuaticas que se encuentran en estanques de Alaska.
+cor.test(Artophila$Artophila, Artophila$Carex) #Realizamos la correlación de la biomasa...
+#...entre las dos especies de plantas acuaticas que se encuentran en...
+#...estanques de Alaska.
 
 ```
 ### CONCLUSION: 
@@ -63,7 +73,11 @@ par(mfrow=c(1,2))
 hist(Set_datos$Long_Raiz)
 qqnorm(Set_datos$Long_Raiz)
 
-# Al obtener un valor de p-value menor a 0.05 lo que procede es transformar los datos, en este caso, utilizaremos la funcion log ya que el histograma nos da como resultado una grafica con sesgo a la derecha. 
+```
+   Al obtener un valor de p-value menor a 0.05 lo que procede es transformar los datos, en este caso, utilizaremos la funcion log ya que el histograma nos da como resultado una grafica con sesgo a la derecha. 
+
+
+```{r}
 
 shapiro.test(log(Set_datos$Long_Raiz))
 
@@ -71,18 +85,22 @@ par(mfrow=c(1,2))
 hist(log(Set_datos$Long_Raiz))
 qqnorm(log(Set_datos$Long_Raiz))
 
-# Al trasformar con funcion logaritmica nos damos cuenta de que si hay un arreglo en nuestros datos el cual es positivo pero no del todo bueno, ya que nuestro p-value es menor que nuestro nivel de significancia, por ende decidi hacer una modificación y transformar con la funcion de raiz cuadrada ya que esta tambien nos ayuda cuando tenemos un histograma con sesgo a la derecha. 
+```
+   Al trasformar con funcion logaritmica nos damos cuenta de que si hay un arreglo en nuestros datos el cual es positivo pero no del todo bueno, ya que nuestro p-value es menor que nuestro nivel de significancia, por ende, decidi hacer una modificación y transformar con la funcion de raiz cuadrada ya que esta tambien nos ayuda cuando tenemos un histograma con sesgo a la derecha.
 
+
+```{r}
 shapiro.test(sqrt(Set_datos$Long_Raiz))
 
 par(mfrow=c(1,2))
 hist(sqrt(Set_datos$Long_Raiz))
 qqnorm(sqrt(Set_datos$Long_Raiz))
 
-
-# Al utilizar la funcion raiz cuadrada podemos observar que tambien obtenemos un arreglo positivo, pero si comparamos el resultado de shapiro (p-value) y los histogramas en cada funcion, nos percatamos de que la mejor opción sería utilizar la función logaritmica para transformar nuestros datos. Sin pasar por alto que aún asi, nuestro p-value es menor al nivel de significancia por lo cual si bien sabemos que shapiro es una prueba muy exigente y se debería rechazar e intentar con pruebas no parametricas, pero como aun no revisamos ese tema en esta ocación no la rechazaremos y seguiremos adelante. 
-
 ```
+   Al utilizar la funcion raiz cuadrada podemos observar que tambien obtenemos un arreglo positivo, pero si comparamos el resultado de shapiro (p-value) y los histogramas en cada funcion (logaritmica y raiz cuadrada), nos percatamos de que la mejor opción sería utilizar la función logaritmica para transformar nuestros datos. 
+   Sin pasar por alto que, aún asi nuestro p-value es menor al nivel de significancia y sabiedo que shapiro es una prueba muy exigente y se debería rechazar e intentar con pruebas no parametricas, en esta ocasion como aun no revisamos ese tema no la rechazaremos y seguiremos adelante... 
+
+
 
 ```{r}
 
@@ -94,46 +112,63 @@ par(mfrow=c(1,2))
 hist(Set_datos$Peso_sem_gr)
 qqnorm(Set_datos$Peso_sem_gr)
 
-# Obtenemos como resultado que nuestro p-value es mayor al nivel de significancia que es 0.05 por lo cual, para esta variable, no sería necesario realizar una transformacion de datos ya que nuestros datos entrarian como datos normales, por lo tanto no tenemos evidencia para rechazar.
-
 ```
+   Obtenemos como resultado que nuestro p-value es mayor al nivel de significancia que es 0.05 por lo cual, para esta variable, no sería necesario realizar una transformacion de datos ya que nuestros datos entrarian como datos normales, por lo tanto, no tenemos evidencia para rechazar.
 
 
-Para continuar, una vez que contamos con nuestro set de datos, se debe revisar si el set de datos se encuentra **balanceado**.
+### Para continuar, una vez que contamos con nuestro set de datos, se debe revisar si este se encuentra *balanceado*.
 
 ```{r}
 # Balanceo 
 Set_datos %>%
   group_by(Tratamiento,Dia) %>%
-  summarise(n()) #tomando en cuenta las variables independientes, obtenemos como resultado que nuestro set se encuentra balanceado. 
+  summarise(n()) #tomando en cuenta las variables independientes, obtenemos como resultado...
+#...que nuestro set se encuentra balanceado. 
 
 ```
-
-Ahora, revisaremos la **homogeneidad** de varianza de nuestros datos 
+### Ahora, revisaremos la *homogeneidad* de varianza de nuestros datos 
 
 ```{r}
 
-leveneTest(log(Long_Raiz)~Tratamiento*Dia, data = Set_datos) # Nuestra prueba de levene para la variable transformada de longitud de raiz nos da como resultado un valor mayor a 0.05, por lo tanto, nos dice que no existe una diferencia significativa y que los datos de nuestra variable son estadisticamente iguales.
-
-
-leveneTest(Peso_sem_gr~Tratamiento*Dia, data = Set_datos) # Para la variable de peso de semillas en gr la cual no fue necesaria transformar, nos da como resultado un valor mayor a 0.05, por ende, nos dice que tampoco existe diferencia significativa entre sus datos.
-
+leveneTest(log(Long_Raiz)~Tratamiento*Dia, data = Set_datos) 
 ```
 
-Seguimos con el **ANOVA**...
+   Nuestra prueba de levene para la variable transformada de *longitud de raiz* nos da como resultado un valor mayor a 0.05, por lo tanto, nos dice que no existe una diferencia significativa y que los datos de nuestra variable son estadisticamente iguales.
+
+
+```{r}
+
+leveneTest(Peso_sem_gr~Tratamiento*Dia, data = Set_datos) 
+```
+   Para la variable de peso de semillas en gr la cual no fue necesaria transformar, nos da como resultado un valor mayor a 0.05, por ende, nos dice que tampoco existe diferencia significativa entre sus datos.
+
+
+
+
+### Seguimos con el *ANOVA*...
 
 
 ```{r}
 
 Long_anova <- aov(log(Long_Raiz)~Tratamiento*Dia, data = Set_datos)
-Anova(Long_anova) # Para la variable de longitud de raiz encontramos que hay diferencias entre los valores de tratamiento y de dia ya que los valores del p son menores al nivel de significancia el cual es 0.05, lo que nos interpreta que es poco probable que la H0 sea cierta.
+Anova(Long_anova) 
+```
 
+   Para la variable de longitud de raiz encontramos que hay diferencias entre los valores de tratamiento y de dia ya que los valores del p son menores al nivel de significancia el cual es 0.05, lo que nos interpreta que es poco probable que la H0 sea cierta.
+
+
+```{r}
 Peso_anova <- aov(Peso_sem_gr~Tratamiento*Dia, data = Set_datos)
-Anova(Peso_anova) # Mientras tanto, para la variable de peso de la semilla en gr encontramos que solo en el tratamiento hay diferencia ya que el p-value es menor al nivel de significancia, que de igual manera nos interpreta que es poco probable que la hipotesis nula sea verdadera. 
+Anova(Peso_anova) 
 
 ```
 
-Por ultimo, terminamos con la prueba de **Tukey**...
+Mientras tanto, para la variable de peso de la semilla en gr encontramos que solo en el tratamiento hay diferencia ya que el p-value es menor al nivel de significancia, que de igual manera nos interpreta que es poco probable que la hipotesis nula sea verdadera. 
+
+
+
+
+### Por ultimo, terminamos con la prueba de *Tukey*...
 
 ```{r}
 # Para la variable de longitud de raiz tenemos que: 
@@ -156,7 +191,6 @@ plot(Long_Tukey)
 ```{r}
 # Para la variable de peso de semilla tenemos que: 
 
-
 Peso_Tukey <- TukeyHSD(Peso_anova)
 plot(Peso_Tukey)
 
@@ -173,19 +207,25 @@ plot(Peso_Tukey)
 
 
 
+### for loop aplicado a nuestro proyecto...
 
-### qqplot y for loop aplicado a nuestro proyecto...
+En esta ocacion, aplicaremos un for loop en donde modificaremos en la variable de peso de semilla un cambio en la unidad de medida. Tenemos que nuestro peso se encuentra en gr pero en este caso vamos a realizar una modificacion y poner el peso en mg. 
 
 ```{r}
-
-# Modificación en peso de semilla, tenemos que nuestro peso se encuentra en gr, pero en este caso vamos a realizar una modificación y poner el peso en mg:
 
 for (i in 5 : nrow(Set_datos)) {
   Peso_mg <- Set_datos$Peso_sem_gr[i]*1000
   print(Peso_mg)
-} # si bien se transformo la unidad de peso para el peso de las semillas de gr a mg, pero como se puede observar en realidad la tabla no se modifico ya que estos resultados solo se imprimieron y no se guardaron ya que no creamos un objeto. 
+}
 ```
-![Imagen](gracias.jpg)
 
+
+   Si bien se transformo la unidad de peso de gr a mg, observamos que solo se puede observar y que en realidad la tabla no se modifico ya que estos resultados solo se imprimieron y no se guardaron ya que no creamos un objeto. 
+
+
+
+[Link para más información sobre funciones que puedes utilizar en RStudio](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
+![Imagen](gracias.jpg)
 
 

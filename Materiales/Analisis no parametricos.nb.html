@@ -11,7 +11,7 @@
 
 
 
-<title>Funciones, For loops, If else</title>
+<title>Analisis no parametricos</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1746,7 +1746,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Funciones, For loops, If else</h1>
+<h1 class="title toc-ignore">Analisis no parametricos</h1>
 
 </div>
 
@@ -1774,343 +1774,255 @@ press <em>Ctrl+Shift+K</em> to preview the HTML file).</p>
 editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not
 run any R code chunks. Instead, the output of the chunk when it was last
 run in the editor is displayed.</p>
-<p><em>INTRODUCCIÓN</em></p>
-<p>Para la clase de hoy vamos a ver comandos en RStudio que puede ayudar
-a automatizar nuestro codigo condensando pasos repetitivos en un solo
-comando (pero varias lineas de codigo)</p>
-<p>##Funciones</p>
-<p>Set de argumentos que se organizan juntos para realizar una tarea
-especifica.</p>
-<p>En realidad todos los comandos que hemos usado son la funciones que
-ya vienen incluidos en R pero RStudio tambien nos da la posibilidad de
-crear nuestras pripias funciones.</p>
-<p>###Componentes de una funcion</p>
-<p>*__Nombre de la funcion:__Nosotros se la damos *__Argumentos:__Los
-elementos necesarios para llevar a cabo la funcion. <em>input</em>
-*__Cuerpo de la función:__Define lo que va a hacer la funcion
-*__Respuesta:__El valor o resultado de la tarea asignada a una funcion
-<em>output</em></p>
+<div id="introduccion" class="section level1">
+<h1>Introduccion</h1>
+<p>Como vimos antes nuestros datos no van a poder ser analizados siempre
+por analisis parametricos ya sea porque no se pueden normalizar o porque
+la naturaleza de los datos no lo permite. Para ello vamos a aprender
+varios tests no parametricos. Recuerden que siempre es mejor tratar de
+hacer todo lo posible para usar test parametricos antes de recurrir a
+estos test ya que son mas restrictivos y no tan sensibles como los tests
+parametricos.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubm9tYnJlX2Z1bmNpb24gPC0gZnVuY3Rpb24oYXJndW1lbnRvcykgeyNlcyBsbyBxdWUgbmVjZXNpdGFzIHBhcmEgY2FsY3VsYXIgbGEgZnVuY2lvbiBcbnJlc3B1ZXN0YSA8LSBoYXpfYWxnbyAoYXJndW1lbnRvcykgI2NhbGN1bG9zIG8gbW9kaWZpY2FjaW9uZXMgcXVlIGhhcmFzIGNvbiBsb3MgYXJndW1lbnRvc1xucmV0dXJuKHJlc3B1ZXN0YSkgI2xvIHF1ZSBzZSB2YSBhIFwiaW1wcmltaXJcIn0gI3RvZG8gbG9xIHVlIGVzdGEgZW50cmUgY29yY2hldGVzIGVzIGxhIGZ1bmNpb25cblxuYGBgIn0= -->
-<pre class="r"><code>nombre_funcion &lt;- function(argumentos) {#es lo que necesitas para calcular la funcion 
-respuesta &lt;- haz_algo (argumentos) #calculos o modificaciones que haras con los argumentos
-return(respuesta) #lo que se va a &quot;imprimir&quot;} #todo loq ue esta entre corchetes es la funcion
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShyc3RhdGl4KVxuXG5gYGAifQ== -->
+<pre class="r"><code>library(rstatix)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Piensen en las funciones como una accion por lo general el nombre
-empieza con un verbo:</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FsY192b2xfZm9saWFyKGxvbmdpdHVkID0gNCxcbiAgICAgICAgICAgICAgICBhbmNobyA9IDIuNSxcbiAgICAgICAgICAgICAgICBhbHR1cmEgPSAzKVxuXG5gYGAifQ== -->
-<pre class="r"><code>calc_vol_foliar(longitud = 4,
-                ancho = 2.5,
-                altura = 3)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDMwXG4ifQ== -->
-<pre><code>[1] 30</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><em>EJERCICIO</em></p>
-<p>van a crear una funcion que calcule el area foliar de una especie de
-arboles unica en el mundo que tiene hojas triangulares; dato el area de
-un triangulo es base por altura entre 2 (Cr = A ^1.73).</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FsY3VsYXJfYXJlYV9mb2xpYXIoYmFzZSA9IDMsIGFsdHVyYSA9IDUpXG5cbmBgYCJ9 -->
-<pre class="r"><code>calcular_area_foliar(base = 3, altura = 5)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDcuNVxuIn0= -->
-<pre><code>[1] 7.5</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><em>FOR LOOPS</em></p>
-<p>Los For Loops se usan cuando hay un pedazo de codigo que necesitan
-repetir varias veces</p>
-<p>#Structura basica</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChudW1lcm9fZGVfY29zYSBpbiBsaXN0YV9kZV9jb3Nhcykge1xuICBhY2Npb24oY29zYSlcbn1cblxuYGBgIn0= -->
-<pre class="r"><code>for (numero_de_cosa in lista_de_cosas) {
-  accion(cosa)
-}
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>###Ejemplo simple para for loops</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyMgdW4gZm9yIGxvb3AgY29uIG11bHRpcGxlcyBwYXNvc1xuZm9yIChsb25naXQgaW4gbG9uZ2l0cykge1xuICBtYXNhIDwtIDIuNjUgKiBsb25naXQgXiAwLjlcbiAgbWFzYV9sYiA8LSBtYXNhICogMi4yXG4gIHByaW50KG1hc2FfbGIpXG59XG5cbmBgYCJ9 -->
-<pre class="r"><code>## un for loop con multiples pasos
-for (longit in longits) {
-  masa &lt;- 2.65 * longit ^ 0.9
-  masa_lb &lt;- masa * 2.2
-  print(masa_lb)
-}
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDguODk5NzI0XG5bMV0gMTUuNjcwMzFcblsxXSAyNC44MTY1NlxuWzFdIDgyLjUxNzY0XG4ifQ== -->
-<pre><code>[1] 8.899724
-[1] 15.67031
-[1] 24.81656
-[1] 82.51764</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>###Ejercicio</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI1ZhbW9zIGEgbW9kaWZpY2FyIGVzdGUgZm9yIGxvb3AgcGFyYSBxdWUgaW1wcmltYSBtdWx0aXBsb3MgZGUgMyBcblxuZm9yIChpIGluIDE6NSkge1xuICBwcmludChpICogMylcbn1cblxuXG4jI0Fob3JhIGhhY2VyIHVuIGZvciBsb29wIHBhcmEgY2FtYmlhciBlc3RvcyB2YWxvcmVzIGRlIGNlbnRpbWV0cm9zIGEgcHVsZ2FkYXMgY20vMi41NFxuYGBgIn0= -->
-<pre class="r"><code>#Vamos a modificar este for loop para que imprima multiplos de 3 
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYcnN0YXRpeOKAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgZmlsdGVyXG4ifQ== -->
+<pre><code>
+Attaching package: ‘rstatix’
 
-for (i in 1:5) {
-  print(i * 3)
-}
+The following object is masked from ‘package:stats’:
 
+    filter</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="kruskal-wallis" class="section level1">
+<h1>Kruskal Wallis</h1>
+<p>este metodo se usa como sustituto a la <em>ANOVA de una via</em> ya
+que no necesita normalidad de distribucion en la poblacion ni
+homogeneidad de varianza</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQW5vdmEoZXN0X2Fub3ZhKVxuXG5gYGAifQ== -->
+<pre class="r"><code>Anova(est_anova)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQW5vdmEgVGFibGUgKFR5cGUgSUkgdGVzdHMpXG5cblJlc3BvbnNlOiBET0NcbiAgICAgICAgICBTdW0gU3EgIERmIEYgdmFsdWUgICAgUHIoPkYpICAgIFxuUmVnaW9uICAgIDMwNzkuOCAgIDIgIDMyLjM4NyAxLjg2OGUtMTIgKioqXG5SZXNpZHVhbHMgNzI3NC42IDE1MyAgICAgICAgICAgICAgICAgICAgICBcbi0tLVxuU2lnbmlmLiBjb2RlczogIDAg4oCYKioq4oCZIDAuMDAxIOKAmCoq4oCZIDAuMDEg4oCYKuKAmSAwLjA1IOKAmC7igJkgMC4xIOKAmCDigJkgMVxuIn0= -->
+<pre><code>Anova Table (Type II tests)
 
-##Ahora hacer un for loop para cambiar estos valores de centimetros a pulgadas cm/2.54</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChjbSBpbiBjZW50aW0pIHtcbiAgcHVsZ2FkYXMgPC0gY20gLyAyLjU0XG4gIHByaW50KHB1bGdhZGFzKVxufVxuXG5gYGAifQ== -->
-<pre class="r"><code>for (cm in centim) {
-  pulgadas &lt;- cm / 2.54
-  print(pulgadas)
-}
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDUzLjE0OTYxXG5bMV0gMTcuNzE2NTRcblsxXSA5LjA1NTExOFxuWzFdIDY1Ljc0ODAzXG5bMV0gMTEuODExMDJcblsxXSAyMS4yNTk4NFxuWzFdIDExLjQxNzMyXG4ifQ== -->
-<pre><code>[1] 53.14961
-[1] 17.71654
-[1] 9.055118
-[1] 65.74803
-[1] 11.81102
-[1] 21.25984
-[1] 11.41732</code></pre>
+Response: DOC
+          Sum Sq  Df F value    Pr(&gt;F)    
+Region    3079.8   2  32.387 1.868e-12 ***
+Residuals 7274.6 153                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>###Como se aplica un for loop a un dataframe</p>
-<p>Para poder seleccionar una de las columnas o filas se elige un index
-o posicion para que se vaya repitiendo</p>
+<p>Si lo comparamos con el ANOVA el Kruskal Wallis es mas estricto y por
+lo tanto a veces puede afectar la sgnificancia estadistica.</p>
+<div id="wilcoxon-rank" class="section level2">
+<h2>Wilcoxon Rank</h2>
+<p>Como con la ANOVA Kruskal Wallis nos dice4 si hay o no diferencias
+pero no CUALES son esas diferencais. Para ello usamos el equivalente no
+parametrico al test de <em>Tukey HSD</em>. El pairwise Wilcoxon test es
+un post hoc test que se puede usar como sustitucion de Tukey.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>si bien asi pudimos transformar toda la altura a pies, en realidad la
-tabla sigue sin haberse cambiado y esos resultados se imprimieron</p>
-<p>COMO PODEMOS GUARDARLO</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3ByaW1lciBsb29wXG5hbHRfcGllcyA8LSB2ZWN0b3IobW9kZSA9IFwibnVtZXJpY1wiLFxuICAgICAgICAgICAgICAgICAgIGxlbmd0aCA9IG5yb3coTWVkaWRhc19jbGFzZSkpXG5cbiNsb29wIHF1ZSBndWFyZGEgbG9zIGRhdG9zXG5mb3IgKGkgaW4gMTogbnJvdyhNZWRpZGFzX2NsYXNlKSkge1xuICBhbHR1cmFfZnQgPC0gTWVkaWRhc19jbGFzZSRIZWlnaHQuY21baV0vMzAuNDhcbiAgYWx0X3BpZXNbaV0gPC0gYWx0dXJhX2Z0ICNjYW1iaWFtb3MgcHJpbnQgcGFyYSBxdWUgbG8gZ3VhcmRlIGVuIGVsIHZlY3RvclxufVxuXG5hbHRfcGllc1xuXG5gYGAifQ== -->
-<pre class="r"><code>#primer loop
-alt_pies &lt;- vector(mode = &quot;numeric&quot;,
-                   length = nrow(Medidas_clase))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBDb21wYXJhciBjb24gVHVrZXlcblR1a2V5SFNEKGVzdF9hbm92YSlcblxuYGBgIn0= -->
+<pre class="r"><code># Comparar con Tukey
+TukeyHSD(est_anova)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICBUdWtleSBtdWx0aXBsZSBjb21wYXJpc29ucyBvZiBtZWFuc1xuICAgIDk1JSBmYW1pbHktd2lzZSBjb25maWRlbmNlIGxldmVsXG5cbkZpdDogYW92KGZvcm11bGEgPSBET0MgfiBSZWdpb24sIGRhdGEgPSBFc3RhbnF1ZXMpXG5cbiRSZWdpb25cbiAgICAgICAgICAgICAgZGlmZiAgICAgICAgbHdyICAgICAgICB1cHIgICAgIHAgYWRqXG5CUlctQkVPICAgNy45MjcxNzQgICA0LjU4NTI2MiAxMS4yNjkwODY4IDAuMDAwMDAwM1xuSUJQLUJFTyAgLTMuMjcxMjc2ICAtNi4zMTUwMjUgLTAuMjI3NTI2MiAwLjAzMTkwMjNcbklCUC1CUlcgLTExLjE5ODQ1MCAtMTQuNTI4Mjg4IC03Ljg2ODYxMjAgMC4wMDAwMDAwXG4ifQ== -->
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
 
-#loop que guarda los datos
-for (i in 1: nrow(Medidas_clase)) {
-  altura_ft &lt;- Medidas_clase$Height.cm[i]/30.48
-  alt_pies[i] &lt;- altura_ft #cambiamos print para que lo guarde en el vector
-}
+Fit: aov(formula = DOC ~ Region, data = Estanques)
 
-alt_pies
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>###Ejercicio</p>
-<p>Ahora repetir el proceso de guardar los datos de un for loop dentro
-de un vector modificando el for loop que usamos para modificar
-centimetros a pulgadas</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChlIGluIDE6IGxlbmd0aChjZW50aW0pKSB7XG4gIHB1bGdhZGFzIDwtIGUgLyAyLjU0XG4gIGFsdF9wdWxnYWRhc1tlXSA8LSBwdWxnYWRhXG59XG5cbmBgYCJ9 -->
-<pre class="r"><code>for (e in 1: length(centim)) {
-  pulgadas &lt;- e / 2.54
-  alt_pulgadas[e] &lt;- pulgada
-}
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IG9iamV0byAncHVsZ2FkYScgbm8gZW5jb250cmFkb1xuIn0= -->
-<pre><code>Error: objeto &#39;pulgada&#39; no encontrado</code></pre>
+$Region
+              diff        lwr        upr     p adj
+BRW-BEO   7.927174   4.585262 11.2690868 0.0000003
+IBP-BEO  -3.271276  -6.315025 -0.2275262 0.0319023
+IBP-BRW -11.198450 -14.528288 -7.8686120 0.0000000</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>###Integrar datos de un for loop en un data frame</p>
+</div>
+<div id="que-es-el-p.adjust-method" class="section level2">
+<h2>Que es el p.adjust method?</h2>
+<p>Ajusta los p-value cuando existen multiples comparaciones usando
+diferentes metodos. Existen varios metodos …….link……. y aunque su
+explicacion matematica es algo complicada es importante que conozcan su
+aplicacion. La funcion principal de estos metodos es ajustar p-value
+tomando en cuenta las comparaciones para evitar que se inflen demasiados
+y evitar falsos positivos. El metodo mas comun y tambien mas estricto es
+<em>bonferroni</em> otro metodo menos estricto es <em>fdr</em> o false
+discovery rate. Para aprender mas sobre que metodo usar pueden checar
+esta pagina: ……..pagina…..</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9yIChpIGluIDI6bmNvbChBY2lkb3MpKSB7XG4gIFByb21lZGlvcyA8LSBtZWFuKEFjaWRvc1ssMV0sIG5hLnJtID0gVFJVRSlcbiAgYWNfcHJvbVtpXSA8LSBjKFByb21lZGlvcylcbn1cblxuYGBgIn0= -->
-<pre class="r"><code>for (i in 2:ncol(Acidos)) {
-  Promedios &lt;- mean(Acidos[,1], na.rm = TRUE)
-  ac_prom[i] &lt;- c(Promedios)
-}
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjb21wYXJhIGNvbiBUdWtleVxuVHVrZXlIU0QoZXN0X2Fub3ZhKVxuXG5gYGAifQ== -->
+<pre class="r"><code># compara con Tukey
+TukeyHSD(est_anova)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BV2FybmluZzogYXJndW1lbnQgaXMgbm90IG51bWVyaWMgb3IgbG9naWNhbDogcmV0dXJuaW5nIE5BXG4ifQ== -->
-<pre><code>Warning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NAWarning: argument is not numeric or logical: returning NA</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>####Ejercicios</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuICBhY19wcm9tW2ldIDwtIGMoRGVzdl9zdGQpXG5cbmBgYCJ9 -->
-<pre class="r"><code>  ac_prom[i] &lt;- c(Desv_std)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IG9iamV0byAnRGVzdl9zdGQnIG5vIGVuY29udHJhZG9cbiJ9 -->
-<pre><code>Error: objeto &#39;Desv_std&#39; no encontrado</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p><em>COMANDOS If Else</em></p>
-<p>Los comandos de If Else en RStudio son una parte fundamental de la
-programacion ya que la computadora es capaz de “tomar decisiones”
-dandole <em>condiciones</em></p>
-<p>###El mas basico: If Statment</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWFzYVxuXG5gYGAifQ== -->
-<pre class="r"><code>masa
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDMxLjUyNjlcbiJ9 -->
-<pre><code>[1] 31.5269</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>#EJERCICIO</p>
-<p>Como maestros de secundaria ustedes estan calificando unos examenes.
-Si el alumno tuvo mas de 70 aciertos en el examen pasa. Creen un <em>if
-statement</em> que me arroje APROBADO dependiendo de la clasificacion
-del alumno</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYgKGFjaWVydG9zID4gNzApIHtcbiAgcHJpbnQoXCJBUFJPQkFET1wiKVxufVxuXG5gYGAifQ== -->
-<pre class="r"><code>if (aciertos &gt; 70) {
-  print(&quot;APROBADO&quot;)
-}
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiQVBST0JBRE9cIlxuIn0= -->
-<pre><code>[1] &quot;APROBADO&quot;</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>###Complicamos mas la cosa: If Statement</p>
-<p>Con el <em>If statement</em> solo le decimos a la computadora si los
-datos que le dimos son CIERTOS si son FALSOS este comando simplemente no
-arroja nada por lo que le tenemos que agregar el <em>Else</em></p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueCA8LSA0XG5cbmlmICh4ID4gNSkgeyBcbiAgeCA8LSB4IF4gMiAjYXNpZ25hciBwZXJvIG5vIHNlIG11ZXN0cmFcbn0gZWxzZSB7ICNhaG9yYSBzaSAoSWYpIGVzIGZhbHRvIHRhbWJpZW4gbGUgZGVjaW1vIHNxdWUgaGFjZXJcbiAgeCA8LSB4IF4gM1xuICB9XG5cbiNZIHNlIHB1ZWRlIGNvbXBsaWNhciBtYXMgbGEgY29zYVxuXG52ZWdfdGlwbyA8LSBcInBhc3RvXCJcbnZvbHVtZW4gPC0gMTZcblxuaWYgKHZlZ190aXBvID09IFwiYXJib2xcIikge1xuICBtYXNhIDwtIDIuNiAqIHZvbHVtZW4gXiAwLjkgI2VzdGUgb2JqZXRvIHNpIHNlIGd1YXJkYVxufSBlbHNlIGlmICh2ZWdfdGlwbyA9PSBcInBhc3RvXCIpIHsgI2NhZGVuaXRhIGRlIGNvbmRpY2lvbmVzIFxuICBtYXNzIDwtIDAuNiAqIHZvbHVtZW4gXiAxLjJcbn0gZWxzZSB7I2FncmVnYXIgbGEgdWx0aW1hIGNvbmRpY2lvblxuICBtYXNzIDwtIE5BXG4gIH1cblxuYGBgIn0= -->
-<pre class="r"><code>x &lt;- 4
+<!-- rnb-output-begin eyJkYXRhIjoiICBUdWtleSBtdWx0aXBsZSBjb21wYXJpc29ucyBvZiBtZWFuc1xuICAgIDk1JSBmYW1pbHktd2lzZSBjb25maWRlbmNlIGxldmVsXG5cbkZpdDogYW92KGZvcm11bGEgPSBET0MgfiBSZWdpb24sIGRhdGEgPSBFc3RhbnF1ZXMpXG5cbiRSZWdpb25cbiAgICAgICAgICAgICAgZGlmZiAgICAgICAgbHdyICAgICAgICB1cHIgICAgIHAgYWRqXG5CUlctQkVPICAgNy45MjcxNzQgICA0LjU4NTI2MiAxMS4yNjkwODY4IDAuMDAwMDAwM1xuSUJQLUJFTyAgLTMuMjcxMjc2ICAtNi4zMTUwMjUgLTAuMjI3NTI2MiAwLjAzMTkwMjNcbklCUC1CUlcgLTExLjE5ODQ1MCAtMTQuNTI4Mjg4IC03Ljg2ODYxMjAgMC4wMDAwMDAwXG4ifQ== -->
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
 
-if (x &gt; 5) { 
-  x &lt;- x ^ 2 #asignar pero no se muestra
-} else { #ahora si (If) es falto tambien le decimo sque hacer
-  x &lt;- x ^ 3
-  }
+Fit: aov(formula = DOC ~ Region, data = Estanques)
 
-#Y se puede complicar mas la cosa
-
-veg_tipo &lt;- &quot;pasto&quot;
-volumen &lt;- 16
-
-if (veg_tipo == &quot;arbol&quot;) {
-  masa &lt;- 2.6 * volumen ^ 0.9 #este objeto si se guarda
-} else if (veg_tipo == &quot;pasto&quot;) { #cadenita de condiciones 
-  mass &lt;- 0.6 * volumen ^ 1.2
-} else {#agregar la ultima condicion
-  mass &lt;- NA
-  }
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>####Ejercicio</p>
-<p>Como maestros de secundaria ustedes siguen calificando los examenes
-pero ahora a los alumnos que sacaron mas de 90 aciertos les va a poner
-EXCELENTE; si tuvieron entre 90 y 70 aciertos dira APROBADO y menos de
-70 REPROBADO. Modifiquen su codigo de <em>If statement</em> agregando
-<em>else</em> para que me arroje las tres categorias dependiendo de la
-calificacion del alumno</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYgKGFjaWVydG9zID4gOTApIHtcbiAgcHJpbnQoXCJFWENFTEVOVEVcIikgXG59IGVsc2UgaWYgKGFjaWVydG9zID49IDcwKSB7XG4gIHByaW50KFwiQVBST0JBRE9cIilcbn0gZWxzZSB7XG4gIHByaW50KFwiUkVQUk9CQURPXCIpXG59XG5cbmBgYCJ9 -->
-<pre class="r"><code>if (aciertos &gt; 90) {
-  print(&quot;EXCELENTE&quot;) 
-} else if (aciertos &gt;= 70) {
-  print(&quot;APROBADO&quot;)
-} else {
-  print(&quot;REPROBADO&quot;)
-}
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiRVhDRUxFTlRFXCJcbiJ9 -->
-<pre><code>[1] &quot;EXCELENTE&quot;</code></pre>
+$Region
+              diff        lwr        upr     p adj
+BRW-BEO   7.927174   4.585262 11.2690868 0.0000003
+IBP-BEO  -3.271276  -6.315025 -0.2275262 0.0319023
+IBP-BRW -11.198450 -14.528288 -7.8686120 0.0000000</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>###La version simplificada: ifelse</p>
-<p>Esta version se define por estar “vectorizada” por lo que en vez de
-tener las condiciones en renglones, todo esta condensado en una
-linea</p>
-<p>Es util cuando cuando las comparaciones son mas sencillas e
-interesantemente se puede usar directamente con vectores en vez de
-valores simples</p>
+</div>
+<div id="dunn-test" class="section level2">
+<h2>Dunn test</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWZlbHNlKGVkYWRfcGxhbnRhIDwgMiwgI2NvbmRpY2lvblxuICAgICAgIFwiUGxhbnR1bGFcIiwgI3ZlcmRhZGVyYVxuICAgICAgIGlmZWxzZShlZGFkX3BsYW50YSA8IDcsIFwiSnV2ZW5pbFwiLCBcIkFkdWx0b1wiKSkgI2ZhbHNhXG5cbmBgYCJ9 -->
-<pre class="r"><code>ifelse(edad_planta &lt; 2, #condicion
-       &quot;Plantula&quot;, #verdadera
-       ifelse(edad_planta &lt; 7, &quot;Juvenil&quot;, &quot;Adulto&quot;)) #falsa
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZHVubi50ZXN0OjpkdW5uLnRlc3QoRXN0YW5xdWVzJERPQyxcbiAgICAgICAgICAgICAgICAgICAgIEVzdGFucXVlcyRSZWdpb24sXG4gICAgICAgICAgICAgICAgICAgICBtZXRob2QgPSBcImJvbmZlcnJvbmlcIilcblxuYGBgIn0= -->
+<pre class="r"><code>dunn.test::dunn.test(Estanques$DOC,
+                     Estanques$Region,
+                     method = &quot;bonferroni&quot;)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiQWR1bHRvXCJcbiJ9 -->
-<pre><code>[1] &quot;Adulto&quot;</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>###Ejercicio</p>
-<p>El codigo previo que hiciero usando If Else ahora conviertanlo al
-comando <em>ifelse</em></p>
-<p>*pista debe de se4r anidado</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWZlbHNlKCBhY2llcnRvcyA+IDkwLCBcIkV4Y2VsZW50ZVwiLCBpZmVsc2UoYWNpZXJ0b3MgPiA3MCwgXCJBcHJvYmFkb1wiLCBcIlJlcHJvYmFkb1wiKSlcblxuYGBgIn0= -->
-<pre class="r"><code>ifelse( aciertos &gt; 90, &quot;Excelente&quot;, ifelse(aciertos &gt; 70, &quot;Aprobado&quot;, &quot;Reprobado&quot;))
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiQXByb2JhZG9cIlxuIn0= -->
-<pre><code>[1] &quot;Aprobado&quot;</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>###Aplicando ifelse a vectores</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWZlbHNlKGEgJSUgMiA9PSAwLCBcIlBhclwiLCBcIkltcGFyXCIpXG5cbmBgYCJ9 -->
-<pre class="r"><code>ifelse(a %% 2 == 0, &quot;Par&quot;, &quot;Impar&quot;)
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiUGFyXCIgICBcIkltcGFyXCIgXCJQYXJcIiAgIFwiSW1wYXJcIlxuIn0= -->
-<pre><code>[1] &quot;Par&quot;   &quot;Impar&quot; &quot;Par&quot;   &quot;Impar&quot;</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICBLcnVza2FsLVdhbGxpcyByYW5rIHN1bSB0ZXN0XG5cbmRhdGE6IHggYW5kIGdyb3VwXG5LcnVza2FsLVdhbGxpcyBjaGktc3F1YXJlZCA9IDQ0LjM0OSwgZGYgPSAyLCBwLXZhbHVlID0gMFxuXG5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgIENvbXBhcmlzb24gb2YgeCBieSBncm91cCAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChCb25mZXJyb25pKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbkNvbCBNZWFuLXxcblJvdyBNZWFuIHwgICAgICAgIEJFTyAgICAgICAgQlJXXG4tLS0tLS0tLS0rLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuICAgICBCUlcgfCAgLTQuMjgxNDE3XG4gICAgICAgICB8ICAgIDAuMDAwMCpcbiAgICAgICAgIHxcbiAgICAgSUJQIHwgICAyLjU2NDE2OCAgIDYuNjQwODA3XG4gICAgICAgICB8ICAgIDAuMDE1NSogICAgMC4wMDAwKlxuXG5hbHBoYSA9IDAuMDVcblJlamVjdCBIbyBpZiBwIDw9IGFscGhhLzJcbiJ9 -->
+<pre><code>  Kruskal-Wallis rank sum test
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkZ1bmNpb25lcywgRm9yIGxvb3BzLCBJZiBlbHNlIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gDQoNClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKlJ1biogYnV0dG9uIHdpdGhpbiB0aGUgY2h1bmsgb3IgYnkgcGxhY2luZyB5b3VyIGN1cnNvciBpbnNpZGUgaXQgYW5kIHByZXNzaW5nICpDdHJsK1NoaWZ0K0VudGVyKi4gDQoNCmBgYHtyfQ0KcGxvdChjYXJzKQ0KYGBgDQoNCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDdHJsK0FsdCtJKi4NCg0KV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDdHJsK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuDQoNClRoZSBwcmV2aWV3IHNob3dzIHlvdSBhIHJlbmRlcmVkIEhUTUwgY29weSBvZiB0aGUgY29udGVudHMgb2YgdGhlIGVkaXRvci4gQ29uc2VxdWVudGx5LCB1bmxpa2UgKktuaXQqLCAqUHJldmlldyogZG9lcyBub3QgcnVuIGFueSBSIGNvZGUgY2h1bmtzLiBJbnN0ZWFkLCB0aGUgb3V0cHV0IG9mIHRoZSBjaHVuayB3aGVuIGl0IHdhcyBsYXN0IHJ1biBpbiB0aGUgZWRpdG9yIGlzIGRpc3BsYXllZC4NCg0KDQpfSU5UUk9EVUNDScOTTl8NCg0KUGFyYSBsYSBjbGFzZSBkZSBob3kgdmFtb3MgYSB2ZXIgY29tYW5kb3MgZW4gUlN0dWRpbyBxdWUgcHVlZGUgYXl1ZGFyIGEgYXV0b21hdGl6YXIgbnVlc3RybyBjb2RpZ28gY29uZGVuc2FuZG8gcGFzb3MgcmVwZXRpdGl2b3MgZW4gdW4gc29sbyBjb21hbmRvIChwZXJvIHZhcmlhcyBsaW5lYXMgZGUgY29kaWdvKSANCg0KIyNGdW5jaW9uZXMNCg0KU2V0IGRlIGFyZ3VtZW50b3MgcXVlIHNlIG9yZ2FuaXphbiBqdW50b3MgcGFyYSByZWFsaXphciB1bmEgdGFyZWEgZXNwZWNpZmljYS4gDQoNCkVuIHJlYWxpZGFkIHRvZG9zIGxvcyBjb21hbmRvcyBxdWUgaGVtb3MgdXNhZG8gc29uIGxhIGZ1bmNpb25lcyBxdWUgeWEgdmllbmVuIGluY2x1aWRvcyBlbiBSIHBlcm8gUlN0dWRpbyB0YW1iaWVuIG5vcyBkYSBsYSBwb3NpYmlsaWRhZCBkZSBjcmVhciBudWVzdHJhcyBwcmlwaWFzIGZ1bmNpb25lcy4gDQoNCiMjI0NvbXBvbmVudGVzIGRlIHVuYSBmdW5jaW9uDQoNCipfX05vbWJyZSBkZSBsYSBmdW5jaW9uOl9fTm9zb3Ryb3Mgc2UgbGEgZGFtb3MNCipfX0FyZ3VtZW50b3M6X19Mb3MgZWxlbWVudG9zIG5lY2VzYXJpb3MgcGFyYSBsbGV2YXIgYSBjYWJvIGxhIGZ1bmNpb24uIF9pbnB1dF8NCipfX0N1ZXJwbyBkZSBsYSBmdW5jacOzbjpfX0RlZmluZSBsbyBxdWUgdmEgYSBoYWNlciBsYSBmdW5jaW9uDQoqX19SZXNwdWVzdGE6X19FbCB2YWxvciBvIHJlc3VsdGFkbyBkZSBsYSB0YXJlYSBhc2lnbmFkYSBhIHVuYSBmdW5jaW9uIF9vdXRwdXRfDQoNCg0KYGBge3J9DQpub21icmVfZnVuY2lvbiA8LSBmdW5jdGlvbihhcmd1bWVudG9zKSB7I2VzIGxvIHF1ZSBuZWNlc2l0YXMgcGFyYSBjYWxjdWxhciBsYSBmdW5jaW9uIA0KcmVzcHVlc3RhIDwtIGhhel9hbGdvIChhcmd1bWVudG9zKSAjY2FsY3Vsb3MgbyBtb2RpZmljYWNpb25lcyBxdWUgaGFyYXMgY29uIGxvcyBhcmd1bWVudG9zDQpyZXR1cm4ocmVzcHVlc3RhKSAjbG8gcXVlIHNlIHZhIGEgImltcHJpbWlyIn0gI3RvZG8gbG9xIHVlIGVzdGEgZW50cmUgY29yY2hldGVzIGVzIGxhIGZ1bmNpb24NCg0KYGBgDQoNClBpZW5zZW4gZW4gbGFzIGZ1bmNpb25lcyBjb21vIHVuYSBhY2Npb24gcG9yIGxvIGdlbmVyYWwgZWwgbm9tYnJlIGVtcGllemEgY29uIHVuIHZlcmJvOiANCg0KDQpgYGB7cn0NCmNhbGNfdm9sX2ZvbGlhciA8LWZ1bmN0aW9uKGxvbmdpdCwgYW5jaG8sIGFsdHVyYSkgew0KICBhcmVhIDwtIGxvbmdpdCAqIGFuY2hvDQogIHZvbHVtZW4gPC0gYXJlYSAqIGFsdHVyYQ0KICByZXR1cm4odm9sdW1lbikNCiAgfQ0KDQojQWhvcmEgdXNlbW9zIGxhIGZ1bmNpb24NCg0KY2FsY192b2xfZm9saWFyKGxvbmdpdCA9IDEsDQogICAgICAgICAgICAgICAgYW5jaG8gPSAyLjUsDQogICAgICAgICAgICAgICAgYWx0dXJhID0gMikNCg0KI2hheSBxdWUgdGVuZXIgbXV5IGVuY3VhbnRhIGVsIG9yZGVuIGRlIGxhIGxvbmdpdHVkLCBhbmNobyB5IGFsdHVyYQ0KI3RhbWJpZW4gaGF5IHF1ZSB0ZW5lciBlbiBjdWFudGEgcXVlIGVsIHJlc3VsdGFkbyBtZSB2YSBhIGFwYXJlY2VyIGVuIGxhIGNvbnNvbGEgcGVybyBubyBtZSB2YSBhIGFwYXJlY2VyIGVuIGVsIGVudmlyb25tZW50IHlhIHF1ZSBubyBjb2xvY2Ftb3MgdW4gb2JqZXRvIGFudGVzLCBzaSBxdWVyZW1vcyBndWFyZGFyIGVsIGRhdG8gdGVuZGRyw61hbW9zIHF1ZSBoYWNlciBsbyBzaWd1aWVudGU6IA0KDQphcmJ1c3RvMSA8LSBjYWxjX3ZvbF9mb2xpYXIobG9uZ2l0ID0gMSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBhbmNobyA9IDIuNSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBhbHR1cmEgPSAyKQ0KDQoNCiN5YSBjb24gZWwgZWNobyBkZSBjb2xvY2FyIGFudGVzIHVuIG9iamV0byBzZSB0ZSB2YSBhIGd1YXJkYXIgZWwgZGF0byB5IHRlIGFwYXJlY2VyYSBubyBzb2xvIGVuIGxhIGNvbnNvbGEgc2lubyB0YW1iaWVuIGVuIGVsIGFwYXJ0YWRvIGRlbCBlbnZpcm9ubWVudA0KI3RhbWJpZW4gZXMgaW1wb3J0YW50ZSBxdWUgbGxldmVtb3MgYSBjYWJvIGVsIG9yZGVuIGRlIGxvcyBjb3JjaGV0ZXMNCg0KDQoNCiNBaG9yYSB1c2Vtb3MgZGF0b3MgZGVzZGUgdW4gZGF0YWZyYW1lDQoNCiMjI0NyZWFyZW1vcyB1biBzZXQgZGUgZGF0b3MgYXJ0aWZpY2lhbGVzIyMjDQoNCg0KZGYgPC0gZGF0YS5mcmFtZShhcmJ1c3Rvcz0gYygiYXJidXN0bzEiLCAiYXJidXN0bzIiKSwNCiAgICAgICAgICAgICAgICAgbG9uZ2l0dWQ9IGMoMjAsIDE3KSwgDQogICAgICAgICAgICAgICAgIGFuY2hvPSBjKDExLCA5KSwNCiAgICAgICAgICAgICAgICAgYWx0dXJhPSBjKDMwLCAyOCkpDQoNCiNlc3RvIGZ1ZSB1biBlamVtcGxvIGNyZWFkbyBwb3IgbWkgDQoNCiNlamVtcGxvIGdydXBhbCANCg0KY2FsY192b2xfZm9saWFyKGRmJGxvbmdpdHVkWzJdLCAjZW4gZXN0b3MgYnJhY2tldHMgbm8gaGF5IGNvbW8gcG9ycXVlIGVzIHVuYSBjb2x1bW5hIG9zZWEgc29sbyB1bmEgZGltZW5zaW9uDQogICAgIGRmJGFuY2hvWzFdLA0KICAgICBkZiRhbHR1cmFbMl0pDQoNCiNzaW4gbGEgZnVuY2lvbg0KDQpkZiRsb25naXR1ZFsxXSpkZiRhbmNob1sxXSpkZiRhbHR1cmFbMV0NCg0KI3ZhbG9yZXMgZGVmYXVsdA0KDQpjYWxjX3ZvbF9mb2xpYXIgPC0gZnVuY3Rpb24obG9uZ2l0dWQsIGFuY2hvLCBhbHR1cmEgPSAxKSB7DQogIGFyZWEgPC0gbG9uZ2l0dWQgKiBhbmNobw0KICB2b2x1bWVuIDwtIGFyZWEgKiBhbHR1cmENCiAgcmV0dXJuKHZvbHVtZW4pDQogIH0NCg0KY2FsY192b2xfZm9saWFyKGxvbmdpdHVkID0gMywNCiAgICAgICAgICAgICAgICAgYW5jaG8gPSAyLjUpDQoNCiN2YWxvcmVzIGRlZmF1bHQgaWd1YWwgc2UgcHVlZGVuIG1vZGlmaWNhciANCg0KY2FsY192b2xfZm9saWFyKGxvbmdpdHVkID0gNCwNCiAgICAgICAgICAgICAgICBhbmNobyA9IDIuNSwNCiAgICAgICAgICAgICAgICBhbHR1cmEgPSAzKQ0KDQoNCmBgYA0KDQoNCg0KX0VKRVJDSUNJT18NCg0KdmFuIGEgY3JlYXIgdW5hIGZ1bmNpb24gcXVlIGNhbGN1bGUgZWwgYXJlYSBmb2xpYXIgZGUgdW5hIGVzcGVjaWUgZGUgYXJib2xlcyB1bmljYSBlbiBlbCBtdW5kbyBxdWUgdGllbmUgaG9qYXMgdHJpYW5ndWxhcmVzOyBkYXRvIGVsIGFyZWEgZGUgdW4gdHJpYW5ndWxvIGVzIGJhc2UgcG9yIGFsdHVyYSBlbnRyZSAyIChDciA9IEEgXjEuNzMpLiANCg0KYGBge3J9DQpjYWxjdWxhcl9hcmVhX2ZvbGlhciA8LSBmdW5jdGlvbihiYXNlLCBhbHR1cmEpew0KICBhcmVhIDwtKGJhc2UgKiBhbHR1cmEpIC8gMg0KICByZXR1cm4oYXJlYSkNCn0NCg0KY2FsY3VsYXJfYXJlYV9mb2xpYXIoYmFzZSA9IDMsIGFsdHVyYSA9IDUpDQoNCg0KI0ZVTkNJT04gUEFSQSBFU1RJTUFSIENSRUNJTUlFTlRPIERFIExBUyBIT0pBUyANCg0KZXN0X2NyZWNpbSA8LSBmdW5jdGlvbihhcmVhKSB7DQogIGNyZWNpbSA8LSBhcmVhIF4xLjczDQogIHJldHVybihjcmVjaW0pDQp9DQoNCiMjRlVOQ0lPTkVTIENPTUJJTkFEQVMgTyBORVNURUQgRlVOQ1RJT05TDQoNCmNyZWNpbV9ob2phIDwtIGVzdF9jcmVjaW0oY2FsY3VsYXJfYXJlYV9mb2xpYXIoMyw1KSkNCmBgYA0KDQpfRk9SIExPT1BTXw0KDQpMb3MgRm9yIExvb3BzIHNlIHVzYW4gY3VhbmRvIGhheSB1biBwZWRhem8gZGUgY29kaWdvIHF1ZSBuZWNlc2l0YW4gcmVwZXRpciB2YXJpYXMgdmVjZXMNCg0KI1N0cnVjdHVyYSBiYXNpY2ENCmBgYHtyfQ0KZm9yIChudW1lcm9fZGVfY29zYSBpbiBsaXN0YV9kZV9jb3Nhcykgew0KICBhY2Npb24oY29zYSkNCn0NCg0KYGBgDQoNCiMjI0VqZW1wbG8gc2ltcGxlIHBhcmEgZm9yIGxvb3BzDQpgYGB7cn0NCmxvbmdpdHMgPC0gYygxLjYsIDMsIDUsIDE5KSAjdmVjdG9yDQoNCmZvciAoYSBpbiBsb25naXRzKSB7ICMgZWwgbm9tYnJlIGEgZXMgYXJiaXRyYXJpbyBtdXkgYmllbiBwb2RyaWEgdXNhciBzb2xvIHVuYSBsZXRyYSB1IG90cm8gbm9tYnJlDQogIHByaW50KDIuNjUqYSBeIDAuOSkgI3Blcm8gZWwgbm9tYnJlIGRlYmUgY29pbmNpZGlyIGNvbiBsYSBhY2Npb24gcXVlIHNlIGVzdGEgY29tYW5kYW5kbw0KfSAjIHNlIHBvbmUgcHJpbnQgcGFyYSBvYnRlbmVyIGVsIHJlc3VsdGFkbyB5IHBvZGVyIHZlcmxvIHBlcm8gbm8gZXN0YSBndWFyZGFkbw0KDQojIyB1biBmb3IgbG9vcCBjb24gbXVsdGlwbGVzIHBhc29zDQpmb3IgKGxvbmdpdCBpbiBsb25naXRzKSB7DQogIG1hc2EgPC0gMi42NSAqIGxvbmdpdCBeIDAuOQ0KICBtYXNhX2xiIDwtIG1hc2EgKiAyLjINCiAgcHJpbnQobWFzYV9sYikNCn0NCmBgYA0KIyMjRWplcmNpY2lvDQoNCmBgYHtyfQ0KI1ZhbW9zIGEgbW9kaWZpY2FyIGVzdGUgZm9yIGxvb3AgcGFyYSBxdWUgaW1wcmltYSBtdWx0aXBsb3MgZGUgMyANCg0KZm9yIChpIGluIDE6NSkgew0KICBwcmludChpICogMykNCn0NCg0KDQojI0Fob3JhIGhhY2VyIHVuIGZvciBsb29wIHBhcmEgY2FtYmlhciBlc3RvcyB2YWxvcmVzIGRlIGNlbnRpbWV0cm9zIGEgcHVsZ2FkYXMgY20vMi41NA0KYGBgDQoNCg0KYGBge3J9DQpjZW50aW0gPC0gYygxMzUsNDUsMjMsMTY3LDMwLDU0LDI5KQ0KDQpmb3IgKGNtIGluIGNlbnRpbSkgew0KICBwdWxnYWRhcyA8LSBjbSAvIDIuNTQNCiAgcHJpbnQocHVsZ2FkYXMpDQp9DQoNCmBgYA0KDQojIyNDb21vIHNlIGFwbGljYSB1biBmb3IgbG9vcCBhIHVuIGRhdGFmcmFtZQ0KDQpQYXJhICBwb2RlciBzZWxlY2Npb25hciB1bmEgZGUgbGFzIGNvbHVtbmFzIG8gZmlsYXMgc2UgZWxpZ2UgdW4gaW5kZXggbyBwb3NpY2lvbiBwYXJhIHF1ZSBzZSB2YXlhIHJlcGl0aWVuZG8NCg0KYGBge3J9DQpNZWRpZGFzX2NsYXNlIDwtIA0KICByZWFkLmNzdigifi9Sc3R1ZGlvL0N1cnNvSW5ub3Zhay9NYXRlcmlhbGVzL0NsYXNzLWRhdGEuY3N2IikNCg0KI01vZGlmaWNhciBsYSBhbHR1cmEgZGUgY20gYSBwaWVzDQoNCmZvciAoaSBpbiAxIDogbnJvdyhNZWRpZGFzX2NsYXNlKSkgew0KICBhbHR1cmFfZnQgPC0gTWVkaWRhc19jbGFzZSRIZWlnaHQuY21baV0vMzAuNDgNCiAgcHJpbnQoYWx0dXJhX2Z0KQ0KfQ0KYGBgDQpzaSBiaWVuIGFzaSBwdWRpbW9zIHRyYW5zZm9ybWFyIHRvZGEgbGEgYWx0dXJhIGEgcGllcywgZW4gcmVhbGlkYWQgbGEgdGFibGEgc2lndWUgc2luIGhhYmVyc2UgY2FtYmlhZG8geSBlc29zIHJlc3VsdGFkb3Mgc2UgaW1wcmltaWVyb24gDQoNCkNPTU8gUE9ERU1PUyBHVUFSREFSTE8gDQoNCmBgYHtyfQ0KI3ByaW1lciBsb29wDQphbHRfcGllcyA8LSB2ZWN0b3IobW9kZSA9ICJudW1lcmljIiwNCiAgICAgICAgICAgICAgICAgICBsZW5ndGggPSBucm93KE1lZGlkYXNfY2xhc2UpKQ0KDQojbG9vcCBxdWUgZ3VhcmRhIGxvcyBkYXRvcw0KZm9yIChpIGluIDE6IG5yb3coTWVkaWRhc19jbGFzZSkpIHsNCiAgYWx0dXJhX2Z0IDwtIE1lZGlkYXNfY2xhc2UkSGVpZ2h0LmNtW2ldLzMwLjQ4DQogIGFsdF9waWVzW2ldIDwtIGFsdHVyYV9mdCAjY2FtYmlhbW9zIHByaW50IHBhcmEgcXVlIGxvIGd1YXJkZSBlbiBlbCB2ZWN0b3INCn0NCg0KYWx0X3BpZXMNCg0KYGBgDQojIyNFamVyY2ljaW8NCg0KQWhvcmEgcmVwZXRpciBlbCBwcm9jZXNvIGRlIGd1YXJkYXIgbG9zIGRhdG9zIGRlIHVuIGZvciBsb29wIGRlbnRybyBkZSB1biB2ZWN0b3IgbW9kaWZpY2FuZG8gZWwgZm9yIGxvb3AgcXVlIHVzYW1vcyBwYXJhIG1vZGlmaWNhciBjZW50aW1ldHJvcyBhIHB1bGdhZGFzDQoNCmBgYHtyfQ0KY2VudGltIDwtIGMoMTM1LDQ1LDIzLDE2NywzMCw1NCwyOSkNCg0KYWx0X3B1bGdhZGFzIDwtIHZlY3Rvcihtb2RlID0gIm51bWVyaWMiLA0KICAgICAgICAgICAgICAgICAgIGxlbmd0aCA9IGxlbmd0aChjZW50aW0pKQ0KDQpmb3IgKGUgaW4gMTogbGVuZ3RoKGNlbnRpbSkpIHsNCiAgcHVsZ2FkYXMgPC0gZSAvIDIuNTQNCiAgYWx0X3B1bGdhZGFzW2VdIDwtIHB1bGdhZGFzDQp9DQoNCmBgYA0KDQojIyNJbnRlZ3JhciBkYXRvcyBkZSB1biBmb3IgbG9vcCBlbiB1biBkYXRhIGZyYW1lDQoNCmBgYHtyfQ0KI1VuaXIgZWwgdmVjdG9yIGNvbiBlbCBkYXRhZnJhbWUgImZvcm1hIGbDoWNpbCINCg0KTWVkaWRhc19jbGFzZSA8LSBjYmluZChNZWRpZGFzX2NsYXNlLGFsdF9waWVzKSAjbGEgQyBlcyBkZSBjb2x1bW5hLCBsbyBxdWUgc2lnbmlmaWNhIHF1ZSBxdWllcm8gcXVlIGVuIGVsIGRvY3VtZW50byBkZSBtZWRpZGFzX2NsYXNlIGFsIGZpbmFsIG1lIHBvbmdhIHVuYSBjb2x1bW5hIHF1ZSBzZSBsbGFtZSBhbHRfcGllcyAoY2JpbmQgc2lnbmlmaWNhPSBjIGRlIGNvbHVtbmEgeSBiaW5kIGRlIHVuaXIpDQoNCiNEaXJlY3RhbWVudGUgZW4gbGEgdGFibGEgImZvcm1hIGRpZmljaWwiDQoNCmZvciAoaSBpbiAxOiBucm93KE1lZGlkYXNfY2xhc2UpKSB7DQogIGFsdHVyYV9mdCA8LSBNZWRpZGFzX2NsYXNlJEhlaWdodC5jbVtpXS8zMC40OA0KICBNZWRpZGFzX2NsYXNlJGFsdF9waWVzW2ldIDwtIGFsdHVyYV9mdCAjY2FtYmlhbW9zIHBhcmEgcXVlIGxvIGd1YXJkZSBkaXJlY3RhbWVudGUgZW4gZWwgZGF0YWZyYW1lIFpPTkEgREUgR1VBUkRBRE8NCn0NCg0KDQojI0hhY2VyIGNhbGN1bG9zIGNvbiBsYXMgY29sdW1uYXMgDQpBY2lkb3MgPC0gcmVhZC5jc3YoIn4vUlN0dWRpby9DdXJzb0lubm92YWsvTWF0ZXJpYWxlcy9BY2lkb3NfZXguY3N2IikNCg0Kc2FwcGx5KEFjaWRvcywgbW9kZSkgI0VzdG8gZXMgcGFyYSBjaGVjYXIgZWwgdGlwbyBkZSBjYXJhY3RlciBkZSBjYWRhIGNvbHVtbmEgZW4gdW5hIGRhdGEgZnJhbWUNCg0KZm9yIChpIGluIDI6IG5jb2woQWNpZG9zKSkgIyB5byBub21icm8gbWkgb2JqZXRvIGNvbW8gaSwgeSBxdWllcm8gcXVlIGVuIGxhIGNvbHVtbmEgbnVlbXJvIGRlIG1pIGRvY3VtZW50byBhY2lkb3MgbWUgc2FxdWUgZWwgcHJvbWVkaW8gew0KICBQcm9tZWRpb3MgPC0gbWVhbihBY2lkb3NbLGldLCBuYS5ybSA9IFRSVUUpIA0KICBwcmludChQcm9tZWRpb3MpDQp9DQoNCm1lYW4oQWNpZG9zWywyXSwgbmEucmEgPSBUUlVFKSAjZXN0YSBmb3JtdWxhIG1lIGRpY2UgcXVlIGVuIG1pIGNvbHVtbmEgbnVlbXJvIDIgZGUgbWkgYXJjaGl2byBsbGFtYWRvIGFjaWRvcyBtZSBxdWl0ZSBvIG5vIHRvbWUgZW4gY3VlbnRhIG1pcyBjYXNpbGxhcyBxdWUgbm8gaGF5IGRhdG9zLiBFSkVNUExPIERFTCBDT0RJR08gU09MSVRPDQoNCiNTaW4gZW1iYXJnbyBlc3RlIG5vIHNlIGd1YXJkbyBwb3IgbG8gcXVlIGVzdGUgc2VyaWEgZWwgcHJvY2VzbyBwYXJhIGd1YXJkYXJsbyANCg0KYWNfcHJvbSA8LSBjKCkgDQoNCmZvciAoaSBpbiAyOm5jb2woQWNpZG9zKSkgew0KICBQcm9tZWRpb3MgPC0gbWVhbihBY2lkb3NbLGldLCBuYS5ybSA9IFRSVUUpDQogIGFjX3Byb21baV0gPC0gYyhQcm9tZWRpb3MpDQp9DQoNCkFjaWRvcyA8LSByYmluZChBY2lkb3MsYWNfcHJvbSkgI3JvdyBiaW5kIGVzbyBxdWllcmUgZGVjaXIgcXVlIGVzdGFyYSBoYXN0YSBhYmFqbw0KYGBgDQoNCiMjIyNFamVyY2ljaW9zDQoNCmBgYHtyfQ0KIyAxLiBBZ3JlZ2FyIGFsIGFyY2hpdm8gZGUgTWVkaWRhc19jbGFzZSBvdHJhIGNvbHVtbmEgZW4gZWwgcXVlIGxhIGNpcmN1bmZlcmVuY2lhIGRlIGxhIGNhYmV6YSBlc3RlIGVuIHB1bGdhZGFzIChlc3RlIGVzIGNvbiBucm93KSB5IGd1YXJkYXJsbyBlbiBlbCBhcmNoaXZvLCByZWNvcmRhciBxdWUgY20vMi41NA0KDQpmb3IgKGkgaW4gMTogbnJvdyhNZWRpZGFzX2NsYXNlKSkgew0KICBjaXJjdW5faW4gPC0gTWVkaWRhc19jbGFzZSRDaXJjdW1mZXJlbmNlSGVhZC5jb21baV0vMi41NA0KICBNZWRpZGFzX2NsYXNlJGNpcmN1bl9pbltpXSA8LSBjaXJjdW5faW4NCn0NCg0KDQoNCiMgMi4gRW4gZWwgYXJjaGl2byBkZSBhY2lkb3MgeWEgYWdyZWdhbW9zIHVuYSBmaWxhIGNvbiBsb3MgcHJvbWVkaW9zIGFob3JhIHRyYXRlbiBkZSBhZ3JlZ2FyIHVuYSBjb24gbGEgZGVzdmlhY2lvbiBlc3RhbmRhciAoZW4gZXN0ZSBhZnVlcnphcyBjb21vIGVsIGVqZXJjaWNpbyBkZSBhcnJpYmEpDQoNCkRlc3ZfYWMgPC0gYygpIA0KDQpmb3IgKGkgaW4gMjpuY29sKEFjaWRvcykpIHsNCiAgRGVzdl9zdGQgPC0gc2QoQWNpZG9zWyxpXSwgbmEucm0gPSBUUlVFKQ0KICBEZXN2X2FjW2ldIDwtIGMoRGVzdl9zdGQpDQp9DQoNCkFjaWRvcyA8LSByYmluZChBY2lkb3MsRGVzdl9hYykNCmBgYA0KDQpfQ09NQU5ET1MgSWYgRWxzZV8NCg0KTG9zIGNvbWFuZG9zIGRlIElmIEVsc2UgZW4gUlN0dWRpbyBzb24gdW5hIHBhcnRlIGZ1bmRhbWVudGFsIGRlIGxhIHByb2dyYW1hY2lvbiB5YSBxdWUgbGEgY29tcHV0YWRvcmEgZXMgY2FwYXogZGUgInRvbWFyIGRlY2lzaW9uZXMiIGRhbmRvbGUgX2NvbmRpY2lvbmVzXw0KDQojIyNFbCBtYXMgYmFzaWNvOiBJZiBTdGF0bWVudA0KDQpgYGB7cn0NCiNFc3RydWN0dXJhIGJhc2ljYSBJRiBTdGF0ZW1lbnQNCg0KaWYgKENvbmRpY2lvbl9xdWVfZGViZV9zZXJfdmVyZGFkKSB7DQogIEhhel9hbGdvDQp9DQoNCiMjRWplbXBsbyBjb24gY29uZGljaW9uZXMgbnVtZXJpY2FzIA0KDQp4IDwtIDcNCg0KaWYgKHggPiA1KXsgI2VzdG9zIG9iamV0b3Mgc2kgYXBhcmVjZW4gZW4gZWwgYW1iaWVudGUgZ2xvYmFsDQogIHggPC0geCBeIDIgI3NpIChJZikgZXMgRkFMU08gbm8gaGFjZSBuYWRhDQp9DQoNCiNFamVtcGxvIGJpb2xvZ2ljbyANCg0KdmVnX3RpcG8gPC0gImFyYm9sIg0Kdm9sdW1lbiA8LSAxNg0KDQppZiAodmVnX3RpcG8gPT0gImFyYm9sIikgeyNjdWFuZG8gcG9uZXMgc29sbyB1biA9IGVzIHVuYSBvcGVyYWRvciBtYXRlbWF0aWNvLCBtaWVudHJhcyBxdWUgPT0gc2lnbmlmaWNhIGVzIGlndWFsIGEgDQogIG1hc2EgPC0gMi42ICogdm9sdW1lbiBeIDAuOSAjZXN0ZSBvYmpldG8gc2kgc2UgZ3VhcmRhDQp9DQoNCm1hc2ENCg0KYGBgDQojRUpFUkNJQ0lPDQoNCkNvbW8gbWFlc3Ryb3MgZGUgc2VjdW5kYXJpYSB1c3RlZGVzIGVzdGFuIGNhbGlmaWNhbmRvIHVub3MgZXhhbWVuZXMuIFNpIGVsIGFsdW1ubyB0dXZvIG1hcyBkZSA3MCBhY2llcnRvcyBlbiBlbCBleGFtZW4gcGFzYS4gQ3JlZW4gdW4gX2lmIHN0YXRlbWVudF8gcXVlIG1lIGFycm9qZSBBUFJPQkFETyBkZXBlbmRpZW5kbyBkZSBsYSBjbGFzaWZpY2FjaW9uIGRlbCBhbHVtbm8NCg0KYGBge3J9DQoNCmFjaWVydG9zIDwtIDcxDQoNCmlmIChhY2llcnRvcyA+IDcwKSB7DQogIHByaW50KCJBUFJPQkFETyIpDQp9DQoNCmBgYA0KIyMjQ29tcGxpY2Ftb3MgbWFzIGxhIGNvc2E6IElmIFN0YXRlbWVudA0KDQpDb24gZWwgX0lmIHN0YXRlbWVudF8gc29sbyBsZSBkZWNpbW9zIGEgbGEgY29tcHV0YWRvcmEgc2kgbG9zIGRhdG9zIHF1ZSBsZSBkaW1vcyBzb24gQ0lFUlRPUyBzaSBzb24gRkFMU09TIGVzdGUgY29tYW5kbyBzaW1wbGVtZW50ZSBubyBhcnJvamEgbmFkYSBwb3IgbG8gcXVlIGxlIHRlbmVtb3MgcXVlIGFncmVnYXIgZWwgX0Vsc2VfDQoNCmBgYHtyfQ0KeCA8LSA0DQoNCmlmICh4ID4gNSkgeyANCiAgeCA8LSB4IF4gMiAjYXNpZ25hciBwZXJvIG5vIHNlIG11ZXN0cmENCn0gZWxzZSB7ICNhaG9yYSBzaSAoSWYpIGVzIGZhbHRvIHRhbWJpZW4gbGUgZGVjaW1vIHNxdWUgaGFjZXINCiAgeCA8LSB4IF4gMw0KICB9DQoNCiNZIHNlIHB1ZWRlIGNvbXBsaWNhciBtYXMgbGEgY29zYQ0KDQp2ZWdfdGlwbyA8LSAicGFzdG8iDQp2b2x1bWVuIDwtIDE2DQoNCmlmICh2ZWdfdGlwbyA9PSAiYXJib2wiKSB7DQogIG1hc2EgPC0gMi42ICogdm9sdW1lbiBeIDAuOSAjZXN0ZSBvYmpldG8gc2kgc2UgZ3VhcmRhDQp9IGVsc2UgaWYgKHZlZ190aXBvID09ICJwYXN0byIpIHsgI2NhZGVuaXRhIGRlIGNvbmRpY2lvbmVzIA0KICBtYXNzIDwtIDAuNiAqIHZvbHVtZW4gXiAxLjINCn0gZWxzZSB7I2FncmVnYXIgbGEgdWx0aW1hIGNvbmRpY2lvbg0KICBtYXNzIDwtIE5BDQogIH0NCg0KYGBgDQoNCiMjIyNFamVyY2ljaW8gDQoNCkNvbW8gbWFlc3Ryb3MgZGUgc2VjdW5kYXJpYSB1c3RlZGVzIHNpZ3VlbiBjYWxpZmljYW5kbyBsb3MgZXhhbWVuZXMgcGVybyBhaG9yYSBhIGxvcyBhbHVtbm9zIHF1ZSBzYWNhcm9uIG1hcyBkZSA5MCBhY2llcnRvcyBsZXMgdmEgYSBwb25lciBFWENFTEVOVEU7IHNpIHR1dmllcm9uIGVudHJlIDkwIHkgNzAgYWNpZXJ0b3MgZGlyYSBBUFJPQkFETyB5IG1lbm9zIGRlIDcwIFJFUFJPQkFETy4gTW9kaWZpcXVlbiBzdSBjb2RpZ28gZGUgX0lmIHN0YXRlbWVudF8gYWdyZWdhbmRvIF9lbHNlXyBwYXJhIHF1ZSBtZSBhcnJvamUgbGFzIHRyZXMgY2F0ZWdvcmlhcyBkZXBlbmRpZW5kbyBkZSBsYSBjYWxpZmljYWNpb24gZGVsIGFsdW1ubw0KDQpgYGB7cn0NCmFjaWVydG9zIDwtIDk1DQoNCmlmIChhY2llcnRvcyA+IDkwKSB7DQogIHByaW50KCJFWENFTEVOVEUiKSANCn0gZWxzZSBpZiAoYWNpZXJ0b3MgPj0gNzApIHsNCiAgcHJpbnQoIkFQUk9CQURPIikNCn0gZWxzZSB7DQogIHByaW50KCJSRVBST0JBRE8iKQ0KfQ0KDQpgYGANCg0KIyMjTGEgdmVyc2lvbiBzaW1wbGlmaWNhZGE6IGlmZWxzZQ0KDQpFc3RhIHZlcnNpb24gc2UgZGVmaW5lIHBvciBlc3RhciAidmVjdG9yaXphZGEiIHBvciBsbyBxdWUgZW4gdmV6IGRlIHRlbmVyIGxhcyBjb25kaWNpb25lcyBlbiByZW5nbG9uZXMsIHRvZG8gZXN0YSBjb25kZW5zYWRvIGVuIHVuYSBsaW5lYQ0KDQpFcyB1dGlsIGN1YW5kbyBjdWFuZG8gbGFzIGNvbXBhcmFjaW9uZXMgc29uIG1hcyBzZW5jaWxsYXMgZSBpbnRlcmVzYW50ZW1lbnRlIHNlIHB1ZWRlIHVzYXIgZGlyZWN0YW1lbnRlIGNvbiB2ZWN0b3JlcyBlbiB2ZXogZGUgdmFsb3JlcyBzaW1wbGVzIA0KDQpgYGB7cn0NCiNFc3RydWN0dXJhIHNpbXBsaWZpY2FkYQ0KDQppZmVsc2UoY29uZGljaW9uLCByZXNwdWVzdGFfVFJVRSwgcmVzcHVlc3RhX0ZBTFNFKQ0KDQojRWplbXBsbyBiYXNpY28gDQoNCmVkYWRfcGxhbnRhIDwtIDEyDQoNCmlmZWxzZShlZGFkX3BsYW50YSA8IDIsICJQbGFudHVsYSIsICJBZHVsdG8iKQ0KDQojRWplbXBsbyBhbmlkYWRvDQoNCmlmZWxzZShlZGFkX3BsYW50YSA8IDIsICJQbGFudHVsYSIsIGlmZWxzZShlZGFkX3BsYW50YSA8IDcsICJKdXZlbmlsIiwgIkFkdWx0byIpKQ0KDQoNCiNvIHB1ZWRlIHNlciBwb3Igc2VwYXJhZG8gZW4gbHVnYXIgZGUgZW4gbGluZWEgZGUgbGEgc2lndWllbnRlIG1hbmVyYSANCmlmZWxzZShlZGFkX3BsYW50YSA8IDIsICNjb25kaWNpb24NCiAgICAgICAiUGxhbnR1bGEiLCAjdmVyZGFkZXJvKQ0KICAgICAgICJBZHVsdG8iKSAjZmFsc28NCmlmZWxzZShlZGFkX3BsYW50YSA8IDIsICNjb25kaWNpb24NCiAgICAgICAiUGxhbnR1bGEiLCAjdmVyZGFkZXJhDQogICAgICAgaWZlbHNlKGVkYWRfcGxhbnRhIDwgNywgIkp1dmVuaWwiLCAiQWR1bHRvIikpICNmYWxzYQ0KDQpgYGANCiMjI0VqZXJjaWNpbw0KDQpFbCBjb2RpZ28gcHJldmlvIHF1ZSBoaWNpZXJvIHVzYW5kbyBJZiBFbHNlIGFob3JhIGNvbnZpZXJ0YW5sbyBhbCBjb21hbmRvIF9pZmVsc2VfIA0KDQoqcGlzdGEgZGViZSBkZSBzZTRyIGFuaWRhZG8NCg0KYGBge3J9DQphY2llcnRvcyA8LSA3Mw0KDQppZmVsc2UoIGFjaWVydG9zID4gOTAsICJFeGNlbGVudGUiLCBpZmVsc2UoYWNpZXJ0b3MgPiA3MCwgIkFwcm9iYWRvIiwgIlJlcHJvYmFkbyIpKQ0KDQpgYGANCiMjI0FwbGljYW5kbyBpZmVsc2UgYSB2ZWN0b3Jlcw0KDQpgYGB7cn0NCiMgdmVjdG9yIGRlIG51bWVyb3MNCg0KYSA8LSBjKDIsNSw2LDcpDQoNCiNjaGVjYXIgc2kgZXMgcGFyIG8gaW1wYXIgDQoNCmlmZWxzZShhICUlIDIgPT0gMCwgIlBhciIsICJJbXBhciIpDQoNCiNjb25kaWNpb24gJSUgMiA9PSAwLCBjdWFuZG8gZGl2aWRlcyBlbnRyZSAyIGVsIHJlc2lkdW8gZXMgY2Vybw0KDQpgYGANCg0KDQoNCg0KDQoNCg==</div>
+data: x and group
+Kruskal-Wallis chi-squared = 44.349, df = 2, p-value = 0
+
+                           Comparison of x by group                            
+                                 (Bonferroni)                                  
+Col Mean-|
+Row Mean |        BEO        BRW
+---------+----------------------
+     BRW |  -4.281417
+         |    0.0000*
+         |
+     IBP |   2.564168   6.640807
+         |    0.0155*    0.0000*
+
+alpha = 0.05
+Reject Ho if p &lt;= alpha/2</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="ejercicio" class="section level3">
+<h3>Ejercicio</h3>
+<p>En el set de datos EXUDADOS hay 3 compuestos con variables
+dependientes. Determinen cual de ellos no se puede analizar meidante
+test parametricos y analizarlo usando Kruskal Wallis para ver si existen
+diferencias significativas entre trateientos. De ser asi raelizar un
+post hoc test para ver cuales son las diferencias.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFpcndpc2Uud2lsY294LnRlc3QoRXh1ZGFkb3MkR2x5b3hhbGF0ZV9ISUxOLFxuICAgICAgICAgICAgICAgICAgICAgRXh1ZGFkb3MkVHJlYXRtZW50LFxuICAgICAgICAgICAgICAgICAgICAgcC5hZGp1c3QubWV0aG9kID0gXCJmZHJcIilcblxuYGBgIn0= -->
+<pre class="r"><code>pairwise.wilcox.test(Exudados$Glyoxalate_HILN,
+                     Exudados$Treatment,
+                     p.adjust.method = &quot;fdr&quot;)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBhaXJ3aXNlIGNvbXBhcmlzb25zIHVzaW5nIFdpbGNveG9uIHJhbmsgc3VtIGV4YWN0IHRlc3QgXG5cbmRhdGE6ICBFeHVkYWRvcyRHbHlveGFsYXRlX0hJTE4gYW5kIEV4dWRhZG9zJFRyZWF0bWVudCBcblxuICAgICAgICAgICBMb3cgUCBQaGkgIFBpICBcblBoaSAgICAgICAgMC4yMiAgLSAgICAtICAgXG5QaSAgICAgICAgIDAuMjIgIDAuNjMgLSAgIFxuUGkvUGhpIG1peCAwLjEwICAwLjc5IDAuNDhcblxuUCB2YWx1ZSBhZGp1c3RtZW50IG1ldGhvZDogZmRyIFxuIn0= -->
+<pre><code>
+    Pairwise comparisons using Wilcoxon rank sum exact test 
+
+data:  Exudados$Glyoxalate_HILN and Exudados$Treatment 
+
+           Low P Phi  Pi  
+Phi        0.22  -    -   
+Pi         0.22  0.63 -   
+Pi/Phi mix 0.10  0.79 0.48
+
+P value adjustment method: fdr </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+</div>
+</div>
+<div id="friedman-test" class="section level1">
+<h1>Friedman test</h1>
+<p>Como pueden ver en el caso de los exudados el test Kruskal Wallis no
+nos permite comparar interacciones entre dos variables independientes
+como con una ANOVA de dos vias. En este caso el equivalente no
+parametrico es el test Friedman. Sin embargo, este test es sumamente
+restrictivo en los set de datos que pueden ser analizados y a la vez es
+major usar kriskal wallis por separado en cada variable
+independiente.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBQb3N0IGhvYyB0ZXN0IGVxdWl2YWxlbnRlIGEgVHVrZXlcbmZyZEFsbFBhaXJzTmVtZW55aVRlc3Qoc2NvcmUgfiB0aW1lIHxpZCwgZGF0YSA9IHNlbGZlc3RlZW0pXG5cbmBgYCJ9 -->
+<pre class="r"><code># Post hoc test equivalente a Tukey
+frdAllPairsNemenyiTest(score ~ time |id, data = selfesteem)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBhaXJ3aXNlIGNvbXBhcmlzb25zIHVzaW5nIE5lbWVueWktV2lsY294b24tV2lsY294IGFsbC1wYWlycyB0ZXN0IGZvciBhIHR3by13YXkgYmFsYW5jZWQgY29tcGxldGUgYmxvY2sgZGVzaWduXG5cbmRhdGE6IHNjb3JlIGFuZCB0aW1lIGFuZCBpZFxuIn0= -->
+<pre><code>
+    Pairwise comparisons using Nemenyi-Wilcoxon-Wilcox all-pairs test for a two-way balanced complete block design
+
+data: score and time and id</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgdDEgICAgICB0MiAgIFxudDIgMC4wMzcgICAtICAgIFxudDMgNi40ZS0wNSAwLjE3M1xuIn0= -->
+<pre><code>   t1      t2   
+t2 0.037   -    
+t3 6.4e-05 0.173</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5QIHZhbHVlIGFkanVzdG1lbnQgbWV0aG9kOiBzaW5nbGUtc3RlcFxuIn0= -->
+<pre><code>
+P value adjustment method: single-step</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="ejercicio-final" class="section level3">
+<h3>Ejercicio final</h3>
+<p>La mayor parte de ustedes tuvo alguna variable en sus proyectos que
+no se podria analizar con test parametricos. Usando lo que aprendimos
+hoy elijan una de esas variables y analicenla usando Kruskal Wallis con
+cada variable independiente por separado.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFpcndpc2Uud2lsY294LnRlc3QoU2V0X2RhdG9zJExvbmdfUmFpeixcbiAgICAgICAgICAgICAgICAgICAgIFNldF9kYXRvcyREaWEsXG4gICAgICAgICAgICAgICAgICAgICBwLmFkanVzdC5tZXRob2QgPSBcImJvbmZlcnJvbmlcIilcblxuYGBgIn0= -->
+<pre class="r"><code>pairwise.wilcox.test(Set_datos$Long_Raiz,
+                     Set_datos$Dia,
+                     p.adjust.method = &quot;bonferroni&quot;)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogY2Fubm90IGNvbXB1dGUgZXhhY3QgcC12YWx1ZSB3aXRoIHRpZXNcbiJ9 -->
+<pre><code>Warning: cannot compute exact p-value with ties</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBhaXJ3aXNlIGNvbXBhcmlzb25zIHVzaW5nIFdpbGNveG9uIHJhbmsgc3VtIHRlc3Qgd2l0aCBjb250aW51aXR5IGNvcnJlY3Rpb24gXG5cbmRhdGE6ICBTZXRfZGF0b3MkTG9uZ19SYWl6IGFuZCBTZXRfZGF0b3MkRGlhIFxuXG4gICAgICBEaWEgMiAgXG5EaWEgNyAxLjZlLTA1XG5cblAgdmFsdWUgYWRqdXN0bWVudCBtZXRob2Q6IGJvbmZlcnJvbmkgXG4ifQ== -->
+<pre><code>
+    Pairwise comparisons using Wilcoxon rank sum test with continuity correction 
+
+data:  Set_datos$Long_Raiz and Set_datos$Dia 
+
+      Dia 2  
+Dia 7 1.6e-05
+
+P value adjustment method: bonferroni </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+</div>
+</div>
+
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkFuYWxpc2lzIG5vIHBhcmFtZXRyaWNvcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rLiBXaGVuIHlvdSBleGVjdXRlIGNvZGUgd2l0aGluIHRoZSBub3RlYm9vaywgdGhlIHJlc3VsdHMgYXBwZWFyIGJlbmVhdGggdGhlIGNvZGUuIA0KDQpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ3RybCtTaGlmdCtFbnRlciouIA0KDQpgYGB7cn0NCnBsb3QoY2FycykNCmBgYA0KDQpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ3RybCtBbHQrSSouDQoNCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ3RybCtTaGlmdCtLKiB0byBwcmV2aWV3IHRoZSBIVE1MIGZpbGUpLg0KDQpUaGUgcHJldmlldyBzaG93cyB5b3UgYSByZW5kZXJlZCBIVE1MIGNvcHkgb2YgdGhlIGNvbnRlbnRzIG9mIHRoZSBlZGl0b3IuIENvbnNlcXVlbnRseSwgdW5saWtlICpLbml0KiwgKlByZXZpZXcqIGRvZXMgbm90IHJ1biBhbnkgUiBjb2RlIGNodW5rcy4gSW5zdGVhZCwgdGhlIG91dHB1dCBvZiB0aGUgY2h1bmsgd2hlbiBpdCB3YXMgbGFzdCBydW4gaW4gdGhlIGVkaXRvciBpcyBkaXNwbGF5ZWQuDQoNCg0KDQojIEludHJvZHVjY2lvbg0KDQpDb21vIHZpbW9zIGFudGVzIG51ZXN0cm9zIGRhdG9zIG5vIHZhbiBhIHBvZGVyIHNlciBhbmFsaXphZG9zIHNpZW1wcmUgcG9yIGFuYWxpc2lzIHBhcmFtZXRyaWNvcyB5YSBzZWEgcG9ycXVlIG5vIHNlIHB1ZWRlbiBub3JtYWxpemFyIG8gcG9ycXVlIGxhIG5hdHVyYWxlemEgZGUgbG9zIGRhdG9zIG5vIGxvIHBlcm1pdGUuIFBhcmEgZWxsbyB2YW1vcyBhIGFwcmVuZGVyIHZhcmlvcyB0ZXN0cyBubyBwYXJhbWV0cmljb3MuIFJlY3VlcmRlbiBxdWUgc2llbXByZSBlcyBtZWpvciB0cmF0YXIgZGUgaGFjZXIgdG9kbyBsbyBwb3NpYmxlIHBhcmEgdXNhciB0ZXN0IHBhcmFtZXRyaWNvcyBhbnRlcyBkZSByZWN1cnJpciBhIGVzdG9zIHRlc3QgeWEgcXVlIHNvbiBtYXMgcmVzdHJpY3Rpdm9zIHkgbm8gdGFuIHNlbnNpYmxlcyBjb21vIGxvcyB0ZXN0cyBwYXJhbWV0cmljb3MuIA0KDQpgYGB7cn0NCiMgTGlicmVyaWFzDQoNCmxpYnJhcnkoZHBseXIpDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoY2FyKQ0KbGlicmFyeShyc3RhdGl4KQ0KbGlicmFyeShQTUNNUnBsdXMpDQoNCmBgYA0KDQpgYGB7cn0NCkVzdGFucXVlcyA8LSByZWFkLmNzdigifi9SU3R1ZGlvL0N1cnNvSW5ub3Zhay9NYXRlcmlhbGVzL0JSVy5wb25kcy5jc3YiKQ0KDQpFeHVkYWRvcyA8LSByZWFkLmNzdigifi9SU3R1ZGlvL0N1cnNvSW5ub3Zhay9NYXRlcmlhbGVzL0V4dWRhZG9zLmNzdiIpDQoNCkNvbXBfc3VlbG9zIDwtIHJlYWQuY3N2KCJ+L1JTdHVkaW8vQ3Vyc29Jbm5vdmFrL01hdGVyaWFsZXMvU29pbF9Db21wYXJpc29uLmNzdiIpDQoNClNldF9kYXRvcyA8LSByZWFkLmNzdigifi9SU3R1ZGlvL0N1cnNvSW5ub3Zhay9Qcm95ZWN0b18xX1JNYXJrZG93bi9TZXQgZGUgZGF0b3MgcHJveWVjdG8uY3N2IikNCmBgYA0KDQojIEtydXNrYWwgV2FsbGlzIA0KDQplc3RlIG1ldG9kbyBzZSB1c2EgY29tbyBzdXN0aXR1dG8gYSBsYSBfQU5PVkEgZGUgdW5hIHZpYV8geWEgcXVlIG5vIG5lY2VzaXRhIG5vcm1hbGlkYWQgZGUgZGlzdHJpYnVjaW9uIGVuIGxhIHBvYmxhY2lvbiBuaSBob21vZ2VuZWlkYWQgZGUgdmFyaWFuemEgDQoNCmBgYHtyfQ0KIyBQcmltZXJvIHJldmlzYXIgbm9ybWFsaWRhZCANCnNoYXBpcm8udGVzdChFc3RhbnF1ZXMkRE9DKQ0KaGlzdChFc3RhbnF1ZXMkRE9DKSAjIHNpIHNvbiBub3JtYWxlcyANCg0KIyBIb21vZ2VuZWlkYWQgZGUgdmFyaWFuemEgY29uIGVsIGxldmVuZSB0ZXN0IA0KbGV2ZW5lVGVzdChET0MgfiBSZWdpb24sIGRhdGEgPSBFc3RhbnF1ZXMpDQojIGxhIGN1bXBsZT8gTk8NCg0KIyBLcnVza2FsIFdhbGxpcyANCmtydXNrYWwudGVzdChET0MgfiBSZWdpb24sIGRhdGEgPSBFc3RhbnF1ZXMpDQoNCiMgQ29tcGFyYXIgY29uIEFOT1ZBDQplc3RfYW5vdmEgPC0gYW92KERPQyB+IFJlZ2lvbiwgZGF0YSA9IEVzdGFucXVlcykNCkFub3ZhKGVzdF9hbm92YSkNCg0KYGBgDQpTaSBsbyBjb21wYXJhbW9zIGNvbiBlbCBBTk9WQSBlbCBLcnVza2FsIFdhbGxpcyBlcyBtYXMgZXN0cmljdG8geSBwb3IgbG8gdGFudG8gYSB2ZWNlcyBwdWVkZSBhZmVjdGFyIGxhIHNnbmlmaWNhbmNpYSBlc3RhZGlzdGljYS4gDQoNCiMjIFdpbGNveG9uIFJhbmsNCg0KQ29tbyBjb24gbGEgQU5PVkEgS3J1c2thbCBXYWxsaXMgbm9zIGRpY2U0IHNpIGhheSBvIG5vIGRpZmVyZW5jaWFzIHBlcm8gbm8gQ1VBTEVTIHNvbiBlc2FzIGRpZmVyZW5jYWlzLiBQYXJhIGVsbG8gdXNhbW9zIGVsIGVxdWl2YWxlbnRlIG5vIHBhcmFtZXRyaWNvIGFsIHRlc3QgZGUgX1R1a2V5IEhTRF8uIEVsIHBhaXJ3aXNlIFdpbGNveG9uIHRlc3QgZXMgdW4gcG9zdCBob2MgdGVzdCBxdWUgc2UgcHVlZGUgdXNhciBjb21vIHN1c3RpdHVjaW9uIGRlIFR1a2V5LiANCg0KYGBge3J9DQoNCnBhaXJ3aXNlLndpbGNveC50ZXN0KEVzdGFucXVlcyRET0MsDQogICAgICAgICAgICAgICAgICAgICBFc3RhbnF1ZXMkUmVnaW9uLA0KICAgICAgICAgICAgICAgICAgICAgcC5hZGp1c3QubWV0aG9kID0gIm5vbmUiKQ0KIyBDb21wYXJhciBjb24gVHVrZXkNClR1a2V5SFNEKGVzdF9hbm92YSkNCmBgYA0KIyMgUXVlIGVzIGVsIHAuYWRqdXN0IG1ldGhvZD8NCg0KQWp1c3RhIGxvcyBwLXZhbHVlIGN1YW5kbyBleGlzdGVuIG11bHRpcGxlcyBjb21wYXJhY2lvbmVzIHVzYW5kbyBkaWZlcmVudGVzIG1ldG9kb3MuIEV4aXN0ZW4gdmFyaW9zIG1ldG9kb3MgLi4uLi4uLmxpbmsuLi4uLi4uIHkgYXVucXVlIHN1IGV4cGxpY2FjaW9uIG1hdGVtYXRpY2EgZXMgYWxnbyBjb21wbGljYWRhIGVzIGltcG9ydGFudGUgcXVlIGNvbm96Y2FuIHN1IGFwbGljYWNpb24uIExhIGZ1bmNpb24gcHJpbmNpcGFsIGRlIGVzdG9zIG1ldG9kb3MgZXMgYWp1c3RhciBwLXZhbHVlIHRvbWFuZG8gZW4gY3VlbnRhIGxhcyBjb21wYXJhY2lvbmVzIHBhcmEgZXZpdGFyIHF1ZSBzZSBpbmZsZW4gZGVtYXNpYWRvcyB5IGV2aXRhciBmYWxzb3MgcG9zaXRpdm9zLiBFbCBtZXRvZG8gbWFzIGNvbXVuIHkgdGFtYmllbiBtYXMgZXN0cmljdG8gZXMgX2JvbmZlcnJvbmlfIG90cm8gbWV0b2RvIG1lbm9zIGVzdHJpY3RvIGVzIF9mZHJfIG8gZmFsc2UgZGlzY292ZXJ5IHJhdGUuIFBhcmEgYXByZW5kZXIgbWFzIHNvYnJlIHF1ZSBtZXRvZG8gdXNhciBwdWVkZW4gY2hlY2FyIGVzdGEgcGFnaW5hOiANCi4uLi4uLi4ucGFnaW5hLi4uLi4NCg0KYGBge3J9DQpwYWlyd2lzZS53aWxjb3gudGVzdChFc3RhbnF1ZXMkRE9DLA0KICAgICAgICAgICAgICAgICAgICAgRXN0YW5xdWVzJFJlZ2lvbiwNCiAgICAgICAgICAgICAgICAgICAgIHAuYWRqdXN0Lm1ldGhvZCA9ICJib25mZXJyb25pIikNCg0KcGFpcndpc2Uud2lsY294LnRlc3QoRXN0YW5xdWVzJERPQywNCiAgICAgICAgICAgICAgICAgICAgIEVzdGFucXVlcyRSZWdpb24sDQogICAgICAgICAgICAgICAgICAgICBwLmFkanVzdC5tZXRob2QgPSAiZmRyIikNCg0KIyBjb21wYXJhIGNvbiBUdWtleQ0KVHVrZXlIU0QoZXN0X2Fub3ZhKQ0KYGBgDQojIyBEdW5uIHRlc3QgDQoNCmBgYHtyfQ0KZHVubi50ZXN0OjpkdW5uLnRlc3QoRXN0YW5xdWVzJERPQywNCiAgICAgICAgICAgICAgICAgICAgIEVzdGFucXVlcyRSZWdpb24sDQogICAgICAgICAgICAgICAgICAgICBtZXRob2QgPSAiYm9uZmVycm9uaSIpDQpgYGANCiMjIyBFamVyY2ljaW8gDQoNCkVuIGVsIHNldCBkZSBkYXRvcyBFWFVEQURPUyBoYXkgMyBjb21wdWVzdG9zIGNvbiB2YXJpYWJsZXMgZGVwZW5kaWVudGVzLiBEZXRlcm1pbmVuIGN1YWwgZGUgZWxsb3Mgbm8gc2UgcHVlZGUgYW5hbGl6YXIgbWVpZGFudGUgdGVzdCBwYXJhbWV0cmljb3MgeSBhbmFsaXphcmxvIHVzYW5kbyBLcnVza2FsIFdhbGxpcyBwYXJhIHZlciBzaSBleGlzdGVuIGRpZmVyZW5jaWFzIHNpZ25pZmljYXRpdmFzIGVudHJlIHRyYXRlaWVudG9zLiBEZSBzZXIgYXNpIHJhZWxpemFyIHVuIHBvc3QgaG9jIHRlc3QgcGFyYSB2ZXIgY3VhbGVzIHNvbiBsYXMgZGlmZXJlbmNpYXMuIA0KDQpgYGB7cn0NCnNoYXBpcm8udGVzdChFeHVkYWRvcyRWYWxhcmF0ZV9DMThQKSANCmhpc3QoRXh1ZGFkb3MkVmFsYXJhdGVfQzE4UCkNCnFxbm9ybShFeHVkYWRvcyRWYWxhcmF0ZV9DMThQKQ0KDQpzaGFwaXJvLnRlc3QoRXh1ZGFkb3MkQ2hvcmlzbWF0ZV9DMThOKQ0KaGlzdChFeHVkYWRvcyRDaG9yaXNtYXRlX0MxOE4pDQpxcW5vcm0oRXh1ZGFkb3MkQ2hvcmlzbWF0ZV9DMThOKQ0KDQpzaGFwaXJvLnRlc3Qoc3FydChFeHVkYWRvcyRDaG9yaXNtYXRlX0MxOE4pKQ0KaGlzdChzcXJ0KEV4dWRhZG9zJENob3Jpc21hdGVfQzE4TikpDQpxcW5vcm0oc3FydChFeHVkYWRvcyRDaG9yaXNtYXRlX0MxOE4pKQ0KDQpzaGFwaXJvLnRlc3QoRXh1ZGFkb3MkR2x5b3hhbGF0ZV9ISUxOKQ0KaGlzdChFeHVkYWRvcyRHbHlveGFsYXRlX0hJTE4pDQpxcW5vcm0oRXh1ZGFkb3MkR2x5b3hhbGF0ZV9ISUxOKQ0KDQpzaGFwaXJvLnRlc3QobG9nKEV4dWRhZG9zJEdseW94YWxhdGVfSElMTikpDQpoaXN0KGxvZyhFeHVkYWRvcyRHbHlveGFsYXRlX0hJTE4pKQ0KcXFub3JtKGxvZyhFeHVkYWRvcyRHbHlveGFsYXRlX0hJTE4pKQ0KDQojIEhvbW9nZW5laWRhZCBkZSB2YXJpYW56YSBjb24gZWwgbGV2ZW5lIHRlc3QgDQpsZXZlbmVUZXN0KFZhbGFyYXRlX0MxOFAgfiBUcmVhdG1lbnQsIGRhdGEgPSBFeHVkYWRvcykNCiMgbGEgY3VtcGxlPyBzaQ0KDQpsZXZlbmVUZXN0KENob3Jpc21hdGVfQzE4TiB+IFRyZWF0bWVudCwgZGF0YSA9IEV4dWRhZG9zKQ0KIyBsYSBjdW1wbGU/IHNpDQoNCmxldmVuZVRlc3QoR2x5b3hhbGF0ZV9ISUxOIH4gVHJlYXRtZW50LCBkYXRhID0gRXh1ZGFkb3MpDQojIGxhIGN1bXBsZT8gbm8NCg0KIyBLcnVza2FsIFdhbGxpcyANCmtydXNrYWwudGVzdChHbHlveGFsYXRlX0hJTE4gfiBUcmVhdG1lbnQsIGRhdGEgPSBFeHVkYWRvcykNCg0KDQojIENvbXBhcmFyIGNvbiBBTk9WQQ0KZXh1X2Fub3ZhIDwtIGFvdihHbHlveGFsYXRlX0hJTE4gfiBUcmVhdG1lbnQsIGRhdGEgPSBFeHVkYWRvcykNCkFub3ZhKGV4dV9hbm92YSkgI2hheSBkaWZlcmVuY2lhIHNpZ25pZmljYXRpdmEgDQoNCg0KIyBXaWxjb3hvbg0KcGFpcndpc2Uud2lsY294LnRlc3QoRXh1ZGFkb3MkR2x5b3hhbGF0ZV9ISUxOLA0KICAgICAgICAgICAgICAgICAgICAgRXh1ZGFkb3MkVHJlYXRtZW50LA0KICAgICAgICAgICAgICAgICAgICAgcC5hZGp1c3QubWV0aG9kID0gIm5vbmUiKQ0KDQpwYWlyd2lzZS53aWxjb3gudGVzdChFeHVkYWRvcyRHbHlveGFsYXRlX0hJTE4sDQogICAgICAgICAgICAgICAgICAgICBFeHVkYWRvcyRUcmVhdG1lbnQsDQogICAgICAgICAgICAgICAgICAgICBwLmFkanVzdC5tZXRob2QgPSAiZmRyIikNCg0KIyBDb21wYXJhciBjb24gVHVrZXkNClR1a2V5SFNEKGV4dV9hbm92YSkNCg0KYGBgDQoNCg0KIyBGcmllZG1hbiB0ZXN0IA0KDQpDb21vIHB1ZWRlbiB2ZXIgZW4gZWwgY2FzbyBkZSBsb3MgZXh1ZGFkb3MgZWwgdGVzdCBLcnVza2FsIFdhbGxpcyBubyBub3MgcGVybWl0ZSBjb21wYXJhciBpbnRlcmFjY2lvbmVzIGVudHJlIGRvcyB2YXJpYWJsZXMgaW5kZXBlbmRpZW50ZXMgY29tbyBjb24gdW5hIEFOT1ZBIGRlIGRvcyB2aWFzLiBFbiBlc3RlIGNhc28gZWwgZXF1aXZhbGVudGUgbm8gcGFyYW1ldHJpY28gZXMgZWwgdGVzdCBGcmllZG1hbi4gU2luIGVtYmFyZ28sIGVzdGUgdGVzdCBlcyBzdW1hbWVudGUgcmVzdHJpY3Rpdm8gZW4gbG9zIHNldCBkZSBkYXRvcyBxdWUgcHVlZGVuIHNlciBhbmFsaXphZG9zIHkgYSBsYSB2ZXogZXMgbWFqb3IgdXNhciBrcmlza2FsIHdhbGxpcyBwb3Igc2VwYXJhZG8gZW4gY2FkYSB2YXJpYWJsZSBpbmRlcGVuZGllbnRlLiANCg0KYGBge3J9DQpkYXRhKCJzZWxmZXN0ZWVtIiwgcGFja2FnZSA9ICJkYXRhcml1bSIpDQpoZWFkKHNlbGZlc3RlZW0sMykNCiMgbG9zIGRhdG9zIHRpZW5lbiBxdWUgZXN0YXIgYmFsYW5jZWFkb3MgDQoNCnNlbGZlc3RlZW0gPC0gc2VsZmVzdGVlbSAlPiUNCiAgZ2F0aGVyKGtleSA9ICJ0aW1lIiwgdmFsdWUgPSAic2NvcmUiLCB0MSwgdDIsIHQzKSAlPiUNCiAgY29udmVydF9hc19mYWN0b3IoaWQsdGltZSkNCmhlYWQoc2VsZmVzdGVlbSwgMykNCg0KZnJpZWRtYW4udGVzdChzY29yZSB+IHRpbWUgfGlkLCBkYXRhID0gc2VsZmVzdGVlbSkNCg0KIyBQb3N0IGhvYyB0ZXN0IGVxdWl2YWxlbnRlIGEgVHVrZXkNCmZyZEFsbFBhaXJzTmVtZW55aVRlc3Qoc2NvcmUgfiB0aW1lIHxpZCwgZGF0YSA9IHNlbGZlc3RlZW0pDQpgYGANCiMjIyBFamVyY2ljaW8gZmluYWwgDQoNCkxhIG1heW9yIHBhcnRlIGRlIHVzdGVkZXMgdHV2byBhbGd1bmEgdmFyaWFibGUgZW4gc3VzIHByb3llY3RvcyBxdWUgbm8gc2UgcG9kcmlhIGFuYWxpemFyIGNvbiB0ZXN0IHBhcmFtZXRyaWNvcy4gVXNhbmRvIGxvIHF1ZSBhcHJlbmRpbW9zIGhveSBlbGlqYW4gdW5hIGRlIGVzYXMgdmFyaWFibGVzIHkgYW5hbGljZW5sYSB1c2FuZG8gS3J1c2thbCBXYWxsaXMgY29uIGNhZGEgdmFyaWFibGUgaW5kZXBlbmRpZW50ZSBwb3Igc2VwYXJhZG8uIA0KDQoNCmBgYHtyfQ0Kc2hhcGlyby50ZXN0KFNldF9kYXRvcyRMb25nX1JhaXopIA0KaGlzdChTZXRfZGF0b3MkTG9uZ19SYWl6KQ0KcXFub3JtKFNldF9kYXRvcyRMb25nX1JhaXopDQoNCnNoYXBpcm8udGVzdChTZXRfZGF0b3MkUGVzb19zZW1fZ3IpDQpoaXN0KFNldF9kYXRvcyRQZXNvX3NlbV9ncikNCnFxbm9ybShTZXRfZGF0b3MkUGVzb19zZW1fZ3IpDQoNCnNoYXBpcm8udGVzdChsb2coU2V0X2RhdG9zJExvbmdfUmFpeikpDQpoaXN0KGxvZyhTZXRfZGF0b3MkTG9uZ19SYWl6KSkNCnFxbm9ybShsb2coU2V0X2RhdG9zJExvbmdfUmFpeikpDQoNCnNoYXBpcm8udGVzdChzcXJ0KFNldF9kYXRvcyRMb25nX1JhaXopKQ0KaGlzdChzcXJ0KFNldF9kYXRvcyRMb25nX1JhaXopKQ0KcXFub3JtKHNxcnQoU2V0X2RhdG9zJExvbmdfUmFpeikpDQoNCiMgS3J1c2thbCBXYWxsaXMgDQprcnVza2FsLnRlc3QoTG9uZ19SYWl6IH4gVHJhdGFtaWVudG8sIGRhdGEgPSBTZXRfZGF0b3MpDQprcnVza2FsLnRlc3QoTG9uZ19SYWl6IH4gRGlhLCBkYXRhID0gU2V0X2RhdG9zKQ0KDQoNCiMgV2lsY294b24NCg0KDQpwYWlyd2lzZS53aWxjb3gudGVzdChTZXRfZGF0b3MkTG9uZ19SYWl6LA0KICAgICAgICAgICAgICAgICAgICAgU2V0X2RhdG9zJERpYSwNCiAgICAgICAgICAgICAgICAgICAgIHAuYWRqdXN0Lm1ldGhvZCA9ICJub25lIikNCg0KcGFpcndpc2Uud2lsY294LnRlc3QoU2V0X2RhdG9zJExvbmdfUmFpeiwNCiAgICAgICAgICAgICAgICAgICAgIFNldF9kYXRvcyREaWEsDQogICAgICAgICAgICAgICAgICAgICBwLmFkanVzdC5tZXRob2QgPSAiZmRyIikNCg0KcGFpcndpc2Uud2lsY294LnRlc3QoU2V0X2RhdG9zJExvbmdfUmFpeiwNCiAgICAgICAgICAgICAgICAgICAgIFNldF9kYXRvcyREaWEsDQogICAgICAgICAgICAgICAgICAgICBwLmFkanVzdC5tZXRob2QgPSAiYm9uZmVycm9uaSIpDQoNCmBgYA0KDQoNCg==</div>
 
 
 
@@ -2157,7 +2069,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("Funciones, For loops.Rmd");
+  window.initializeSourceEmbed("Analisis no parametricos.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

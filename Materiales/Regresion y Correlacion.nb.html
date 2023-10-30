@@ -1811,8 +1811,9 @@ entonces se debe de llevar acavo otro tipo de correlacion como
 Spearman.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yLnRlc3QoRmx1am9zQyRDSDQuY29uYyxGbHVqb3NDJENPMi5jb25jKVxuXG5gYGAifQ== -->
-<pre class="r"><code>cor.test(FlujosC$CH4.conc,FlujosC$CO2.conc)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTYWNhciBjb3JyZWxhY2lvblxuY29yLnRlc3QoRmx1am9zQyRDSDQuY29uYyxGbHVqb3NDJENPMi5jb25jKVxuXG5gYGAifQ== -->
+<pre class="r"><code># Sacar correlacion
+cor.test(FlujosC$CH4.conc,FlujosC$CO2.conc)
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBlYXJzb24ncyBwcm9kdWN0LW1vbWVudCBjb3JyZWxhdGlvblxuXG5kYXRhOiAgRmx1am9zQyRDSDQuY29uYyBhbmQgRmx1am9zQyRDTzIuY29uY1xudCA9IC0yOS44MDYsIGRmID0gMjgsIHAtdmFsdWUgPCAyLjJlLTE2XG5hbHRlcm5hdGl2ZSBoeXBvdGhlc2lzOiB0cnVlIGNvcnJlbGF0aW9uIGlzIG5vdCBlcXVhbCB0byAwXG45NSBwZXJjZW50IGNvbmZpZGVuY2UgaW50ZXJ2YWw6XG4gLTAuOTkyNzI5OSAtMC45Njc1NDU3XG5zYW1wbGUgZXN0aW1hdGVzOlxuICAgICAgIGNvciBcbi0wLjk4NDYwNDUgXG4ifQ== -->
@@ -1842,9 +1843,32 @@ de una ecuacion. Usando esta ecuacion uno podria calcular una de las
 variables si se sabe la otra</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-plot-begin eyJoZWlnaHQiOjM0My42MzQxLCJ3aWR0aCI6NTU2LCJzaXplX2JlaGF2aW9yIjowLCJjb25kaXRpb25zIjpbXX0= -->
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAiQAAAFSCAMAAAD1vjQDAAAAclBMVEUAAAAAADoAAGYAOpAAZmYAZrY6AAA6ADo6AGY6Ojo6ZmY6kNtmAABmADpmAGZmOpBmZgBmkJBmtrZmtv+QOgCQOjqQZgCQ2/+2ZgC2/7a2/9u2///bkDrb25Db/7bb////tmb/trb/25D//7b//9v////G48WvAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAOm0lEQVR4nO2da2OjuBVAyaTObBtvt7uTNm7H3bhx+P9/sSCBjW3ERS+QxDkfktkECwXO6nERV1UNIFCtXQFIHyQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBESQBkcCSVJARa0ni+/n5NQdfcpWkLQJNFiInSR5aD5qTZchIkmrsY2iyAPlIUhk+hybRyV8Sep3olCBJTXMSl3wkGR+TXH+LJ9FYWBL7+Mzth4Xfu1UKBDJqSeaUiiYxyFYSQ7NCrxOBXCWZGKCgSWgylWRyqkNzEhgXSQ7PH/Wpel3mvFMfn+hw0CQgDpK0jtT1eb9b5LxTHx+NrPU/pzkJhr0k5/0P9f307ecS5534vMmRy2/QJAz2kny96Y7muKokNw3F4N93Tcz4QWCHQ3dzrNqm5PPFa1AS8oYNW5WHfqh3YzpeC1O4DFw/X5or//S+zHnnFjW05GHZiTQdgkkynQI/FjXoYR67mGFz8nAQSJQnyd1vLmPY+04JS2bjIMnXm35Et+7A9a4seaYzaD3oe+xwiZN42WF73lmFGZ7j3Jxp8PAZSexwiZP4xVotz+t9jtszDXodJJmLezBtErFLWuQOjfZDbXMyb0zC6LbDJZi2Ew8+9k92jI94lrn85vUEM+4/o9sehzHJqZKakj4o23BUD3o8zhuHmY6sXs80cOluKml2M+iRTE94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" /></p>
-<!-- rnb-plot-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBsbTogbW9kZWxvIGxpbmVhbCB5fnhcbnN1bW1hcnkobG0oRmx1am9zQyRDTzIuY29uY35GbHVqb3NDJE1pbnV0ZSkpICMgYXF1aSBlc3RveSBtaWRpZW5kbyB1bmEgcmVncmVzaW9uIGxpbmVhbCBkZSBsYSBsaWJlcmFjaW9uIGRlIGNvMiBwb3IgbWludXRvIFxuXG5gYGAifQ== -->
+<pre class="r"><code># lm: modelo lineal y~x
+summary(lm(FlujosC$CO2.conc~FlujosC$Minute)) # aqui estoy midiendo una regresion lineal de la liberacion de co2 por minuto 
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IEZsdWpvc0MkQ08yLmNvbmMgfiBGbHVqb3NDJE1pbnV0ZSlcblxuUmVzaWR1YWxzOlxuICAgIE1pbiAgICAgIDFRICBNZWRpYW4gICAgICAzUSAgICAgTWF4IFxuLTQuODcwMiAtMi4xNzEyICAwLjMzNjMgIDIuNjUyMiAgNS4xMjM4IFxuXG5Db2VmZmljaWVudHM6XG4gICAgICAgICAgICAgICAgRXN0aW1hdGUgU3RkLiBFcnJvciB0IHZhbHVlIFByKD58dHwpICAgIFxuKEludGVyY2VwdCkgICAgMjE1LjcyMDUwICAgIDEuMzU3NjQgIDE1OC44OSAgIDwyZS0xNiAqKipcbkZsdWpvc0MkTWludXRlICAtMi4xMDk0MSAgICAwLjA2OTMzICAtMzAuNDMgICA8MmUtMTYgKioqXG4tLS1cblNpZ25pZi4gY29kZXM6ICAwIOKAmCoqKuKAmSAwLjAwMSDigJgqKuKAmSAwLjAxIOKAmCrigJkgMC4wNSDigJgu4oCZIDAuMSDigJgg4oCZIDFcblxuUmVzaWR1YWwgc3RhbmRhcmQgZXJyb3I6IDIuODkyIG9uIDI4IGRlZ3JlZXMgb2YgZnJlZWRvbVxuICAoMyBvYnNlcnZhdGlvbnMgZGVsZXRlZCBkdWUgdG8gbWlzc2luZ25lc3MpXG5NdWx0aXBsZSBSLXNxdWFyZWQ6ICAwLjk3MDYsXHRBZGp1c3RlZCBSLXNxdWFyZWQ6ICAwLjk2OTYgXG5GLXN0YXRpc3RpYzogOTI1Ljcgb24gMSBhbmQgMjggREYsICBwLXZhbHVlOiA8IDIuMmUtMTZcbiJ9 -->
+<pre><code>
+Call:
+lm(formula = FlujosC$CO2.conc ~ FlujosC$Minute)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.8702 -2.1712  0.3363  2.6522  5.1238 
+
+Coefficients:
+                Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    215.72050    1.35764  158.89   &lt;2e-16 ***
+FlujosC$Minute  -2.10941    0.06933  -30.43   &lt;2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.892 on 28 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.9706,    Adjusted R-squared:  0.9696 
+F-statistic: 925.7 on 1 and 28 DF,  p-value: &lt; 2.2e-16</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>En este caso el modelo linear da los valores de la interseccion en y
@@ -1926,29 +1950,12 @@ tendriamos que de iugal manera medir una de ellas.</p>
 correlacion y regresion lineal. Justifiquen su respuesta</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShsbShkYXRvcyR0aWVtcG9+ZGF0b3MkdnVlbHRhcykpXG5cbmBgYCJ9 -->
-<pre class="r"><code>summary(lm(datos$tiempo~datos$vueltas))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yLnRlc3QoZGF0b3MkdGllbXBvLGRhdG9zJHZ1ZWx0YXMpXG5cbmBgYCJ9 -->
+<pre class="r"><code>cor.test(datos$tiempo,datos$vueltas)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IGRhdG9zJHRpZW1wbyB+IGRhdG9zJHZ1ZWx0YXMpXG5cblJlc2lkdWFsczpcbiAgIDEgICAgMiAgICAzICAgIDQgICAgNSBcbi0xLjQgIDAuNCAgMS4yICAyLjAgLTIuMiBcblxuQ29lZmZpY2llbnRzOlxuICAgICAgICAgICAgICBFc3RpbWF0ZSBTdGQuIEVycm9yIHQgdmFsdWUgUHIoPnx0fCkgIFxuKEludGVyY2VwdCkgICAgMTIuMjAwMCAgICAgMi4xMzIzICAgNS43MjIgICAwLjAxMDYgKlxuZGF0b3MkdnVlbHRhcyAgIDEuMDY2NyAgICAgMC4yMTQzICAgNC45NzcgICAwLjAxNTYgKlxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG5cblJlc2lkdWFsIHN0YW5kYXJkIGVycm9yOiAyLjAzMyBvbiAzIGRlZ3JlZXMgb2YgZnJlZWRvbVxuTXVsdGlwbGUgUi1zcXVhcmVkOiAgMC44OTIsXHRBZGp1c3RlZCBSLXNxdWFyZWQ6ICAwLjg1NiBcbkYtc3RhdGlzdGljOiAyNC43NyBvbiAxIGFuZCAzIERGLCAgcC12YWx1ZTogMC4wMTU1OFxuIn0= -->
-<pre><code>
-Call:
-lm(formula = datos$tiempo ~ datos$vueltas)
-
-Residuals:
-   1    2    3    4    5 
--1.4  0.4  1.2  2.0 -2.2 
-
-Coefficients:
-              Estimate Std. Error t value Pr(&gt;|t|)  
-(Intercept)    12.2000     2.1323   5.722   0.0106 *
-datos$vueltas   1.0667     0.2143   4.977   0.0156 *
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Residual standard error: 2.033 on 3 degrees of freedom
-Multiple R-squared:  0.892, Adjusted R-squared:  0.856 
-F-statistic: 24.77 on 1 and 3 DF,  p-value: 0.01558</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IG9iamV0byAnZGF0b3MnIG5vIGVuY29udHJhZG9cbiJ9 -->
+<pre><code>Error: objeto &#39;datos&#39; no encontrado</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
