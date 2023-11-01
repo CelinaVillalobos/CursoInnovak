@@ -203,6 +203,363 @@ ggplot(airquality, aes(x= Day, y= Temp)) +
  
 ```
 
+# Modificando los titulos 
+
+```{r}
+ggplot(airquality, aes(x= Day, y= Temp)) +
+  geom_point(color= "firebrick1") +
+  labs(x= "Day", y= "Temperature (°F)") +
+  ggtitle("Calidad del aire") #para agregar titulos  
+
+# ocupas mas que un solo titulo?
+
+ggplot(airquality, aes(x= Day, y= Temp)) +
+  geom_point(color= "dodgerblue") +
+  labs(x= "Day", y= "Temperature (°F)",
+       title = "Calidad del Aire",
+       subtitle = "odio los grados Fahrenheit",
+       caption = "Datos de ejemplo", #como si fuera un pie de pagina 
+       tag = "Fig.1")
+
+# Para mover el titulo de lugar osea mas centrado...
+
+ggplot(airquality, aes(x= Day, y= Temp)) +
+  geom_point(color= "firebrick1") +
+  labs(x= "Day", y= "Temperature (°F)") +
+  ggtitle("Calidad del aire")+
+  theme(plot.title = element_text(hjust = 0.5, size= 25)) #ubicacion del texto, el uso de plot.title es para mover de lugar los titlos ya sea de las lineas, margenes, todo lo relacionado a la grafica 
+
+# modificando la estatica del titulo
+
+ggplot(airquality, aes(x= Day, y= Temp)) +
+  geom_point(color= "firebrick1") +
+  labs(x= "Day", y= "Temperature (°F)") +
+  ggtitle("Calidad del aire")+
+  theme(plot.title = element_text(face = "bold",size = 14)) #face es para cambiar tipo de texto 
+
+                            
+```
 
 
+# Ejercicio final 
+
+Ahora si haran su primer grafico desde cero, usando los datos de FlujosC quiero que me grafiquen la concentracion de CH4 por minuto. El grarfico debe de incluir cada uno de los siguientes elementos: 
+
+1.- Por lo menos un cambio dentro de la geometria del grafico 
+2.- Etiquetas de los ejes (y quiero que el 4 este en subscript)
+3.- Modificacion de la escala de los ejes 
+4.- Un titulo con por lo menos una modificacion en formato 
+
+```{r}
+graf.FlujoC <- ggplot(FlujosC, aes(x= CH4.conc , y= Minute))
+
+
+ggplot(FlujosC, aes(x= Minute, y= CH4.conc))+
+  geom_point(color= "#00cd66") +
+  labs(x= "Tiempo (min)",
+       y= bquote("Concentracion de CH"[4]),
+       title = "FlujosC",
+       caption = "Datos compartidos por Isabel")+
+  theme(axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20),
+        plot.title = element_text(hjust = 0.5, size = 25))
+         
+
+
+
+```
+
+
+
+
+
+
+
+### TIPOS DE GRAFICOS ###
+
+El ultimo elemento de un grafico que nos falto aprender fue la leyenda. Sin embargo, el dia de ayer estabamos viendo graficos muy sencillos que no la necesitaban como tal por lo que para aprender a modificar una leyenda en ggplot2 primero les voy a enseñar a graficar boxplots. 
+
+```{r}
+# Librerias 
+
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+
+# Data
+
+# boxplots 
+data(CO2)
+Comp_soils <- read.csv("~/RStudio/CursoInnovak/Materiales/Soil_Comparison.csv")
+
+# puntos 
+data(iris)
+#poner la data de flujos
+
+```
+# Boxplots
+
+Los boxplots seran el grafico que mas comunmente usaran para presentar datos ya que permite condensar gran numero de informacion combinando una variable discreta (x) y una variable continua (y):
+
+```{r}
+theme_set(theme_bw())
+
+ggplot(CO2,aes(x= Type, y= uptake))+ #aes: es estetica
+  geom_boxplot(fill = "blue1", col= "brown3") # col: es linea del borde y fill= es el relleno 
+
+```
+
+Si bien esta grafica nos esta comparando los dos tipos de planta que tenemos realmente, no es muy informativa basada en los datos que tenemos ya que dejamos de lado que existian diferentes tipos de tratamiento a los que estuvieron sujetos estas plantas. Es por ello que el boxplot es tan poderoso usando diferentes colores nosotros podemos agregarle complejidad al grafico para que sea realmente informativo. 
+
+```{r}
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()
+
+ggplot(CO2,aes(x= Treatment, y= uptake, fill= Type))+
+  geom_boxplot()
+```
+
+Al agregar esta otra variable el boxplot automaticamente detecta que tienes dos variables independientes las cuales se deben de graficar separando grupos. Otros elemento interesante es que ggplot2 tiene colores automaticos. 
+
+-------
+
+### Leyendas 
+
+Pero ahora si antes de seguir con las maravillas de un boxplot veamos como podemos modificar las leyendas. 
+
+```{r}
+# primero que hacer si la leyenda nos estorba
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  theme(legend.position = "none")
+
+# bueno no nos estorba pero no queremos que tenga titulos 
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  theme(legend.title = element_blank()) #siginica que esta vacio
+
+#otra opcion
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  scale_fill_discrete(name= NULL) #este es para que no o si aparezca la leyenda en lo que significa cada box, en este caso NULL no le estoy pondiendo nombre 
+
+```
+
+Si bien usualmente las leyendas van del lado derecho de nuestro grafico tambien podemos cambiarla de lugar. 
+
+```{r}
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  theme(legend.position = "bottom")
+```
+
+Y como con nuestras otras variables tambien podemos modificar el fomato de texto 
+
+```{r}
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  theme(legend.title = element_text(color = "chocolate",
+                                    size = 14,
+                                    face = "bold"))
+
+#si le quiero agregar titulo a mi grafica 
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  theme(legend.title = element_text(color = "chocolate",
+                                    size = 14,
+                                    face = "bold"))+
+  ggtitle("CO2")
+
+```
+
+Tambien podemos cambiar el nombre y orden de nuestras etiquetas. Esto puede ser muy util cuando tenemos codigos o abreviaciones que no son muy informativos en nuestro set de datos
+
+```{r}
+# Cambiar el orden de los datos 
+CO2$Treatment <- factor(CO2$Treatment,
+                        levels = c("chilled", "nonchilled"), 
+                        ordered = TRUE) #hay que checaar ortografia para que no borre los datos 
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()
+  
+# cambiar el nombre de los datos 
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  scale_fill_discrete(name= "Tratamientos",
+                      labels= c("Frio", "Temperado"))
+# si queremos cambiar tambien a español las leyendas de los x y y seria: 
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  scale_fill_discrete(name= "Tratamientos",
+                      labels= c("Frio", "Temperado"))+ #para leyendas
+  xlab("Tipo de planta") + ylab(bquote("Abosorcion de co"[2])) #para ejes 
+
+```
+
+Como con todos los elementos que hemos visto las modificaciones a las leyends son interminables. Yo aqui les muestro las que mas conmumente van a ocupar, pero ustedes pueden hacer todo tipo de modificacioneds dependiendo de sus necesidades. 
+
+[Aqui un tutorial de otras modificaciones que pueden hacedr a los elementos de un grafico](https://www.cedricscherer.com/2019/08/05/a-ggplot2-tutorial-for-beautiful-plotting-in-r/#legends)
+
+### Ejercicio 
+
+Usando los datos de Comp_solis quiero que grafiquen un boxplot de una variable difernete cada quien en el que comparen tipo de suelo por temperatura. Ademas deben de modificar por lo menos una vez los siguientes elementos: 
+
+1.- Modificacion a la leyenda (que no sea quitarla)
+2.- Etiquetas de los ejes
+3.- Modificacion de la escala de los ejes 
+4.- Un titulo con por lo menos una modificacion en formato 
+
+```{r}
+
+ggplot(Comp_soils,aes(x= Soil, y= NO3.ugL, fill= Temperature))+
+  geom_boxplot()+
+  theme(legend.position = "bottom")+
+  scale_fill_discrete(name= "Temperatura",
+                      labels= c("17°C", "7°C"))+
+  theme(axis.text = element_text(color= "coral3",
+                                 size= 10,),
+        axis.title.x = element_text(vjust = 1,
+                                    size = 12),
+        axis.text.y = element_text(vjust = 1,
+                                   size = 10))+
+  ggtitle("Composicion del suelo")+
+  theme(plot.title = element_text(hjust = 0.5, size= 25, face = "bold"))+
+  ylab(bquote("NO"[3]("ugL")))+
+  ylim(c(2,20))
+```
+
+## Modificando colores en boxplots
+
+```{r}
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(fill= "darkgreen")
+```
+
+Recuerden que aqui el orden si importa y al momento de haberle dicho a nuestro grafico que lo queriamos en verde la separacion de relleno por tratamiento se anula. Para mantener dicha separacion y cambiar nuestros colores usamos: 
+
+```{r}
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot()+
+  scale_fill_manual(name= "Treatment",
+                    values = c("darkgreen", "purple"))
+
+# diferencia entre fill y color 
+ggplot(CO2,aes(x= Type, y= uptake, col= Treatment))+
+  geom_boxplot()+
+  scale_color_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))
+
+#Cambiando uno y otro 
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(col= "yellow")+ #lo cambia a ambos
+  scale_fill_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))+
+  theme_dark()
+
+#cambiando los dos juntos 
+ggplot(CO2,aes(x= Type, y= uptake, col= Treatment))+
+  geom_boxplot(fill= "black")+ 
+  scale_color_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))
+
+# y si queremos cambiar ambos por variables, seria asi 
+ggplot(CO2,aes(x= Type, y= uptake, col= Treatment, fill= Treatment))+
+  geom_boxplot()+ 
+  scale_color_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))+
+  scale_fill_manual(name= "Treatment",
+                    values= c("purple", "darkgreen"))
+
+
+```
+
+## Otras cosas extrañas que modificar en un boxplot: (van dentro del codigo del boxplot)
+
+* Outlier.colour, outlier.shape, outlier.size
+* notch
+* lwd (la linea del box), alpha (alpha siempre significa transparencia)
+* puntos de media 
+* boxdots (para ver que tan dispersos estan los datos)
+
+```{r}
+# Outliers
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(outlier.colour = "#7FFF00", outlier.shape = 10,
+               outlier.size = 2)+ 
+  scale_fill_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))
+
+# notch
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(notch = TRUE)+ 
+  scale_fill_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))
+
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(notch = TRUE, notchwidth = .6)+ #va de 0 a 1 siendo 0 + cintura
+  scale_fill_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))
+
+# lwd, alpha
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(lwd= 0.6, alpha= 0.4)+ #lwd es la linea, alpha es la transparencia en escala 0-1
+  scale_fill_manual(name= "Treatment",
+                     values= c("#CD1076", "#87CEFA"))
+
+# mean dots
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(alpha= 0.4)+
+  scale_fill_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))+
+  stat_summary(fun.y = mean, geom = "point", shape=23, size= 4,
+               position = position_dodge(.8)) #la posicion en la que quieres el punto en relacion a la media osea que tan pegadas las quieren una con la otra y shape son las figuritas de la tabla que va a tener el punto
+
+
+
+# boxdots
+ggplot(CO2,aes(x= Type, y= uptake, fill= Treatment))+
+  geom_boxplot(alpha= 0.2)+
+  scale_fill_manual(name= "Treatment",
+                     values= c("darkgreen", "purple"))+
+  geom_dotplot(binaxis = "y", stackdir = "center", dotsize = 1, 
+               position = position_dodge(.7)) #binaxis en que posicion quiero los puntos en este caso en direccion al eje de las y, stackdir donde los quiero en este caso en el centro, y dotsize el tamaño y en que posicion. En pocas palabras es otra geometria 
+
+```
+
+
+## Ejercicio 
+
+Al boxplot que hicieron en el ejercicio anterior modifiquenle todo lo que aprendimos: 
+
+1.- Colores dentro del grafico (color y/o fill ustedes decidan)
+2.- Como se van a ver los outliers, si no tienen outliers agregar punto de media. 
+
+```{r}
+ggplot(Comp_soils,aes(x= Soil, y= NO3.ugL, fill= Temperature))+
+  geom_boxplot(outlier.fill = "#FF0000", outlier.shape = 23)+
+  scale_fill_manual("Temperatura",
+                    values = c("#436EEE", "olivedrab2"),
+                    labels= c("17°C", "7°C"))+
+  theme(legend.position = "bottom")+
+  theme(axis.text = element_text(color= "hotpink4",
+                                 size= 10,),
+        axis.title.x = element_text(vjust = 1,
+                                    size = 12),
+        axis.text.y = element_text(vjust = 1,
+                                   size = 10))+
+  ggtitle("Composicion del suelo")+
+  theme(plot.title = element_text(hjust = 0.5, size= 25, face = "bold"))+
+  ylab(bquote("NO"[3]("ugL")))+
+  ylim(c(2,20))+
+  stat_summary(fun.y = mean, geom = "point", shape=23, size= 4,
+               position = position_dodge(.8))
+
+  
+```
 
