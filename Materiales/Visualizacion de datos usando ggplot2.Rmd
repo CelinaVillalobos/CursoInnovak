@@ -3,19 +3,6 @@ title: "Visualizacion de datos usando ggplot2"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
-```{r}
-plot(cars)
-```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
 # Introduccion
 
@@ -285,6 +272,8 @@ El ultimo elemento de un grafico que nos falto aprender fue la leyenda. Sin emba
 library(tidyverse)
 library(ggplot2)
 library(patchwork)
+library(RColorBrewer)
+library(ggbreak)
 
 # Data
 
@@ -294,7 +283,10 @@ Comp_soils <- read.csv("~/RStudio/CursoInnovak/Materiales/Soil_Comparison.csv")
 
 # puntos 
 data(iris)
-#poner la data de flujos
+#poner la data de flujos, pero ya la tengo en la parte de arriba 
+
+# barras 
+Roedores <- read.csv("~/RStudio/CursoInnovak/Materiales/Roedores.csv")
 
 ```
 # Boxplots
@@ -560,6 +552,388 @@ ggplot(Comp_soils,aes(x= Soil, y= NO3.ugL, fill= Temperature))+
   stat_summary(fun.y = mean, geom = "point", shape=23, size= 4,
                position = position_dodge(.8))
 
+
+
+# aprendiendo a usar patchwork 
+out | dots
   
 ```
 
+
+
+# RETOMANDO GRAFICOS DE PUNTOS 
+
+Ayer aprendimos acerca de los elementos basicos en un ggplot usando un grafico de puntos. Sin embargo hay algunas otras cosas interesantes que se pueden hacer para mejorar los graficos de puntos.
+
+
+```{r}
+ggplot(iris, aes(x= Petal.Width, y= Petal.Length))+
+  geom_point(size= 2, fill= "hotpink3",
+             color= "black", shape= 21)
+```
+
+# geom_point vs geom_jitter
+
+```{r}
+ggplot(iris, aes(x= Petal.Width, y= Petal.Length))+
+  geom_point(size= 2, fill= "hotpink3",
+             color= "black", shape= 21,
+             alpha= 0.5) # ven como hay muchos empalmes entre los puntos 
+```
+
+# Para eso esta geom jitter
+
+```{r}
+ggplot(iris, aes(x= Petal.Width, y= Petal.Length))+
+  geom_jitter(size= 2, fill= "hotpink3",
+              color= "black", shape= 21,
+              alpha= 0.5)
+  
+```
+
+# Añadiendo mas informacion a nuestro grafico 
+
+```{r}
+ggplot(iris, aes(x= Petal.Width, y= Petal.Length, fill= Species))+
+  geom_point(size= 2, Color= "black",
+              color= "black", shape= 21,
+              alpha= 0.5)
+```
+
+## Mini ejercicio 
+
+Modifiquen colores y etiquetas ejes de este ultimo grafico 
+
+```{r}
+ggplot(iris, aes(x= Petal.Width, y= Petal.Length, fill= Species))+
+  geom_point(size= 2, color= "black",
+              color= "black", shape= 21,
+              alpha= 0.5)+
+  scale_fill_manual(name="Especies",
+                    values = c("blue", "purple", "pink"))
+
+```
+
+# Añadiendo correlacion 
+
+si adeams quisieramos añadir la correlacion que tienen el ancho y largo de los petalos a nuestro grafico tambien podriamos hecerlo. 
+
+```{r}
+ggplot(iris, aes(x= Petal.Width, y= Petal.Length, fill= Species))+
+  geom_point(size= 2, color= "black", shape= 21, alpha= 0.5)+
+  geom_abline() #linea de correlacion 
+```
+
+_pero antes necesitamos especificar intercept y pendiente_
+pero para ello debemos de calcularlos 
+
+```{r}
+# Calculando regresion lineal 
+
+summary(lm(Petal.Length ~ Petal.Width, data= iris))
+
+coef(lm(Petal.Length ~ Petal.Width, data= iris)) #el atajo que da lo msimo 
+
+
+# Ahora si el grafico 
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length, fill= Species))+
+  geom_point(size= 2, color= "black", shape= 21,
+             alpha= 0.5)+
+  geom_abline(aes(intercept= 1.083558, slope= 2.229940)) #hay que estar pendiente cual es x y cual es y 
+```
+
+o podemos usar un atajo con geom_smooth
+
+```{r}
+# otro atajo geom_smooth
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length))+
+  geom_point(size= 2, color= "purple3", shape= 21,
+             alpha= 0.5)+
+  geom_smooth(method = "lm",
+              se= FALSE, # es intervalo de confianza 
+              color= "orange",
+              linewidth= 0.5)
+
+
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length, fill= Species))+ #si utilizo fill en ggplot todo lo que siga poniendo abajo los va a separar en este caso por especie
+  geom_point(size= 2, color= "purple3", shape= 21,
+             alpha= 0.5)+
+  geom_smooth(method = "lm",
+              se= FALSE, # es intervalo de confianza 
+              color= "orange",
+              linewidth= 0.5)
+
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length))+
+  geom_point(size= 2, color= "purple3", shape= 21,
+             alpha= 0.5, aes(fill= Species))+ # en este caso lo movemos a geom_point y vemos que ahora no lo separa por especies 
+  geom_smooth(method = "lm",
+              se= FALSE, # es intervalo de confianza 
+              color= "orange",
+              linewidth= 0.5)
+
+```
+
+# y la ecuacion 
+
+```{r}
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length))+
+  geom_point(size= 2, color= "purple3", shape= 21,
+             alpha= 0.5)+
+  geom_smooth(method = "lm",
+              se= FALSE, # es intervalo de confianza 
+              color= "orange",
+              linewidth= 0.5)+
+  annotate(geom= "text", x= 0.75, y= 6.2, # con estos datos dices en que posicion quieres que este el texto osea en la posicion de las x y y dependiendo de tu grafica pones los numeros que hay 
+           label= "y= 2.2x + 1.08", size= 3) # con esto pones el texto que quieres que aparezca en tu grafica, lo que pusimos en este fue lo que sacamos de la correlacion con el siguiente codigo = coef(lm(Petal.Length ~ Petal.Width, data= iris))
+
+
+```
+
+La funcion de annotate sirve para agregar cualquier tipo de texto al grafico. Por ejemplo mas adalante la usaremos para poner letras dentro del grafico: 
+
+Sin embargo, ahora que andamos en texto creo que tambien seria interesante ver otras funciones que tienen ggplot para agr4egar texto dentro del grafico: 
+
+Por otro lado geom_text unicamente agrega texto al grafico mientras que geo_label lo pone en un rectangulo facilitando su lectura 
+
+```{r}
+# text 
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length, label= Petal.Length))+
+  geom_point(size= 2, color= "purple3", shape= 21,
+             alpha= 0.5, aes(fill= Species))+
+  geom_smooth(method = "lm",
+              se= FALSE, # es intervalo de confianza 
+              color= "orange",
+              linewidth= 0.5)+
+  geom_text(hjust= 0, nudge_x= 0.05)# nudge_x es para que no este encima del puntito sino que este a un lado 
+
+# label
+ggplot(iris, aes(x=Petal.Width, y=Petal.Length, label= Petal.Length))+
+  geom_point(size= 2, color= "purple3", shape= 21,
+             alpha= 0.5, aes(fill= Species))+
+  geom_smooth(method = "lm",
+              se= FALSE, # es intervalo de confianza 
+              color= "orange",
+              linewidth= 0.5)+
+  geom_label(aes(fill= factor(Species)), colour= "white", fontface= "bold")
+
+```
+
+# Ejercico 
+
+Ahora si realicen dos grarficos de correlacion. Uno para la correlacion de CO2 con minutos y el otro de CH4. Ambos deberan llevar su linea de correlacion y la ecuacion con la pendiente y el intercept. Cada uno de los grafricos debera tener diferentes colores y formas de puntos, contar con sus ejes y leyendas bien eitquetadas y un titulo. 
+
+```{r}
+coef(lm(CO2.conc ~ Minute, data= FlujosC))
+
+ggplot(FlujosC, aes(x= Minute, y= CO2.conc))+
+  geom_point(size= 3, color= "#EE6363", shape= 10,
+             alpha= 0.7)+
+  geom_abline(aes(intercept= 215.720504, slope= -2.109415))+
+  ggtitle(expression(paste("Concentracion de CO"[2], " por min")))+
+  theme(plot.title = element_text(hjust = 0.5, size= 21, face = "bold"))+
+  geom_smooth(method = "lm",
+              se= FALSE,
+              color= "#912CEE",
+              linewidth= 0.8)+
+  annotate(geom= "text", x= 9.5, y= 165, 
+           label= "y= -2.10x + 215.72", size= 3)
+
+
+coef(lm(CH4.conc ~ Minute, data= FlujosC))
+
+ggplot(FlujosC, aes(x= Minute, y= CH4.conc))+
+  geom_point(size= 5, color= "olivedrab1", shape= 19,
+             alpha= 0.9)+
+  geom_abline(aes(intercept= 12.2923797, slope= 0.4136789))+
+  ggtitle(expression(paste("Concentracion de CH"[4], " por min")))+
+  theme(plot.title = element_text(hjust = 0.2, size= 17, face = "bold"))+
+  geom_smooth(method = "lm",
+              se= FALSE,
+              color= "orange",
+              linewidth= 0.3)+
+  annotate(geom= "text", x= 11.75, y= 23, 
+           label= "y= 0.41x + 12.29", size= 5)
+
+
+
+CO2 <- ggplot(FlujosC, aes(x= Minute, y= CO2.conc))+
+  geom_point(size= 3, color= "#EE6363", shape= 10,
+             alpha= 0.7)+
+  geom_abline(aes(intercept= 215.720504, slope= -2.109415))+
+  ggtitle(expression(paste("Concentracion de CO"[2], " por min")))+
+  theme(plot.title = element_text(hjust = 0.5, size= 21, face = "bold"))+
+  geom_smooth(method = "lm",
+              se= FALSE,
+              color= "#912CEE",
+              linewidth= 0.8)+
+  annotate(geom= "text", x= 9.5, y= 165, 
+           label= "y= -2.10x + 215.72", size= 3)
+
+CH4 <- ggplot(FlujosC, aes(x= Minute, y= CH4.conc))+
+  geom_point(size= 5, color= "olivedrab1", shape= 19,
+             alpha= 0.9)+
+  geom_abline(aes(intercept= 12.2923797, slope= 0.4136789))+
+  ggtitle(expression(paste("Concentracion de CH"[4], " por min")))+
+  theme(plot.title = element_text(hjust = 0.2, size= 17, face = "bold"))+
+  geom_smooth(method = "lm",
+              se= FALSE,
+              color= "orange",
+              linewidth= 0.3)+
+  annotate(geom= "text", x= 11.75, y= 23, 
+           label= "y= 0.41x + 12.29", size= 5)
+
+
+CO2 | CH4
+
+```
+
+
+# DATO MUY IMPORTANTE LO QUE ESTAS MIDIENDO SIEMPRE VA EN EL EJE DE LAS Y
+
+
+# Grafico de barras 
+
+En ggplot hay dos tipos de graficos de barras: geom_bar se describe su uso como para graficar cuantas de una sola variable discreta mientras que geom_col usa una variable discreta y una continua. Por ejemplo geom_bar podria usarse para contar el numero de casos en un grupo (numero de ratones encontrados por especie por ejemplo). En cambio geom_col usa valor4es dentro de los datos para representar la altura de la barra. Tambien existe goem_histogram pero ese funciona gual aun histograma normal por lo que sus usos son mas limitados. 
+
+```{r}
+# Histograma 
+ggplot(Roedores, aes(weight))+
+  geom_histogram()
+
+# col
+ggplot(Roedores, aes(x= genus, y= weight))+
+  geom_col()+ #sumo todos los pesos asi no es muy util
+  coord_flip() # mover las coordenadas 
+
+# barras 
+ggplot(Roedores, aes(genus))+
+  geom_bar(fill= "brown2")
+
+
+# como hacerlo mas legible?
+ggplot(Roedores)+
+  geom_bar(aes(y=genus), fill= "brown2") # similar a coord flip
+
+# tambien se puede incluir mas inforamcion 
+
+```
+
+# Mini ejercicio 
+
+como le agregariamos los colores a este ejercicio en vez de los predetermiandos? 
+
+```{r}
+ggplot(Roedores)+
+  geom_bar(aes(y=genus, fill= plot_type))+
+  scale_fill_manual(name= "Tipo de plot",
+                   values = c("#D02090", "thistle3", "slategray1", "#EEB4B4", "lightgoldenrod1"))
+
+
+# otra manera facil 
+
+ggplot(Roedores)+
+  geom_bar(aes(y= genus, fill= plot_type))+
+  scale_fill_brewer(palette= "Set3", name= "Plot Type")
+  
+```
+
+Aqui les paso otra manera rapida y facil de elegir varios colores sin pensar mucho: 
+  [Rbrewer](https://www.datanovia.com/en/blog/the-a-z-of-rcolorbrewer-palette/)
+
+
+```{r}
+ggplot(Roedores)+
+  geom_bar(aes(y= genus, fill= plot_type))+
+  scale_fill_brewer(palette= "Paired", name= "Plot Type",
+                    direction = -1)
+
+ggplot(Roedores)+
+  geom_bar(aes(y= genus, fill= plot_type))+
+  scale_fill_manual(values= rev(brewer.pal(5, "Paired"))) # el numero es para la paleta de colores si la paleta tiene 12 numero ponemos el 12 y agarra los colores al asar de la paleta
+
+```
+ sin embargo, ademas de los colores el principal problema de este grarfico es la alta diferencia entre la abundancia de _Dipodomys_ y el resto de las especies. Para solucionarlo aprenderemos a hacer cortes o breaks en los ejes:
+ 
+```{r}
+ggplot(Roedores)+
+  geom_bar(aes(y= genus, fill= plot_type))+
+  scale_color_manual(values= rev(brewer.pal(12, "Paired")))+
+  scale_x_break(c(7000, 15000), scale= 0.2) # funciona como zoom
+
+# modificando/agragando otra escala y break 
+ggplot(Roedores)+
+  geom_bar(aes(y= genus, fill= plot_type))+
+  scale_color_manual(values= rev(brewer.pal(12, "Paired")))+
+  scale_x_break(c(7000, 15000), scale= 0.2)+
+  scale_x_break(c(700, 1000), scale= 0.8) # esto se usa cuando tienes datos muy altos y neceistas cortarlo 
+
+```
+ 
+Aunque esta muy bien contar el numero generos de ratoncitos que tenemos, usualmente los graficos de barras son usados para representar los valor4es de una poblacion, para ello: 
+
+```{r}
+# En este caso geom_bars nos da las medias del peso en contraste con como lo lee geo_plot
+
+ggplot(Roedores, aes(genus, weight, fill= sex))+
+  geom_bar(stat= "summary", fun= "mean")
+
+# remover NA 
+ggplot(subset(Roedores, !is.na(weight)),
+       aes(genus, weight, fill= sex))+
+  geom_bar(stat = "summary", fun= "mean")
+
+
+# y tambien se pueden modificar las posiciones 
+
+ggplot(subset(Roedores, !is.na(weight)),
+       aes(genus, weight, fill= sex))+
+  geom_bar(stat = "summary", fun= "mean", position = "stack") # este es el original 
+
+ggplot(subset(Roedores, !is.na(weight)),
+       aes(genus, weight, fill= sex))+
+  geom_bar(stat = "summary", fun= "mean", position = "dodge")
+
+
+ggplot(subset(Roedores, !is.na(weight)),
+       aes(genus, weight, fill= plot_type))+
+  geom_bar(stat = "summary", fun= "mean", position = "fill")
+
+```
+
+Tambien se puede hacer con geom_col: 
+
+```{r}
+# Pero primero tenemos que hacer una tabla 
+
+Pesos <- Roedores %>%
+  group_by(genus) %>%
+  summarize(Weight= mean(weight, na.rm = TRUE))
+
+ggplot(Pesos, aes(x= genus, y= Weight))+
+  geom_col()+
+  coord_flip()
+
+
+#Agrupacion por grupos 
+
+Pesos <- Roedores %>%
+  group_by(genus, sex) %>%
+  summarize(Weight= mean(weight, na.rm = TRUE))
+
+ggplot(Pesos, aes(x= genus, y= Weight, fill= sex))+
+  geom_col()+
+  coord_flip()
+
+# tambien se puede hacer de esta manera 
+
+ggplot(subset(Pesos, !is.na(Weight)), aes(x= genus, y= Weight, fill= sex))+
+  geom_col() # aqui aparece en el eje de las x 
+
+ggplot(subset(Pesos, !is.na(Weight)), aes(x= genus, y= Weight, fill= sex))+
+  geom_col()+
+  coord_flip() # para cambiarlo de posicion ahora aparece en el eje de las y 
+
+```
+
+
+Lo ultimo que le faltaria a nuestro grafico 
