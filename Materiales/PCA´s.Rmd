@@ -87,3 +87,4 @@ Exu_ellipse
 Cambien los colores dentro del grafico y el nombre de las leyendas a español 
 
 
+
