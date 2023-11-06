@@ -1212,4 +1212,3 @@ ggplot(Comp_soils,aes(x= Soil, y= NO3.ugL, fill= Temperature))+
  Grafico_lineas | Graf_letras
  
 ```
-
