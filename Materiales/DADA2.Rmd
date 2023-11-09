@@ -314,3 +314,4 @@ Despues de unir las lecturas con este objeto vamos a hacer una tabla de las secu
 
 Pero bueno volviendo a la table esta va a tener nuestras muestras como filas y las secuencias o ASVs como columnas. Los datos dentro de la tabla es la abundancia de cada secuencia.
 
+
