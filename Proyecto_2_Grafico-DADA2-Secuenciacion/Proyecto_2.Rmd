@@ -1,0 +1,303 @@
+---
+title: "Proyecto 2 Grafico, DADA2 y Secuenciación"
+output: html_notebook
+---
+
+```{r}
+# Librerias 
+
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(RColorBrewer)
+library(ggbreak)
+library(plotrix)
+library(ggsignif)
+library(dada2)
+library(dplyr)
+
+
+# Documentos 
+Set_datos <- read.csv("~/RStudio/CursoInnovak/Proyecto_1_RMarkdown/Set de datos proyecto.csv")
+
+```
+
+# Grafico agrupado por líneas con variabe del primer proyecto 
+
+```{r}
+
+ggplot(Set_datos,aes(x= Tratamiento, y= Long_Raiz, fill= Dia))+
+  geom_boxplot()+
+  scale_fill_manual("Dia",
+                    values = c("#483D8B", "#20B2AA"),
+                    labels= c("Dia 2", "Dia 7"))+
+  theme(legend.position = "bottom")+
+  geom_boxplot(outlier.colour = "deeppink1", outlier.shape = 8,
+               outlier.size = 3)+
+  theme(axis.text = element_text(color= "#2F4F4F",
+                                 size= 10,),
+        axis.title.x = element_text(vjust = 1,
+                                    size = 14,
+                                    colour = "#2F4F4F"),
+        axis.text.y = element_text(vjust = 1,
+                                   size = 10,
+                                   colour = "#2F4F4F"))+
+  ggtitle("Longitudes de raiz vs Tratamientos")+
+  theme(plot.title = element_text(hjust = 0.5, size= 25, face = "bold"))+
+   ylim(c(0,43))+
+  geom_signif(y_position = 35, xmin = 0.55, xmax = 1.4,
+              annotation = "NS" , tip_length = 0.01, 
+              col= 3, textsize = 3.2)+
+  geom_signif(y_position = 35, xmin = 1.6, xmax = 2.4,
+              annotation = "NS" , tip_length = 0.01, 
+              col= 3, textsize = 3.2)+
+  geom_signif(y_position = 40, xmin = 0.55, xmax = 2.4, 
+              annotation = "P<0.5" , tip_length = 0.01,  
+              col= 16, textsize = 3.2)+
+   geom_signif(y_position = 10, xmin = 0.60, xmax = 2, 
+              annotation = "P<0.5" , tip_length = 0.01,  
+              col= 16, textsize = 3.2)
+ 
+```
+
+# Secuenciación de muestra de VID (S81) 
+
+```{r}
+# Camino
+
+path <- "~/RStudio/CursoInnovak/Secuenciacion_proyecto_2/" 
+list.files(path)
+
+# forward
+fnFs <- sort(list.files(path, pattern = "_R1_001.fastq.gz", full.names = TRUE))
+
+# reverse
+fnRs <- sort(list.files(path, pattern = "_R2_001.fastq.gz", full.names = TRUE))
+
+## Extract sample names
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`,1) 
+
+```
+
+## Inspección perfiles de calidad 
+
+```{r}
+# forward
+per_ca_F <- plotQualityProfile(fnFs[1]) #el num es la secuenica que me toco procesar 
+per_ca_F #imagen derecho guardada como objeto
+
+# reverse
+per_ca_R <- plotQualityProfile(fnRs[1]) 
+per_ca_R #imagen reversa guardada como objeto 
+
+per_ca_F|per_ca_R
+```
+
+
+## Filtrar 
+
+```{r}
+# Camino a los datos filtrados 
+
+filtFs <- file.path(path, "filtered", paste0(sample.names,  "_F_filt.fastq.gz")) # forward
+filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz")) # reverse 
+
+# Asignacion de los nombres de las muestras a nuestros objetos nuevos 
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+```
+
+## Corte 
+
+```{r}
+out <- filterAndTrim(fnFs, filtFs, # forward reads
+                     fnRs, filtRs, # reverse reads
+                     truncLen = c(270,200), # truncado o corte
+                     maxN = 0, # remover Ns, ESTE NUNCA SE PUEDE MODIFICAR 
+                     maxEE = c(5,5), #error esperado, lo estandar es 2,2 pero se recomienda que para reverse sea 5
+                     truncQ = 2, #quality score
+                     rm.phix = TRUE, compress = TRUE, #defaults
+                     multithread = FALSE) # en windows
+
+
+# Guardar nuestro progreso 
+write.csv(out, "~/RStudio/CursoInnovak/Materiales/Conteo_reads_proyecto2_1.csv") # para guardar la tabla 
+
+## Por si queremos retomar despues de filtar ##
+# Nuevo camino 
+path2 <- "~/RStudio/CursoInnovak/Secuenciacion_proyecto_2/filtered/"
+
+# forward
+filtFs <- sort(list.files(path2, pattern = "_F_filt.fastq.gz",
+                          full.names = TRUE))
+
+# reverse 
+filtRs <- sort(list.files(path2, pattern = "_R_filt.fastq.gz",
+                          full.names = TRUE))
+
+```
+
+__Interpretación del corte__
+Como observamos, se decidió realizar el corte a 270,200 ya que se intentó cortar de otras maneras (250,240 - 260,240 - 270,200) y esta fué la que mejor resulto al realizar las combinaciones en cuanto a los ajustes de los errores que en este caso quedo en 5,5 sin ser tan estrictos ya que se intento tambien con 2,2 y 2,5 pero el corte era mas pronunciado. 
+Se podría haber modificado más veces pero por cuestiones de tiempo se decidió optar por esta opción. 
+
+Intenté apegarme a lo recomendado para el quality socre de estar lo mas cerca posible, o bien, dentro del rango 30-40 en el eje de las "y" de nuestras graficas intentando evitar/disminuir los mas errores posibles. 
+
+
+## Tasas de error
+
+```{r}
+
+# forwards
+errF <- learnErrors(filtFs, multithread = TRUE)
+save(errF, file = "errFproyecto2_1.RData") 
+
+# reverse 
+errR <- learnErrors(filtRs, multithread = TRUE)
+save(errR, file = "errRproyecto2_1.RData")
+
+# Para subir los archivos nuevamente
+load("errFproyecto2_1.RData")
+load("errRproyecto2_1.RData")
+
+##Plot error rates
+plotErrors(errF, nominalQ = TRUE)
+plotErrors(errR, nominalQ = TRUE)
+
+```
+
+__Interpretación errores__
+Al graficar los errores se observan las posibles combinaciones que existen en la muestra, esto nos ayuda para poder saber si hay diferencia en las bases (en este caso seria entre una misma secuencia).
+   * Las lineas negras representan las tasas de error estimadas que basicamente son los ajustes de los datos reales pero que ya cuentan con los errores.
+   * Las lineas rojas representan las tasas de error esperadas que son los datos reales.
+   
+Así, tendríamos en cuenta que en cada secuencia/muestra(as) que porcesemos, la tasa de error debe ser menor cuando la calidad sea mayor en estas graficas. Que si observamos, nuestras graficas nos arrojan que tenemos mayor calidad.
+
+
+
+## Interferencia de las muestras 
+
+```{r}
+# Forward
+dadaFs_nopool_proy2.1 <- dada(filtFs, err=errF, multithread = TRUE,
+                      pool = FALSE)
+save(dadaFs_nopool_proy2.1, file = "dadaFs_nopool_proy2_1.RData")
+
+#Reverse
+dadaRs_nopool_proy2.1 <- dada(filtRs, err=errR, multithread = TRUE,
+                      pool = FALSE)
+save(dadaRs_nopool_proy2.1, file = "dadaRs_nopool_proy2.RData")
+
+load("dadaFs_nopool_proy2_1.RData")
+load("dadaRs_nopool_proy2.RData")
+```
+
+__Interpretación de las interferencias__
+En relación a la interferencia de las muestras, este nos arrojó cuantos errores fueron descartados para dejar limpia nuestra secuecia ya filtrada.
+
+
+## Union de las lecturas forwards y reverse
+
+```{r}
+mergers_proy2.1 <- mergePairs(dadaFs_nopool_proy2.1, filtFs, dadaRs_nopool_proy2.1, filtRs, verbose = TRUE)
+save(mergers_proy2.1, file = "mergers_proy2.RData")
+
+# por si cerraron su sesion 
+load("mergers_proy2.RData")
+```
+
+__Interpretación de la unión__
+En este paso, lo que realizamos fue la unión de nuestra secuencia (forward y reverse). En dicha unión, aunque estemos uniendo lo ya filtrado, nos apareceran pares que seran rechazados si no se superponieron lo suficiente o si cuentan con muchos mismatches.
+
+Fue hasta este paso, que me di cuenta al momento de correr el código de cuantas secuencias eran las que te quedaban y cuantas te quitaba, por lo que, fue aquí donde tomé la decisión en varias ocaciones de modificar mi corte para evitar la mayor perdida de unión de mi secuencia. 
+
+
+
+## Hacer tabla de secuencias 
+
+```{r}
+# Sequence table
+seqtab_proy2.1 <- makeSequenceTable(mergers_proy2)
+dim(seqtab_proy2.1) #numero de muestras x numero de ASVs
+
+# Checar la longitud de todas las secuencias 
+table(nchar(getSequences(seqtab_proy2.1)))
+
+```
+
+__Interpretación__
+Después de realizar la unión, se procede a crear una tabla de las secuencias en donde podremos ver la variación de la secuancia del amplicón la cual nos ayudara a tener mejor resulución a la hora de aplicar nuestro código para la taxonomía, así como nuestras abundancias en cada una. 
+
+
+## Quitar quimeras
+
+```{r}
+seqtab.nochim_proy2.1 <- removeBimeraDenovo(seqtab_proy2.1, method = "consensus",
+                                    multithread=TRUE, verbose = TRUE)
+#Basado en esto (11765/15726*100) 74.81% de mis secuencias son quimeras 
+
+save(seqtab.nochim_proy2.1, file = "seq_conteos_proy2.RData")
+load("seq_conteos_proy2.RData")
+
+# Comparar esta tabla con la original que incluye quimeras 
+dim(seqtab.nochim_proy2.1)
+# Incluyendo abundancias 
+sum(seqtab.nochim_proy2.1)/sum(seqtab_proy2.1) # porcentaje de secuencias no quimericas que se mantuvieron
+
+# Tomando en cuenta abundancias en realidad mantuvimos 48% de nuestras lecturas 
+```
+
+__Interpretación__
+Las quimeras son secencias de ADN que se unen cuando estas no deberían hacerlo y las cuales deben ser eliminadas. Por suerte tenemos el código que nos identifica cuales de las uniones dadas son quimeras y nos ayuda a desasernos de ellas. 
+
+En nuestro código tenemos como resultado el porcentaje de secuecias que son y no son quimeras que se obtuvieron gracias a las abundancias.
+
+
+## Seguimiento del proceso 
+
+```{r}
+# Primero crearemos una funcion 
+getN <- function(x) sum(getUniques(x)) #esta funcion va a sumar el nuemro de valores unicos dentro de x "es importante mencionar que las funciones no se deben de modificar"
+
+#Tabla
+track_proy2.1 <- cbind(out, #Paso 1: filtrado y corte, Paso 2:quitar errores 
+               getN(dadaFs_nopool_proy2.1),
+               getN(dadaRs_nopool_proy2.1), #Paso 3: denoising
+               getN(mergers_proy2.1), #Paso 4: unir muestras 
+               rowSums(seqtab.nochim_proy2.1)) #Paso 5: quitar quimeras 
+
+# Nombramos nuestras filas y columnas
+colnames(track_proy2.1) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+
+# Guardamos esta tabla 
+write.csv(track_proy2.1, "~/RStudio/CursoInnovak/Proyecto_2_Grafico-DADA2-Secuenciacion/Seguimiento_dada_proy2_1.csv") 
+
+```
+
+__Interpretación__
+Creamos una nueva tabla llamada track_proy2.1, en este caso cambiamos la funcion suppply por la getN ya que; supply es para cuando tenemos más de una muestra y como en nuestro poryecto solo estamos trabajando con una sola muestra, pues hacemos el cambio de nuestro código con getN y quitamos del parentesis (", getN"..."). Con esto podemos proseguir para asignar taxonomia 
+
+
+
+## Asignar Taxonomia 
+
+```{r}
+taxa_proy2 <- assignTaxonomy(seqtab.nochim_proy2,
+                       "~/RStudio/CursoInnovak/Secuenciación/Taxa/silva_nr99_v138.1_train_set.fa.gz", multithread = TRUE)
+
+
+# Tabla con especies
+taxa_proy2_esp_2 <- addSpecies(taxa_proy2, "~/RStudio/CursoInnovak/Secuenciación/Taxa/silva_species_assignment_v138.1.fa.gz")
+
+save(taxa_proy2_esp_2, file = "taxa_ch_proy2_1_esp.RData")
+
+```
+
+__Interpretación__
+En este caso, utilizamos la base de datos de SILVA, gracias a esta base ahora sabemos cuales microorganisos se encuentran en nuestra muestra. 
+Para obtener la asignación, se toma en cuenta la tabla de conteo de las secuencias y la base SILVA utilizando un intervalo de confianza ya establecido. 
+
+En este caso, decidí agregar la especie solo para tener mi proyecto mas completo. Aunque por lo visto, no tuve exito con la asiganación de la especie en mis microorganismos encontrados en mi muestra. 
+
+
+

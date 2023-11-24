@@ -1,0 +1,422 @@
+---
+title: "Graficos de analisis de componentes principales PCA´s"
+output: html_notebook
+---
+
+# Introduccion
+
+El analisis de componentes principales o PCA por sus siglas en ingles es un metodo de reduccion de dimensionalisas que comunmente se usa para reducir la dimensionalidad de grandes sets de datos transformandos los mismos en datos simplicados que igual contengan la mayor cantidad de informacion posible del set original. Es uno de los métodos de análisis de datos multivariantes más utilizados que permite investigar conjuntos de datos multidimensionales con variables cuantitativas.
+
+En palabras mas simples (y al nivel de estadistica en el que comprendo los PCAs) este analisis lo que hace es transformar tus datos en "distancias" que toman en cuenta todas tus variables independientes y las traduce a puntos en un plano. Los valores de las variables dependientes definen cuales puntos estaran mas cerca unos de otros en el plano y de ahi se puede determinar la relacion que existe entre tus muestras. 
+
+El resultado de los PCAs son coordenadas por lo que siempre vienen acompanados de un grafico en el cual los ejes no tienen ninguna unidad. Siempre se usan el PC 1 y el 2 para graficar ya que estos son los que tienen el mayor porcentaje de explicacion en la variacion de los datos y ese porcentaje usualmente es lo que se reporta en el grafico.
+
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(ggforce)
+library(ggbreak)
+library(wesanderson)
+library(ggfortify) # es para autoplot
+
+# Data
+Exudados <- read.csv("~/RStudio/CursoInnovak/Materiales/Exudates_PCA.csv")
+
+
+# Ejercicio 
+Metab <- read.csv("~/RStudio/CursoInnovak/Materiales/Grupos_metabolicos.csv")
+
+```
+
+# Calcular PCAs
+
+```{r}
+### PCA values ###
+PCAc <- prcomp(Exudados[,4:42], center = TRUE, 
+               scale. = TRUE) #center para que haga escala de la columna que le digas en este caso de la columna 4 en adelante y scala empieza a realizar....
+
+summary(PCAc)
+
+# lo que nos interesa es la proporcion de varianza, es el componente que describe los datos, si es "signficativo" entre el pc1 y pc2 0.65 es mayor al 50% 
+```
+Si se fijan al correr el resumen de este objeto dice que nos va a dar la importancia de los componentes. En este caso tenemos 25 PCAs o componentes ya que tenemos 25 muestras. Como mencione anteriormente los que usan a graficar es PC1 y 2 y para saber los porcentajes se toma la proporcion de varianza.
+
+La proporcion de varianza se puede definir a el porcentaje que dicho PC describe los datos. Si entre el PC 1 y 2 el porcentaje o proporcion de varianza pasan el 50% quiere decir que son "significativas" y si se pueden usar para describir nuestros datos.
+En este caso:
+
+* PC1: 65.35%
+* PC2: 15.06%
+
+guardar la tabla PCAs
+```{r}
+PCAscores <- PCAc[["x"]]
+
+PCAscores <- as.data.frame(PCAscores) %>%
+  add_column(Plant_type = Exudados$Plant_type) %>%
+  add_column(Treatment = Exudados$Treatment)
+
+```
+
+# El grafico 
+
+```{r}
+Exu_ellipse <- ggplot(data = PCAscores,
+                      aes(x= PC1, y= PC2, color= Treatment,
+                          shape= Plant_type))+
+  geom_point(size= 3)+
+  theme_bw()+
+  scale_color_manual(values= wes_palette("BottleRocket2", n= 4),
+                     name= "Treatment")
+
+Exu_ellipse <- Exu_ellipse +
+  geom_mark_ellipse(aes(fill= Treatment, 
+                        color= Treatment))+
+  scale_fill_manual(values= wes_palette("BottleRocket2", n= 4),
+                    name= "Treatment")
+
+Exu_ellipse <- Exu_ellipse +
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%)", 
+       shape= "Plant Type")
+
+Exu_ellipse
+```
+### Mini ejercicio 
+
+Cambien el nombre de las leyendas a español 
+
+```{r}
+Exu_ellipse <- ggplot(data = PCAscores,
+                      aes(x= PC1, y= PC2, color= Treatment,
+                          shape= Plant_type))+
+  geom_point(size= 3)+
+  theme_bw()+
+  scale_color_manual(values= wes_palette("BottleRocket2", n= 4),
+                     name= "Tratamientos",
+                     labels= c("Bajo P", "Fosfito", "Fosfato", "Mezcla phi/pi")) #cambiar leyenda de colores de los puntos. 
+
+Exu_ellipse <- Exu_ellipse +
+  geom_mark_ellipse(aes(fill= Treatment, 
+                        color= Treatment))+
+  scale_fill_manual(values= wes_palette("BottleRocket2", n= 4),
+                    name= "Tratamientos",
+                    labels= c("Bajo P", "Fosfito", "Fosfato", "Mezcla phi/pi")) #cambiarla leyenda del elipse
+
+
+Exu_ellipse <- Exu_ellipse +
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%)", 
+       shape= "Tipos de plantas")+
+  scale_shape_manual(labels= c("Suelo control", "Transgenica", "Silvestre"),
+                     values= c(15,16,17)) #este es para cambiar las formas 
+
+Exu_ellipse
+
+```
+
+### Otras cosas que se pueden modificar en el grafico 
+
+```{r}
+Exu_ellipse <- ggplot(data = PCAscores,
+                      aes(x= PC1, y= PC2, color= Treatment,
+                          shape= Plant_type))+
+  geom_point(size= 3)+
+  theme_bw()+
+  scale_color_manual(values= wes_palette("BottleRocket2", n= 4),
+                     name= "Tratamientos",
+                     labels= c("Bajo P", "Fosfito", "Fosfato", "Mezcla phi/pi")) #cambiar leyenda de colores de los puntos. 
+
+Exu_ellipse <- Exu_ellipse +
+  geom_mark_ellipse(aes(fill= Treatment, 
+                        color= Treatment),
+                    expand = c(0.008))+ #el ancho del curculo
+  scale_fill_manual(values= wes_palette("BottleRocket2", n= 4),
+                    name= "Tratamientos",
+                    labels= c("Bajo P", "Fosfito", "Fosfato", "Mezcla phi/pi")) #cambiarla leyenda del elipse
+
+
+Exu_ellipse <- Exu_ellipse +
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%)", 
+       shape= "Tipos de plantas")+
+  scale_shape_manual(labels= c("Suelo control", "Transgenica", "Silvestre"),
+                     values= c(15,16,17)) #este es para cambiar las formas 
+
+Exu_ellipse
+```
+
+## Ejercicio 
+
+Usando los datos de grupos matabolicos crear un grafico de PCA. Usen diferentes colores y anoten correctamente los porcentajes de los PCs. Es significativo o no?
+
+```{r}
+### PCA values
+PCAc <- prcomp(Metab[,3:25], center = TRUE, 
+               scale. = TRUE) 
+
+summary(PCAc) # PC1 = 36% y PC2 = 27% por lo tanto no son significativos para describir los datos de esta tabla 
+
+
+# lo que nos interesa es la proporcion de varianza, es el componente que describe los datos, si es "signficativo" entre el pc1 y pc2 0.65 es mayor al 50% 
+
+### Guardar la tabla 
+
+PCAscores <- PCAc[["x"]]
+
+PCAscores <- as.data.frame(PCAscores) %>%
+  add_column(Plant_type = Metab$Plant_type) %>%
+  add_column(Treatment = Metab$Treatment)
+
+### Grafico 
+
+Metab_ellipse <- ggplot(data = PCAscores,
+                      aes(x= PC1, y= PC2, color= Treatment,
+                          shape= Plant_type))+
+  geom_point(size= 4)+
+  theme_bw()+
+  scale_color_manual(values= wes_palette("Rushmore1", n= 5),
+                     name= "Treatment")
+
+Metab_ellipse <- Metab_ellipse +
+  geom_mark_ellipse(aes(fill= Treatment, 
+                        color= Treatment))+
+  scale_fill_manual(values= wes_palette("Rushmore1", n= 5),
+                    name= "Treatment")
+
+Metab_ellipse <- Metab_ellipse +
+  labs(x= "PC 1 (36.45%)",
+       y= "PC 2 (27.34%)", 
+       shape= "Plant Type")
+
+Metab_ellipse
+```
+
+## Graficos de "Loadings"
+
+Los graficos de "loading" muestran que tan fuerte es la influencia de cada caracteristica (variable dependiente) en el analisis de componentes principales. Las variables dependientes se grafrican como vectoreds y los mas largos son los mas importantes por definir los PCs. Vectores horizonatales influirian mas PC1 mientras que vectores verticales fluyen mas PC2. 
+
+Otra cosa interesante que nos muestran los graficos de loadings es que los angulos entre vectores nos muestran como nuestras variables dependientes se correlacionan entre si: 
+
+* Cuando dos vectores estan cerca formando un angulo muy peueño las dos variables estan correlacionadas de manera positiva
+* Cuando los vectores forman un angulo de 90° entre ellos probablemnte no estan correlacionados 
+* Cuando estos divergen entre si en direcciones opuestas formando un angulo de 180° entan correlacionados negativamente. 
+
+```{r}
+PCAloadings <- PCAc$rotation
+PCAloadings <- as.data.frame(PCAloadings)
+
+ggplot(data= PCAloadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "pink3", size= 3)+
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%")+
+  theme_bw()
+
+```
+_El Grafico de loadings tiene como puentos las variables DEPENDIENTES en este caso los metabolitos mientras que el PCA tiene como puntos las muestras en este caso plantas_ 
+
+El problema con este grafico son los ejes. USualmente los valores de loading van de -1 a 1 y en este caso la escala no nos deja ver bien dicha relacion. por ello hay que modiifcar la escala 
+
+```{r}
+ggplot(data= PCAloadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "pink3", size= 3)+
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%")+
+  theme_bw()+
+  xlim(-0.20, 0.05)+
+  ylim(-0.30, 0.3)
+```
+
+Con nuestro grafico ya centrado podemos agregar las flechas: 
+
+```{r}
+ggplot(data= PCAloadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "pink3", size= 3)+
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%")+
+  theme_bw()+
+  xlim(-0.20, 0.05)+
+  ylim(-0.30, 0.3)+
+  geom_segment(aes(x= c(rep(0,39)), y= c(rep(0,39)), #ahi dice repiteme 0, 39 veces 
+               xend= c(PCAloadings$PC1),
+               yend= c(PCAloadings$PC2)),
+               arrow= arrow(length= unit(0.2, "cm")))
+```
+Si se fijan todos los metabolitos estan cargados a la izquierda osea a la misma direccion exceplo algunos, por lo cual se comprotan diferentes, entonces solo vamos a seleccionar los metabolios que nos importan...
+
+
+```{r}
+
+#Primero elejimos cuales metabolitos son los que nos importan 
+ggplot(data= PCAloadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "pink3", size= 3)+
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%")+
+  theme_bw()+
+  xlim(-0.20, 0.05)+
+  ylim(-0.40, 0.3)+
+  geom_text(aes(label=ifelse(PC1>-0.10,
+                             rownames(PCAloadings),"")),
+            hjust= -0.035, vjust= -0.88) #imprimir etiquetas usando condicon
+ 
+```
+
+Para razones de la clase y porque de hecho los metabolitos que se comportan diferentes al resto con los interesantes vamos a graficar el Exudado 27 y ferulato con sus flechas. Los otros que tambien estan alejados fueron todos analizados in HIL negativo por lo que puede que eso haya fluido en las diferencais. 
+
+```{r}
+# Modificar sus nombreds para que se vea bien la etiqueta 
+rownames(PCAloadings)[rownames(PCAloadings) == "Exud_27_HILN"] <- "D-(+)-Glucose"
+rownames(PCAloadings)[rownames(PCAloadings) == "Ferulate_C18P"] <- "Ferulate"
+
+
+# Cambiando para que solo salgan esas etiquetas
+ggplot(data= PCAloadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "pink3", size= 3)+
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%")+
+  theme_bw()+
+  xlim(-0.20, 0.05)+
+  ylim(-0.40, 0.3)+
+  geom_text(aes(label=ifelse(PC1>-0.10,ifelse(PC2>0,
+                             rownames(PCAloadings),""), "")),
+            hjust= -0.035, vjust= -0.88) 
+
+# Ahora que salga esas dos flechas 
+
+ggplot(data= PCAloadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "pink3", size= 3)+
+  labs(x= "PC 1 (65.36%)",
+       y= "PC 2 (15.06%")+
+  theme_bw()+
+  xlim(-0.20, 0.05)+
+  ylim(-0.40, 0.3)+
+  geom_text(aes(label=ifelse(PC1>-0.10,ifelse(PC2>0,
+                             rownames(PCAloadings),""), "")),
+            hjust= -0.035, vjust= -0.88)+
+  geom_segment(aes(x= 0, y= 0, #para glucosa 
+                   xend= -0.02669347, #valor pc1 en tabla y el de y es pc2
+                   yend= 0.144403684),
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(x=0, y= 0, #para ferulato
+                   xend= -0.05866522, yend= 0.196088305),
+               arrow = arrow(length = unit(0.2, "cm")))
+```
+ 
+### Ejercicio 
+
+usando los datos de grupos metabolicos creen un grafico de loading y añadas todas las flechas. 
+
+```{r}
+PCA.loadings <- PCAc$rotation
+PCA.loadings <- as.data.frame(PCA.loadings)
+
+ggplot(data= PCA.loadings,
+       aes(x= PC1, y= PC2))+
+  geom_point(shape= 16, color= "purple4", size= 3)+
+  labs(x= "PC 1 (35.45%)",
+       y= "PC 2 (27.34%)")+
+  theme_bw()+
+   geom_segment(aes(x= c(rep(0,23)), y= c(rep(0,23)),
+               xend= c(PCA.loadings$PC1),
+               yend= c(PCA.loadings$PC2)),
+               arrow= arrow(length= unit(0.2, "cm")))
+  
+
+
+ 
+
+```
+
+# El atajo 
+
+Aunque ahorita los vimos por separado usando ambas tablas podriamos graficar el PCA que ya hicimos junto con las flechas que acabamos de graficar. Si bien se puede hacer a mano, una de las variantes de ggplot nos da un atajo para hacer de manera mas sencilla: ggfortify
+
+
+```{r}
+# la base 
+autoplot(PCAc) #aqui estamos usando el PCAc de exudados 
+
+# agragando informacion 
+
+autoplot(PCAc, data= Exudados,
+         color= "Treatment",
+         shape= "Plant_type") #si se pueden agragar colores como en ggplot 
+
+# Agragando elipses
+
+autoplot(PCAc, data= Exudados,
+         color= "Treatment",
+         shape= "Plant_type",
+         frame= TRUE)
+
+autoplot(PCAc, data= Exudados,
+         color= "Treatment",
+         shape= "Plant_type",
+         frame= TRUE, frame.type= 'norm') #mucho menos inforamtivo pero es bueno que existen atajos rapidos 
+# los elipses agrupan todos los tratamientos juntos y no lo separa por planta osea es cero informativo 
+
+
+# Agregando loadings
+autoplot(PCAc, data= Exudados,
+         color= "Treatment",
+         shape= "Plant_type",
+         loadings= TRUE) 
+
+# modificacion de loadings 
+autoplot(PCAc, data= Exudados,
+         color= "Treatment",
+         shape= "Plant_type",
+         loadings= TRUE,
+         loadings.colour= "brown4",
+         loadings.label= TRUE,
+         loadings.label.size= 2,
+         loadings.label.color= "green4")# si se fijan es mas restrictivo desaformadamente no hay una funcion facil para seleccionar que flechas queremos que se muestan y cuales no. Por ello esta funcion es mas util cuando tenemos menos variables
+
+```
+
+## Ejercicio final 
+
+Usando autoplot grafiquen los gupos metabolicos. Ustedes deberan decidir si quieren o no añadir etiquetas a los loadings, elipses a los datos, etc. justifiquen su respuesta al presentar el grafico. 
+
+```{r}
+autoplot(PCAc)
+
+# informacion
+
+autoplot(PCAc, data= Metab,
+         color= "Treatment",
+         shape= "Plant_type")+
+   scale_color_manual(values= wes_palette("Zissou1", n= 4),
+                     name= "Treatment")
+  
+
+# Agragando elipses
+
+autoplot(PCAc, data= Exudados,
+         color= "Treatment",
+         shape= "Plant_type",
+         frame= TRUE, frame.type= 'norm')
+
+
+# Agregando loadings
+autoplot(PCAc, data= Metab,
+         color= "Treatment",
+         shape= "Plant_type",
+         loadings= TRUE) 
+
+# modificacion de loadings 
+autoplot(PCAc, data= Metab,
+         color= "Treatment",
+         shape= "Plant_type",
+         loadings= TRUE,
+         loadings.colour= "gray")
+  
+```
+
