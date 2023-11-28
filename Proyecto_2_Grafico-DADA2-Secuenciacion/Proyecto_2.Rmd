@@ -202,6 +202,15 @@ En relación a la interferencia de las muestras, este nos arrojó cuantos errore
 mergers_proy2.1 <- mergePairs(dadaFs_nopool_proy2.1, filtFs, dadaRs_nopool_proy2.1, filtRs, verbose = TRUE)
 save(mergers_proy2.1, file = "mergers_proy2.RData")
 
+
+#PARAMETROS OPCIONALES
+mergers_proy2.1 <- mergePairs(dadaFs_nopool_proy2.1, filtFs, dadaRs_nopool_proy2.1, filtRs, verbose = TRUE,
+                              minOverlap = 10,#tratar de reducir para ver si se incrementan las uniones (el limite es 12).....TERCER LUGAR
+                              maxMismatch = 2,#el limite es 0 (osea tiene que ser una union perfecta), dentro de mi area sobrelapada (overlap) NO PONERLE MAS DE 5....SEGUNDO ESTE 
+                              justConcatenate = TRUE,# esto va a unir forword 10 veces "N" y luego reverse, no se recomienda a menos de que de plano no se pueda .....CUARTO LUGAR 
+                              returnRejects = TRUE,#es para ver cuales esta quitando, osea nos da la tabla de read rechazados al momento de la union....PRIMERO EMPEZAR CON ESTE 
+                              ) #en mayuscula te dice que usar priemro si con el codigo normal te quita/rechaza muchas.
+
 # por si cerraron su sesion 
 load("mergers_proy2.RData")
 ```
