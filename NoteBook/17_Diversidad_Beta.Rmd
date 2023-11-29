@@ -1,0 +1,16 @@
+---
+title: "Diversidad Beta"
+output: html_notebook
+---
+
+```{r}
+# Librerias
+library(phyloseq)
+library(ggplot2)
+library(ggforce)
+library(vegan) # analisis de diversidad beta
+
+# Data
+load("Vid_ejemplos.RData")
+```
+
