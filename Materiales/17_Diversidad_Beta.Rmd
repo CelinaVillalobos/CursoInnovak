@@ -1,0 +1,514 @@
+---
+title: "Diversidad Beta"
+output: html_notebook
+---
+
+
+```{r}
+# Librerias
+library(phyloseq)
+library(ggplot2)
+library(ggforce)
+library(vegan) # analisis de diversidad beta
+
+# Data
+load("Vid_ejemplos.RData")
+
+```
+
+
+# Introduccion
+
+Mientras que la diversidad alfa representa la diversidad dentro de un ecosistema o una muestra, la diversidad beta representa la diferencia entre dos ecosistemas/muestras. En otras palabras, ¿qué tan similares o diferentes son dos ecosistemas o muestras? Entonces, la diversidad beta es una distancia entre dos muestras.
+
+El análisis basado en distancia de la diversidad beta para microbiomas puede ser una herramienta poderosa para descubrir nuevas asociaciones entre la composición microbiana y una amplia variedad de fenotipos. 
+
+Las medidas ecológicas de la diversidad beta tienen como objetivo capturar la diferencia global entre dos comunidades ecológicas. En el contexto del análisis de datos del microbioma, esto corresponde a diferencias entre sujetos en la composición microbiana. El análisis basado en la distancia o “a nivel de comunidad” luego compara estas diferencias por pares entre sujetos con diferencias por pares con respecto a algún fenotipo.
+
+Estadisticamente, el analisis usando disimilitudes es mejor ya que evita la necesidad de realizar ajustes para una gran cantidad de comparaciones múltiples. Asimismo, los taxones no existen de forma aislada sino que tienen relaciones filogenéticas conocidas las cuales se pueden incluir en el analisis. Otras características estructurales, como la similitud funcional, están bajo investigación y es posible que se puedan incorporar en el futuro.
+
+# Tipos de distancias
+
+Si creian que existen muchos metodos para analizar diversidad alfa, las cosas se complican aun mas con la diversidad beta. Phyloseq tiene integrados 44 tipos de distancias que se pueden calcular provenientes del paquete vegan (y ademas uno puede crear su propia formula):
+
+```{r}
+dist_methods <- unlist(distanceMethodList) # es del paquete vegan
+print(dist_methods)
+
+```
+
+__Pero entonces cual metodo elegimos para realizar nuestro analisis?__
+
+Los ecologistas microbianos no utilizan distancias euclidianas, pero suelen utilizar distancias de Bray-Curtis, Jaccard o Unifrac de peso o sin peso para estimar la betadiversidad.
+
+La disimilitud de _Bray-Curtis_ se basa en datos de ocurrencia (abundancia), mientras que la distancia de _Jaccard_ se basa en datos de presencia/ausencia (no incluye información de abundancia). Las distancias _UniFrac_ tienen en cuenta la tabla de ocurrencia y la diversidad de filogenia (distancia de secuencia). Distancias UniFrac ponderadas o no ponderadas dependiendo de si se tiene en cuenta la abundancia relativa o sólo la presencia/ausencia.
+Las métricas de distancias están entre 0 y 1: 0 significa comunidades idénticas en ambas muestras y 1 significa comunidades diferentes en ambas muestras.
+
+Top:
+
+1. Bray-Curtis
+
+2. Jaccard (no toma en cuenta abundancia)
+
+3. Unifrac (solo si se tienen arboles filogeneticos)
+
+¿Por qué las distancias de Bray-Curtis o Unifrac serían mejores para los datos de microbiota que la distancia euclidiana?
+
+Los datos de microbiota son escasos y distancias específicas, como Bray-Curtis, Jaccard o las distancias Unifrac de peso/no peso, abordan mejor el problema de la presencia de muchos dobles ceros en los conjuntos de datos.
+
+
+```{r}
+### Bray-Curtis
+
+bray_vid <- phyloseq::distance(vid2, # especificamos que es la funcion distance del paquete de phyloseq ya que hay otra funcion con ese nombre
+                               method = "bray",
+                               type = "sample") # sample es el default 
+# para que se calcule las distancias entre muestras
+# taxa es la otra opcion pero no la van a usar
+
+bray_vid # no sale porque solo tenemos una muestra 
+
+# Modificar phyloseq
+vid2 <- vid_bio
+vid2@sam_data <- vid_bio@sam_data[,1]
+
+
+```
+#### no se pudo realizar con nuestras muestras porque solo tenemos una muestra, entonces Isabel nos paso su archivo para poder realizar esta sección. 
+
+```{r}
+load("Psoil_filt.RData")
+
+### Bray-Curtis
+
+bray_vid <- phyloseq::distance(Psoil_filt, # especificamos que es la funcion distance del paquete de phyloseq ya que hay otra funcion con ese nombre
+                               method = "bray",
+                               type = "sample") # sample es el default 
+# para que se calcule las distancias entre muestras
+# taxa es la otra opcion pero no la van a usar
+
+bray_vid 
+
+```
+
+# Ejercicio
+ calcular las distancias de Jaccard y sacar tambien vid2 con jaccard
+ 
+```{r}
+jaccard_psoil <- phyloseq::distance(Psoil_filt,
+                                   method= "jaccard",
+                                   type= "sample")
+
+jaccard_psoil
+
+jaccard_vid <- phyloseq::distance(Psoil_filt,
+                                  method = "jaccard",
+                                  type = "sample")
+jaccard_vid
+
+# nos damos cuenta que con vid que es nuestro archivo de muestras no se puede porque solo tenemos 1 cada quien...entonces trabajaremos con el archivo de Isabel 
+```
+# Ordinacion
+ 
+ Las medidas de diversidad beta se pueden visualizar utilizando varios métodos de ordinación. La ordinación es la técnicas para resumir y proyectar datos multidimensionales en un espacio de dimensiones inferiores (2-3d).
+
+__Como el analisis de PCA__
+
+## Metodos de ordinacion
+
+Los metodos incluidos en phyloseq: c("DCA", "CCA", "RDA", "CAP", "DPCoA", "NMDS", "MDS", "PCoA")
+
+1. DCA (el default): detrended correspondence analysis
+
+2. CCA Analisis de correspondencia (a.k.a. canonical correspondence analysis).
+
+3. RDA Analisis de Redundancia (equivalente al PCA)
+
+4. CAP Constrained Analysis of Principal Coordinates or distance-based RDA
+
+5. DPCoA Doble Analisis de coordenadas principales usa distancia filogenetica como correcion
+
+6. __NMDS__ Escalamiento multidimensional no métrico. NMDS maximiza la correlación de orden de clasificación entre muestras y tambien puede usarse con datos no parametricos. La mejor manera de visualizar la diversidad beta, o cuán diferentes son las muestras entre sí, es mediante escalamiento multidimensional no métrico (nMDS). Esto es similar al análisis de coordenadas principales o PCA/PCoA si ha oído hablar de eso, solo que nMDS es más robusto estadísticamente con múltiples iteraciones en la forma de la parte trymax del comando. (hace interaccion)
+
+7. __MDS/PCoA__ Realiza un análisis de coordenadas principales (también llamado descomposición de coordenadas principales, escalamiento multidimensional (MDS) o escalamiento clásico) de una matriz de distancias (hace porcentajes)
+
+```{r}
+bray_ord <- ordinate(Psoil_filt, # objeto
+                     method = "NMDS", # metodo
+                     distance = bray_vid) # el bojeto que creamos
+```
+Entonces cual elegir?
+
+Se debe elegir PCoA si las distancias entre muestras son ta ncercanas que una transformacion lineal seria suficiente. Mientras tanto, se recomienda NMDS para resaltar la estructura de grandiente dentro de los datos. Otro metodo de ordenacion comun es el PCA, que es simplemente un tipo de PCoA que utiliza la distancia euclidinana. 
+
+_NMDS_ > _PCoA_
+
+La mejor manera de visualizar la diversidad beta, o cuan diferente son las muestras entre si, es mediante escalamiento multidimensional no metrico (nMDS). Esto es similar al analisis de coordenadas principales o PCA/PCoA si ha oido hablar de eso, solo que nMDS es mas robusto estadisticamente con multiples iteraciones. 
+
+## Mini ejercicio
+
+Calculenn la ordinacion con PCoA y tambien calculen para las distancias jaccard que teniamos. 
+
+```{r}
+bray_ordPCoA <- ordinate(Psoil_filt, # objeto
+                     method = "PCoA", # metodo
+                     distance = bray_vid) 
+bray_ordPCoA
+
+jac_ord <- ordinate(Psoil_filt,
+                    method = "NMDS",
+                    distance = jaccard_vid)
+jac_ord
+
+
+jac_ordPCoA <- ordinate(Psoil_filt,
+                        method = "PCoA",
+                        distance = jaccard_vid)
+jac_ordPCoA
+
+# todos estos valores obtenidos de la ordinacion no se interpretan pero se usan solo para graficar y hacer estadistica
+
+```
+# Visualización 
+
+```{r}
+p_bray <- plot_ordination(Psoil_filt, #objeto phyloseq
+                          bray_ord, #distancia bray con ordinacion NMDS
+                          "samples",
+                          color = "Plant_Type",
+                          shape = "Treatment") +
+  scale_color_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                     name= "Plant Type") +
+  theme_dark() + 
+  geom_point(size= 3.8)
+#vemos que parte de un punto 0 entonces entre mas cercas esten al eje de 0 son iguales 
+
+
+
+# Modificando las figuras 
+p_bray <- p_bray + 
+  scale_shape_manual(values = c(15,16,17,18), # codigo del shape
+                     labels= c("Pi", "Low P", "Phi", "Pi/Phi max"))
+p_bray
+
+# Agregando elipse
+p_bray <- p_bray + 
+  geom_mark_ellipse(aes(fill= Plant_Type,
+                        color= Plant_Type),# tiene que ser igual al de arriba
+                    expand = c(0.0035)) + #ancho del circulo (elipce)
+  scale_fill_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                    name= "Plant Type") #todo igual a color manual arriba 
+
+p_bray
+
+# Agregando poligono 
+
+p_bray <- p_bray + 
+  geom_polygon(aes(fill= Plant_Type), alpha= 0.2) +
+  scale_fill_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                    name= "Plant Type")
+
+p_bray # recordar que cada que agrego algo en realcion a eso hay que borrar en la consola de abajo el objeto y volver a correr todo a excepcion del cambio que queremos hacer 
+```
+
+
+# Ejercicio 
+
+Van a hacer otros 3 graficos:
+
+*El primero con distancia de Bray pero ordinacion PCoA
+*El segundo con Jaccard y ordinacion NMDS
+*El tercero Jaccard y ordinacion PCoA
+
+Cuales son las diferencias?
+
+```{r}
+#Distancia bray ordinacion PCoA
+
+bray_ordPCoA <- ordinate(Psoil_filt, # objeto
+                     method = "PCoA", # metodo
+                     distance = bray_vid) 
+
+ej1_bray_ordiPCoA <- plot_ordination(Psoil_filt, #objeto phyloseq
+                          bray_ordPCoA, #distancia bray con ordinacion NMDS
+                          "samples",
+                          color = "Plant_Type",
+                          shape = "Treatment") +
+  scale_color_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                     name= "Plant Type") +
+  theme_dark() + 
+  geom_point(size= 3.8)
+
+ej1_bray_ordiPCoA
+
+# Modificando las figuras 
+ej1_bray_ordiPCoA <- ej1_bray_ordiPCoA + 
+  scale_shape_manual(values = c(15,16,17,18), # codigo del shape
+                     labels= c("Pi", "Low P", "Phi", "Pi/Phi max"))
+ej1_bray_ordiPCoA
+
+# Agregando elipse
+ej1_bray_ordiPCoA <- ej1_bray_ordiPCoA + 
+  geom_mark_ellipse(aes(fill= Plant_Type,
+                        color= Plant_Type),# tiene que ser igual al de arriba
+                    expand = c(0.0035)) + #ancho del circulo (elipce)
+  scale_fill_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                    name= "Plant Type") #todo igual a color manual arriba 
+
+ej1_bray_ordiPCoA
+
+#Distancia jaccard ordinacion NMDS
+
+jac_ord <- ordinate(Psoil_filt,
+                    method = "NMDS",
+                    distance = jaccard_vid)
+
+ej2_jac_ordiNMDS <- plot_ordination(Psoil_filt, #objeto phyloseq
+                          jac_ord, #distancia bray con ordinacion NMDS
+                          "samples",
+                          color = "Plant_Type",
+                          shape = "Treatment") +
+  scale_color_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                     name= "Plant Type") +
+  theme_dark() + 
+  geom_point(size= 3.8)
+
+ej2_jac_ordiNMDS
+
+# Modificando las figuras 
+ej2_jac_ordiNMDS <- ej2_jac_ordiNMDS + 
+  scale_shape_manual(values = c(15,16,17,18), # codigo del shape
+                     labels= c("Pi", "Low P", "Phi", "Pi/Phi max"))
+ej2_jac_ordiNMDS
+
+# Agregando elipse
+ej2_jac_ordiNMDS <- ej2_jac_ordiNMDS + 
+  geom_mark_ellipse(aes(fill= Plant_Type,
+                        color= Plant_Type),# tiene que ser igual al de arriba
+                    expand = c(0.0035)) + #ancho del circulo (elipce)
+  scale_fill_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                    name= "Plant Type") #todo igual a color manual arriba 
+
+ej2_jac_ordiNMDS
+
+# Distancia jaccard ordinacion PCoA
+
+jac_ordPCoA <- ordinate(Psoil_filt,
+                        method = "PCoA",
+                        distance = jaccard_vid)
+
+ej3_jac_ordiPCoA <- plot_ordination(Psoil_filt, #objeto phyloseq
+                          jac_ordPCoA, #distancia bray con ordinacion NMDS
+                          "samples",
+                          color = "Plant_Type",
+                          shape = "Treatment") +
+  scale_color_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                     name= "Plant Type") +
+  theme_dark() + 
+  geom_point(size= 3.8)
+
+ej3_jac_ordiPCoA
+
+# Modificando las figuras 
+ej3_jac_ordiPCoA <- ej3_jac_ordiPCoA + 
+  scale_shape_manual(values = c(15,16,17,18), # codigo del shape
+                     labels= c("Pi", "Low P", "Phi", "Pi/Phi max"))
+ej3_jac_ordiPCoA
+
+# Agregando elipse
+ej3_jac_ordiPCoA <- ej3_jac_ordiPCoA + 
+  geom_mark_ellipse(aes(fill= Plant_Type,
+                        color= Plant_Type),# tiene que ser igual al de arriba
+                    expand = c(0.0035)) + #ancho del circulo (elipce)
+  scale_fill_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                    name= "Plant Type") #todo igual a color manual arriba 
+
+ej3_jac_ordiPCoA
+
+#En realidad no habrian diferencias en los graficos podemos ver que los patrones se mantienen
+```
+
+# Analisis estadistico multivariable 
+
+## PERMANOVA
+
+Para probar si los grupos son diferentes con respecto al centroide y la dispersión, se realizará una prueba estadística PERMANOVA. Para ello se utilizará una extensión multivariada de ANOVA, ya que hay muchas OTU que se utilizarán en la prueba. La extensión se basa en distancias entre muestras. La prueba compara distancias de muestras dentro del mismo grupo con distancias de muestras de diferentes grupos. Si la distancia entre muestras de diferentes grupos es mucho mayor que las muestras del mismo grupo, concluimos que los grupos no son iguales.
+
+Para probar la importancia del resultado, se utiliza una prueba de permutación. Por lo tanto, todas las muestras se mezclan aleatoriamente en los grupos y la prueba se repite muchas veces. Si la relación (entre la distancia del grupo/la distancia dentro del grupo) es mucho mayor para los datos originales que para las permutaciones, concluimos que hay una diferencia estadísticamente significativa.
+
+La prueba se puede aplicar en combinación con cualquier medida de distancia.
+
+```{r}
+### Extraer data frame del objeto phyloseq
+
+# tabla de conteos ASVs (OTU)
+SoilASVs <- as.data.frame(Psoil_filt@otu_table)
+
+# metadatos 
+SoilMeta <- as.matrix(Psoil_filt@sam_data)
+SoilMeta <- as.data.frame(SoilMeta)
+
+# Adonis = es el codigo de la permanova
+adonis2(SoilASVs ~ Treatment * Plant_Type,
+        data = SoilMeta, #de donde vienen los metadatos 
+        permutations = 999, # este numero es arbitrario minimo 1000, entre mas tarda más
+        method = "bray") # mismo a las distancias que calculamos
+
+adonis2(SoilASVs ~ Treatment * Plant_Type,
+        data = SoilMeta, permutations = 999, ### dejar default 10000(diez mil)
+        method = "jaccard",
+        binary= TRUE)
+
+```
+
+La PERMANOVA es muy sensibe a numeros bajos de muestreo (minimo 10)
+## Variables opcionales
+
+Estratificacion: Entre que grupos se haran las comparaciones 
+
+```{r}
+### By plant type (por tipo de planta)
+
+adonis2(SoilASVs ~ Treatment, # variable que vas a analizar 
+        strata = SoilMeta$Plant_Type, #separar entre tipo de planta, gpo que vas a analizar
+        data = SoilMeta,
+        permutations = 999,
+        method = "bray")
+
+# el resultado nos dice que no hay diferencia entre tipos de plantas con un resultado de 0.366
+
+### by treatmente (por tratamiento)
+
+adonis2(SoilASVs ~ Plant_Type, #varaible analizar 
+        strata = SoilMeta$Treatment, # grupo a analizar
+        data = SoilMeta,
+        permutations = 999,
+        method = "bray")
+# no hay diferencia 
+```
+Si el p-value es inferior a 0.05 concluimos que la intravariabilidad es menor que la intervarabilidad entre los dos sitios y por eso tenemos un efecto significativo. 
+
+
+## ANOSIM
+
+Es la version no parametrica de una PERMANOVA. 
+ANOSIM evalua si las distancias o diferencias dentro del grupo son mayores o iguales a las distancias entre grupos utlizando los rangos de todas las distancias de muestra por partes. Es menos robusto que la PERMANOVA pero es un analisis mas simplificado. 
+
+```{r}
+anosim(SoilASVs, # tabla de conteo
+       SoilMeta$Plant_Type, # metadatos 
+       distance = "bray",
+       permutations = 999)
+# no hay significancia 
+
+anosim(SoilASVs, # tabla de conteo
+       SoilMeta$Treatment, #metadatos
+       distance = "bray",
+       permutations = 999)
+# tampoco hay significancia 
+
+```
+
+Al interpretar estos resultados, desde observar la estadistica R de ANOSIM y los valores de significancia. Un valor de significantivo y significa que se puede rechazar la hiposesis nula. Por lo tanto, existen una diferencia estadisticamente significativa en las comunidades microbianas entre sus grupos. Mayor que 0.05 significa que no hay diferencia estadistica entre las comunidades microbianas de sus grupos. 
+
+"La estadistica "R" de ANOSIM compara la media de las dismilitudes clasificadas entre grupos con la media de las dismilitudes clasificadas dentr de los grupos. Un valor de R cercano a "1" sugiere dismilitud entre grupos, mientras que un valor de R cercano a "0" sugiere una distribucion uniforme de rengos altos y bajos dentro y entre grupos". En otras palabras, cuanto mayor sea el valor R, mas diferentes seran sus grupos en terminos de composicion de la comunidad microbiana. 
+
+### mini ejercicio 
+
+Repetir este analisis estadistico con jaccard 
+
+```{r}
+anosim(SoilASVs, # tabla de conteo
+       SoilMeta$Plant_Type, # metadatos 
+       distance = "jaccard",
+       permutations = 999)
+# R= -0007, sifni= 0.508.... por lo tanto no hay significancia 
+
+anosim(SoilASVs, # tabla de conteo
+       SoilMeta$Treatment, #metadatos
+       distance = "jaccard",
+       permutations = 999)
+# R= 0.006, sign= 0.418...tampoco hay significancia 
+
+```
+# Ejercicio final 
+
+Realizar analisis de diversidad beta comparando "SecTech" como grupos
+
+```{r}
+data("enterotype")
+
+### Bray-Curtis
+bray_enter <- phyloseq::distance(enterotype, # especificamos que es la funcion distance del paquete de phyloseq ya que hay otra funcion con ese nombre
+                               method = "bray",
+                               type = "sample") # sample es el default 
+# para que se calcule las distancias entre muestras
+bray_enter
+
+
+
+ord_bray <- ordinate(enterotype, # objeto
+                     method = "PCoA", # metodo
+                     distance = bray_enter) # el objeto que creamos
+ord_bray
+
+
+
+graf <- plot_ordination(enterotype, #objeto phyloseq
+                          ord_bray, #distancia bray con ordinacion PCoA
+                          "samples",
+                          color = "SeqTech",
+                          shape = "SeqTech") +
+  scale_color_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                     name= "SeqTech") +
+  theme_dark() + 
+  geom_point(size= 2.8, alpha= 0.2)
+
+graf
+
+# Modificando las figuras 
+graf <- graf + 
+  scale_shape_manual(values = c(15,16,17), # codigo del shape
+                     labels= c("Illumina", "Pyro 454", "Sanger"))
+graf
+
+# Agregando elipse
+graf <- graf + 
+  geom_mark_ellipse(aes(fill= SeqTech,
+                        color= SeqTech),# tiene que ser igual al de arriba
+                    expand = c(0.0035)) + #ancho del circulo (elipce)
+  scale_fill_manual(values = c("aquamarine1", "burlywood1", "coral1"),
+                    name= "SeqTech") #todo igual a color manual arriba 
+
+graf
+
+
+
+# PERMANOVA
+### Extraer data frame del objeto phyloseq
+
+# tabla de conteos ASVs (OTU)
+entero_ASVs <- as.data.frame(t(enterotype@otu_table)) # en este caso se le agrego el t de transpous (transponer osea cambiar, osea voltear la tabla para que que concordaran las observaciones y de las dos tablas la de ASVs y la de metadatos)
+
+# metadatos 
+enteroMeta <- as.matrix(enterotype@sam_data)
+enteroMeta <- as.data.frame(enteroMeta)
+
+# Adonis = es el codigo de la permanova
+adonis2(entero_ASVs ~ SeqTech,
+        data = enteroMeta, #de donde vienen los metadatos 
+        permutations = 999, # este numero es arbitrario minimo 1000, entre mas tarda más
+        method = "bray") # mismo a las distancias que calculamos
+
+#no hay diferencia significativa valor p= 0.001
+
+
+# ANOSIM
+anosim(entero_ASVs, # tabla de conteo
+       enteroMeta$SeqTech, # metadatos 
+       distance = "bray",
+       permutations = 999)
+# no hay significancia R= 0.734; recordar que entre mas cercano al 1 son mas diferentes  osea que los grupos tienen diversidad...
+
+```
+
