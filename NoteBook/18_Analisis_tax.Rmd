@@ -499,7 +499,7 @@ El ejemplo va a ser con ANOVA y por eso estamos usando los datos de ITS
 
 Para los graficos ya habiamos extraido nuestras tablas de conteos y taxa, pero ahora tambien necesitamos nuestros metadatos:
 
-# Prepocesamiento de datos 
+# Pre pocesamiento de datos 
 ```{r}
 
 Phyla_fun <- tax_glom(ITS_filtered, taxrank = "Phylum", NArm = FALSE)
@@ -529,9 +529,227 @@ for (i in 5:ncol(Fungi_phyla)) {
   print(c(i,normal))
 }
 
-# solo Ascomycota and Olpidiomycota normal 
+# solo Ascomycota y Olpidiomycota normal 
 
 ### Normalize phyla
 
+# transformacion Log
+Norm_Fungi <- Fungi_phyla
+
+for (i in 6:ncol(Norm_Fungi)) { #tambien puede ser 6:20 porque vamos de la 6 a la 20, de las 20 que son
+  Norm_Fungi[,i] <- abs(log10(Norm_Fungi[,i]+1)) # abs es valor absoluto
+}
+
+# Volvemos a correr shapiro
+for (i in 5:ncol(Norm_Fungi)) {
+  shapiro <- shapiro.test(Norm_Fungi[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+# Checamos grupos especificos
+shapiro.test(Norm_Fungi$p__Mucoromycota) # 6
+shapiro.test(Norm_Fungi$p__Basidiomycota) # 7
+hist(Norm_Fungi$p__Mucoromycota)
+hist(Norm_Fungi$p__Basidiomycota)
+
+# Concluimos que casi todos nuestros phylums son normales 
+
+
+# Tabla final solo para mis datos 
+Norm_Fungi <- Norm_Fungi[,-c(5,13,15,18,19,20)] #estoy quitanto columnas, 5 y 13 eran normales, y el resto los quitamos por baja abundancia 
+
+# Unir los datos (tablas)
+Fungi_stats <- cbind(Fungi_phyla[,c(1:5,13)],Norm_Fungi[,5:14]) # seleccionamos las normales de Fungi phyla y lo unimos con los normalizados y metadatos, quitanto los que no se normalizaron
+
+# tambien se puede hacer asi....
+#Fungi_stats <- cbind(Fungi_phyla[,1:13],Norm_Fungi[,5:14])
+#Fungi_stats <- Fungi_stats[,-c(6:12)] #quitamos las repetidas que estaban entre las 5 y 13
+
+# osea necesitamos los datos normales y los transformados los datos no normalizados y que no se pueden transfomrar no se poenen y no nos interesan...
+
+```
+
+### ANOVA de dos vias (en este caso por la naturaleza de mis datos)
+
+```{r}
+### Prueba de homogeneidad 
+# Test de Levene
+for (i in 5:ncol(Fungi_stats)) {
+  Lev_ex <- leveneTest(Fungi_stats[,i] ~ Plant_Type * Treatment,
+                       data = Fungi_stats)
+  levene <- ifelse(Lev_ex[["Pr(>F)"]]>0.05,"YES","NO")
+  print(c(i,levene))
+}
+
+# todos pasan Levene
+
+## For loop de ANOVA
+#Paso 1: tabla vacia (sera especifica para sus datos)
+phyla_pvalues <- data.frame(Plant = rep(NA,12),
+                            Treatment = rep(NA,12),
+                            P1_Trt = rep(NA,12)) # el num de variables
+# osea; en la primera linea dice: me vas a repetir NA para las 12 variables que tengo sin contar los metadatos....el numero depende del numero de variables que tengas en tu tabla 
+#lo mismo es para las otras 2 linea solo que con nombre distinto, en el primero se llama planta, en el segundo tratamiento y en el tercero planta con tratamiento 
+
+for (i in 5:ncol(Fungi_stats)) {
+  Phyla <- Fungi_stats[,i] # objeto de columna porque Anova no lee la columna
+  AR <- Anova(aov(Phyla ~ Plant_Type * Treatment, #variables idep, tratamient
+                  data = Fungi_stats)) # codigo de Anova en un objeto
+  j <- i-4 # para que empieze a llenar desde la fila 1 osea i in 5, i-4 osea 1
+  phyla_pvalues$Plant[j] <- AR$`Pr(>F)`[1]
+  phyla_pvalues$Treatment[j] <- AR$`Pr(>F)`[2]
+  phyla_pvalues$P1_Trt[j] <- AR$`Pr(>F)`[3]# en esta ocacion son 3 porque tenemos 3 tratamientos si tuvieramos 1 solo lo ponemos 1 vez
+}
+#### Elementos a cambiar cada que adapten este for loop 
+# 1.- Fungi_stats por su tabla de datos 
+# 2.- El numero despues de sus metadatos en este caso es el 5 
+# 3.- Dentro de la Anova grupos, variables independientes o tratamientos (es lo mismo, llamado de diferente forma)
+# 4.- j que es la formula general - x = 1 (i-x=1) cambia el valor de x que en este caso es 4 
+# 5.- Nombres de phyla_pvalues dependera de sus datos y variables 
+
+row.names(phyla_pvalues) <- colnames(Fungi_stats[5:16])
+
+# Pueden guardar esta tabla 
+write.csv(phyla_pvalues, "~/RStudio/CursoInnovak/Materiales/Fun_phyla_pvalue.csv")
+
+```
+
+Basados en estos resultados nosotros podemos elegir cual de estos phylums se puede ver en a un nivel mas bajo. Asi mismo no tenemos que sacar tukey para todos solo para los significativos: 
+
+```{r}
+## Mucoromycota, Chytridiomycota y Zoopagomycota
+
+TukeyHSD(aov(p__Zoopagomycota ~ Plant_Type * Treatment,
+             data = Fungi_stats))
+TukeyHSD(aov(p__Mucoromycota ~ Plant_Type * Treatment,
+             data = Fungi_stats))
+TukeyHSD(aov(p__Chytridiomycota ~ Plant_Type * Treatment,
+             data = Fungi_stats))
+
+# es un ejemplo de como se haria 
+```
+
+El siguiente paso sería graficar algunas de estas relaciones interesantes 
+
+## Ejercicio 
+
+Este ejercicio lo haremos juntos. Si bien podria haberles dado el codigo, quise que vieramos juntos esta vez como se podria adaptar un codigo que ya sabemos (en este caso el for loop de ANOVA) a un caso que no sabemos (T test).
+Si recuerdan los datos de vid no podemos analizarlos por ANOVA proque solo tenemos una variable de cada "grupo". Sin embargo al hacer diversidad alfa vimos que si juntamos los datos podemos hacer t test. En este caso tenemos muchos datos (mas que solo los 7 indicies de diversidad alfa) por lo que hace4rlo uno por uno seria una tarea ridicula asi que vamos a hacer el analisis usando un for loop: 
+
+```{r}
+
+Phyla_fun <- tax_glom(vid_bio, taxrank = "Phylum", NArm = FALSE)
+
+# Extraemos datos del objeto 
+OTU_matrix <- as.data.frame(Phyla_fun@otu_table)
+Tax_matrix <- as.data.frame(Phyla_fun@tax_table)
+
+# Extraer metadatos 
+metadata <- as.data.frame(Phyla_fun@sam_data)
+
+# Renombramos las columnas de nuestras abundancias con el phylun de la tabla de taxa 
+colnames(OTU_matrix) <- Tax_matrix$Phylum 
+OTU_matrix <- OTU_matrix[,-c(10,21)]
+
+# Join phyla with metadatos (unir los phylum con metadatos)
+vid_phyla <- cbind(metadata,OTU_matrix)
+
+## Checar normalidad de los datos 
+#Shapiro en for loop
+for (i in 3:ncol(vid_phyla)) {
+  shapiro <- shapiro.test(vid_phyla[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+# vamos a quitar el 10, 15, 27 y del 38:40 por baja abundancia, no los vamos a tratar de normalizar 
+
+## Seleccionamos tabla  
+Norm_vid <- vid_phyla[,c(24:26,28,30:34,37)]
+
+# Normalizamos 
+for (i in 1:ncol(Norm_vid)) { #tambien puede ser 6:20 porque vamos de la 6 a la 20, de las 20 que son
+  Norm_vid[,i] <- abs(log10(Norm_vid[,i]+1)) # abs es valor absoluto
+}
+
+# Volvemos a correr shapiro 
+for (i in 1:ncol(Norm_vid)) {
+  shapiro <- shapiro.test(Norm_vid[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+
+# Juntar para tabla 
+vid_stats <- cbind(vid_phyla[,-c(10,15,24:28,30:34,37:40)],Norm_vid) # contando las que eliminamos tendriamos que tener 34 variables
+# si le ponemos cbind las une horizontalmente si le ponemos rcbind los une verticalmente 
+
+### For loop de t.test
+# paso 1.- tabla vacia 
+phyla_pvalues <- data.frame(Tratamiento = rep(NA,32),
+                            Suelo = rep(NA,32))
+# vamos a hace4r dos t.test uno para cada variable por eso dos columnas 
+                            
+# paso 1.5.- ver si se pueden meter valores por columna 
+objeto_T <- t.test(Proteobacteria ~ Tratamiento, data = vid_stats)
+# aqui vimos como llamar al p.value = objeto_T[["p.value"]]
+#otra manera de ver si se puede es asi: 
+#t.test(vid_stats[,3] ~ Tratmiento, data= vid_stats)
+
+# paso 2.- for loop
+for (i in 3:ncol(vid_stats)) {
+  T_trat <- t.test(vid_stats[,i] ~ Tratamiento, data = vid_stats)
+  S_trat <- t.test(vid_stats[,i] ~ Suelo, data = vid_stats)
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 osea 1
+  phyla_pvalues$Tratamiento[j] <- T_trat[["p.value"]]
+  phyla_pvalues$Suelo[j] <- S_trat[["p.value"]]# en esta ocacion son 2 porque tenemos 2 tratamientos, depende de los tratamientos que tenemos
+}
+
+# paso 3.- poner los nombres 
+row.names(phyla_pvalues) <- colnames(vid_stats[3:34])
+
+# paso 4.- guardar tabla 
+write.csv(phyla_pvalues, "~/RStudio/CursoInnovak/Materiales/vid_pvalue.csv")
+
+```
+
+# conclusion de analisis a nivel phylum 
+
+Despues de todos estos graficos y analisis estadisticos ustedes deberan tener unos 5 phylums tops que quieran analizar mas a profundiad. En mi caso me voy a enfocar en Ascomycosa y Mucoromycota
+
+EN EL VASO DE VID, habiamos dicho que:
+* Cyanobacteria, Proteobacteria basados en graficos
+* Chloroflexi y Actinobacteria basados en estadistica
+
+```{r}
+Proteo <- subset_taxa(vid_bio, Phylum == "Proteobacteria")
+
+```
+
+# VISUALIZAR A NIVEL DE ORDEN 
+
+Si bien despues de phyum viene clase, por razones de tiempo (tanto de la clase como de su trabajo) les recomiendo que el siguiente nivel a analizar sea orden: 
+
+```{r}
+Proteo_or <- tax_glom(Proteo,taxrank = "Order", NArm = FALSE) # juntar orden
+```
+
+En este caso no lo hice para Mucoromycota tambien porque si se fijan solo tiene un orden. Aglomerar todos nuestros datos por orden no nos serviria de nada por lo que les vuelvo a reiterar que aqui depende de cada caso para que sigan su flujo de analisis. A partir de aqui yo tendria 2 opciones: 
+
+1. Si se fijan a nivel de familias si habian varias clasificaciones por lo que podria analizar a ese nivel en vez de a nivel de orden o
+
+2. Pasarme directamente al siguiente nivel de analisis: el genero
+
+Nuevamente al ver los datos (sin graficar) me doy cuenta que las familias y los generos siguen los mismos patrones por lo que en vez de analizar 2 veces dejaremos Mucoromycota para el siguiente nivel.
+
+### Heatmap o barplot?
+
+Primero vamos a ver el barplot default sin arreglar nada en los datos:
+
+```{r}
+plot_composition(Proteo_or,plot.type = "barplot")+
+  theme_bw() 
+# me enfocare en el mas abundante que es el MIXK01255P
 ```
 
