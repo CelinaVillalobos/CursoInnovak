@@ -85,7 +85,7 @@ write.csv(alphadiv, "~/RStudio/CursoInnovak/Materiales/Alphadiversity.csv")
 ```
 
 
-De esta segunda seccion es importente notar que la funcion de evenness() calculo otros indices de divedrsidad alfa los cuales estan enfocados en la uniformidad de especies. Si notan la mayor parte d elos indicies anteriores la daban mas peso a la riqueza de especies por lo que el paquete microbiome se enfoca en otro tipo de indicies. Como esta clase no es para explicarles cada uno de ellos de aqui el unico que les puede ser util es un futuro es: 
+De esta segunda seccion es importante notar que la funcion de evenness() calculo otros indices de divedrsidad alfa los cuales estan enfocados en la uniformidad de especies. Si notan la mayor parte d elos indicies anteriores la daban mas peso a la riqueza de especies por lo que el paquete microbiome se enfoca en otro tipo de indicies. Como esta clase no es para explicarles cada uno de ellos de aqui el unico que les puede ser util es un futuro es: 
 
 8. _Pielou:_ Equalidad (tambien conocida como equidad de Pielou) es la diversidad de Shannon dividida por el logaritmo del numero de taxones. Esto mide la uniformidad con la que los individuos se dividen entre los taxones presentes. 
 
@@ -286,4 +286,3 @@ plot(TukeyHSD(sh_anova))
 
 
 ```
-
