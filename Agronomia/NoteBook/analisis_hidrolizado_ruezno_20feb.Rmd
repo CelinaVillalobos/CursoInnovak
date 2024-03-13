@@ -1,0 +1,25 @@
+---
+title: "Hidrolizado de Ruezno 20/Feb/24"
+output: html_notebook
+---
+
+```{r}
+# Librerias
+library(dplyr)
+library(tidyr) 
+library(readr) 
+library(udunits2)
+library(tidyverse)
+library(car)
+library(agricolae)
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(RColorBrewer)
+library(ggbreak)
+library(plotrix)
+library(ggsignif)
+library(wesanderson)
+library(paletteer)
+```
+

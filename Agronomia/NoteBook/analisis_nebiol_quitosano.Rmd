@@ -1,0 +1,268 @@
+---
+title: "Analisis Estadistico"
+output: html_notebook
+---
+
+```{r}
+# Librerias
+library(dplyr)
+library(tidyr) 
+library(readr) 
+library(udunits2)
+library(tidyverse)
+library(car)
+library(agricolae)
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(RColorBrewer)
+library(ggbreak)
+library(plotrix)
+library(ggsignif)
+library(wesanderson)
+library(paletteer)
+
+# DATA
+Quitosano <- read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/Quitosano.csv")
+Nebiol <- read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/Nebiol.csv")
+```
+
+```{r}
+par(mfrow=c(1,2))
+hist(Nebiol$Longitud)
+qqnorm(Nebiol$Longitud)
+
+# Shapiro-Wilk normality test
+shapiro.test(Nebiol$Longitud)
+
+# Normalizar
+par(mfrow=c(1,2))
+hist(sqrt(Nebiol$Longitud))
+qqnorm(sqrt(Nebiol$Longitud))
+
+# Shapiro-Wilk normality test
+shapiro.test(sqrt(Nebiol$Longitud))
+
+
+# Checar si estan balanceados
+Nebiol %>%
+  group_by(Tratamiento)%>%
+  summarise(n())
+```
+
+## Graficos del promedio de la longitud de raiz y raices laterales para Nebiol
+```{r}
+
+# Filtrar datos para solo obtener una tabla de los promedios de la longitud de raiz:
+Nebiol_prom <- Nebiol %>%
+  filter(!is.na(Longitud)) %>%
+  group_by(Tratamiento) %>%
+  summarize(Media_longitud_raiz= mean(Longitud, na.rm = TRUE),
+            Desv_est = sd(Longitud, na.rm = TRUE),
+            Error_desv_est = std.error(Longitud, na.rm = TRUE))
+
+# Se acomodan los datos
+levels(Nebiol_prom$Tratamiento)
+Nebiol_prom$Tratamiento=factor(Nebiol_prom$Tratamiento,levels=c("Control","NAA","GA3","N1 250 uL", "N1 1:10", "N1 1:20", "N1 1:50", "N2 250 uL filt", "N2 250 uL directo", "N3 1:10", "N3 1:20", "N3 1:50"))
+levels(Nebiol_prom$Tratamiento)
+
+# Filtrar datos para solo obtener una tabla de los promedios de las raices laterales:
+Nebiol_prom_lat <- Nebiol %>%
+  filter(!is.na(Laterales)) %>%
+  group_by(Tratamiento) %>%
+  summarize(Media_laterales= mean(Laterales, na.rm = TRUE),
+            Desv_est_lat = sd(Laterales, na.rm = TRUE),
+            Error_desv_est_lat = std.error(Laterales, na.rm = TRUE))
+
+# Se unen las tablas
+Nebiol_tabla <- cbind(Nebiol_prom,Nebiol_prom_lat[,-c(1)])
+
+# Se grafican los promedios de la longitud de raiz y las raices laterales
+graflongitud_n <- ggplot(Nebiol_tabla)+
+  theme_classic()+
+  geom_col(aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  ylab("Longitud de raíz")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  theme(axis.title.y=element_text(vjust = 3))+
+   scale_fill_manual(values=c(rep("steelblue3",12)))+
+  theme(legend.position = "none") ######### ERA EL DE UN PRINCIPIO PERO QUISIERON QUE LAS PUSIERAMOS SEPARADAS POR ESO SE ENCUENTRA ABAJO OTRA IGUAL 
+
+graflaterales_n <- ggplot(Nebiol_tabla)+
+  theme_gray()+
+  geom_col(aes(y = Media_laterales, x = Tratamiento, fill= Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  ylab("Raíces laterales")+
+  scale_fill_manual(values=c(rep("steelblue3",1)))+
+  theme(legend.position = "none")
+
+graflongitud_n | graflaterales_n
+
+
+
+### ESTA GRAFICA SE USO PARA LA PPT PERO QUERIA QUE POR TRATAMIENTO TUVIERA UN COLOR POR LO QUE ESTA TAMPOCO NOS SIRVIO
+graf_nebiol_long <- ggplot(Nebiol_tabla)+
+  theme_classic()+
+  geom_col(aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  ylab("Longitud de raíz")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  theme(axis.title.y=element_text(vjust = 3))+
+  scale_fill_paletteer_d("colorBlindness::SteppedSequential5Steps")+
+  theme(legend.position = "none")
+
+
+graf_nebiol_lat <- ggplot(Nebiol_tabla)+
+  theme_classic()+
+  geom_col(aes(y = Media_laterales, x = Tratamiento, fill= Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  ylab("Raíces laterales")+
+  scale_fill_paletteer_d("colorBlindness::SteppedSequential5Steps")+
+  theme(legend.position = "none")
+
+graf_nebiol_long|graf_nebiol_lat
+
+
+
+#### ESTA FUE LA ULTIMA GRAFICA QUE REALIZAMOS PARA LA PPT 
+graf_nebiol_longitud <- ggplot(Nebiol_tabla)+
+  theme_classic()+
+  geom_col(aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  ylab("Longitud de raíz")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  theme(axis.title.y=element_text(vjust = 3))+
+  scale_fill_manual(values = c("#990F0F","#CC5151","#FFB2B2",
+                               "#99540F","#99540F","#99540F",
+                               "#6B990F","#6B990F","#6B990F",
+                               "#0F6B99","#0F6B99","#0F6B99"))+
+  theme(legend.position = "none")
+
+
+
+graf_nebiol_lateral <- ggplot(Nebiol_tabla)+
+  theme_classic()+
+  geom_col(aes(y = Media_laterales, x = Tratamiento, fill= Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  theme(plot.caption = element_text(color = "red", hjust = 0, vjust = -2, size = 12))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  ylab("Raíces laterales")+
+  scale_fill_manual(values = c("#990F0F","#CC5151","#FFB2B2",
+                               "#99540F","#99540F","#99540F",
+                               "#6B990F","#6B990F","#6B990F",
+                               "#0F6B99","#0F6B99","#0F6B99"))+
+  theme(legend.position = "none")+
+  labs(caption = "*No se realizó conteo de raices laterales del tratamiento NAA por alta abundancia.")
+
+graf_nebiol_longitud|graf_nebiol_lateral
+```
+
+```{r}
+# intento de poner 2 graficas en una 
+
+graf_nebiol_longitud <- ggplot(Nebiol_tabla, aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  theme_classic()+
+  geom_col(aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  ylab("Longitud de raíz")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  theme(axis.title.y=element_text(vjust = 3))+
+  scale_fill_manual(values = c("#990F0F","#CC5151","#FFB2B2",
+                               "#99540F","#99540F","#99540F",
+                               "#6B990F","#6B990F","#6B990F",
+                               "#0F6B99","#0F6B99","#0F6B99"))+
+  theme(legend.position = "none")+
+  geom_text(aes(label =(Media_longitud_raiz)))
+```
+
+
+## Graficos del promedio de la longitud de raiz y raices laterales para Quitosano
+```{r}
+# Filtrar datos para solo obtener una tabla de los promedios de la longitud de raiz:
+Quitosano_prom <- Quitosano %>%
+  filter(!is.na(Longitud)) %>%
+  group_by(Tratamiento) %>%
+  summarize(Media_longitud_raiz= mean(Longitud, na.rm = TRUE),
+            Desv_est = sd(Longitud, na.rm = TRUE),
+            Error_desv_est = std.error(Longitud, na.rm = TRUE))
+
+# Se acomodan los datos:
+levels(Quitosano_prom$Tratamiento)
+Quitosano_prom$Tratamiento=factor(Quitosano_prom$Tratamiento,levels=c("Control","NAA","GA3","M1 250 uL", "M1 1:10", "M1 1:20", "M2 250 uL", "M2 1:10", "M2 1:20", "M3 250 uL","M3 1:10", "M3 1:20", "M4 250 uL","M4 1:10", "M4 1:20"))
+levels(Quitosano_prom$Tratamiento)
+
+# Filtrar datos para solo obtener una tabla de los promedios de las raices laterales:
+Quitosano_prom_lat <- Quitosano %>%
+  filter(!is.na(Laterales)) %>%
+  group_by(Tratamiento) %>%
+  summarize(Media_laterales= mean(Laterales, na.rm = TRUE),
+            Desv_est_lat = sd(Laterales, na.rm = TRUE),
+            Error_desv_est_lat = std.error(Laterales, na.rm = TRUE))
+
+# Se unen las tablas:
+Quitosano_tabla <- cbind(Quitosano_prom,Quitosano_prom_lat[,-c(1)])
+
+# Se grafican los promedios de la longitud de raiz y las raices laterales:
+graflongitud_q <- ggplot(Quitosano_tabla)+
+  theme_classic()+
+  geom_col(aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  ggtitle("Bioensayo de muestras de Quitosano")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face ="bold"))+
+  ylab("Longitud de raíz")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  theme(axis.title.y=element_text(vjust = 3))+
+  scale_fill_manual(values=c(rep("#2E8B57",15)))+
+  theme(legend.position = "none")
+
+graflaterales_q <- ggplot(Quitosano_tabla)+
+  theme_classic()+
+  geom_col(aes(y = Media_laterales, x = Tratamiento, fill= Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  ylab("Raíces laterales")+
+  scale_fill_manual(values=c(rep("#2E8B57",15)))+
+  theme(legend.position = "none")  ##### ESTAS GRAFICAS FUERON LAS DE UN INICIO PERO QUERIAN QUE ESTUVIERAN CON DIFERENES COLOR POR LO QUE LAS GRAFICAS DE ABAJO SON LAS QUE PUSIMOS EN LA PPT 
+
+graflongitud_q | graflaterales_q 
+
+
+
+#### ESTAS SON LAS GRAFICAS DE LA PPT PERO QUERIA QUE POR TRATAMIENTO TUVIERA UN COLOR POR LO QUE ESTA TAMPOCO NOS SIRVIO
+
+graf_quito_long <- ggplot(Quitosano_tabla)+
+  theme_classic()+
+  geom_col(aes(x = Tratamiento, y = Media_longitud_raiz, fill=Tratamiento))+
+  ggtitle("Bioensayo de muestras de Quitosano")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face ="bold"))+
+  ylab("Longitud de raíz")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  theme(axis.title.y=element_text(vjust = 3))+
+  scale_fill_paletteer_d("colorBlindness::SteppedSequential5Steps",-1)+
+  theme(legend.position = "none")
+
+graf_quito_late <- ggplot(Quitosano_tabla)+
+  theme_classic()+
+  geom_col(aes(y = Media_laterales, x = Tratamiento, fill= Tratamiento))+
+  ggtitle("Bioensayo de muestras de Nebiol")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, color = "black", face = "bold"))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))+
+  ylab("Raíces laterales")+
+  scale_fill_paletteer_d("colorBlindness::SteppedSequential5Steps",-1)+
+  theme(legend.position = "none")
+
+graf_quito_long|graf_quito_late
+
+
+
+#### MARIANA MODIFICO LOS COLORES MANUALES DEL QUITOSANO, POR ESO NO LO TENGO EN ESTE CHUNK
+```

@@ -1,0 +1,1434 @@
+---
+title: "Secuenciación de liga correo Fco"
+output: html_notebook
+---
+
+# SECUENCIACIÓN METAGENOMICA DADA2
+```{r}
+library(dada2)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+#Camino al directorio donde estan las muestras:
+path <- "~/RStudio/CursoInnovak/Agronomia/Secuenciación_muestrasFco"
+list.files(path)
+
+# primero se separan las muestras en objetos 
+# forward
+fnFs <- sort(list.files(path, pattern = "_R1.fastq", full.names = TRUE))
+
+# reverse
+fnRs <- sort(list.files(path, pattern = "_R2.fastq", full.names = TRUE))
+
+## Extract sample names
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`,1) 
+
+```
+
+
+# Revisión de perfil de Calidad 
+
+```{r}
+# forward
+plotQualityProfile(fnFs[1:6]) 
+
+# reverse
+plotQualityProfile(fnRs[1:6])
+```
+
+# Filtrar y cortar 
+
+```{r}
+# Guardando el camino a nuestras muestras filtadas en un objeto nuevo 
+filtFs <- file.path(path, "filtered", paste0(sample.names,  "_F_filt.fastq.gz")) # forward
+filtRs <- file.path(path, "filtered", paste0(sample.names, "_R_filt.fastq.gz")) #reverse
+
+# Asignando los nombres de las muestras a nuestros objetos nuevos 
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+
+```
+
+```{r}
+# parametros de filtrado y cortado
+
+out <- filterAndTrim(fnFs, filtFs, # forward reads
+                     fnRs, filtRs, # reverse reads
+                     truncLen = c(140,140), # truncado o corte
+                     maxN = 0, # remover Ns, ESTE NUNCA SE PUEDE MODIFICAR 
+                     maxEE = c(5,5), #error esperado, lo estandar es 2,2
+                     truncQ = 2, #quality score
+                     rm.phix = TRUE, compress = TRUE, #defaults
+                     multithread = FALSE) # en windows
+
+
+out <- read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/Conteo_reads1.csv") # por si lo cierrar solo corres el objeto 
+
+```
+
+```{r}
+# Ahora a guardar nuestro progreso 
+write.csv(out, "~/RStudio/CursoInnovak/Agronomia/Materiales/Conteo_reads1.csv") # para guardar una tabla 
+
+### Por si queremos retomar despues de filtar ###
+
+## Nuevo camino 
+path2 <- "~/RStudio/CursoInnovak/Agronomia/Secuenciación_muestrasFco/filtered/"
+
+# forward
+filtFs <- sort(list.files(path2, pattern = "_F_filt.fastq.gz",
+                          full.names = TRUE))
+
+# reverse 
+filtRs <- sort(list.files(path2, pattern = "_R_filt.fastq.gz",
+                          full.names = TRUE))
+```
+
+# Tasas de error
+
+```{r}
+# forwards
+errF <- learnErrors(filtFs, multithread = TRUE)
+save(errF, file = "errF.RData")
+
+# reverse 
+errR <- learnErrors(filtRs, multithread = TRUE)
+save(errR, file = "errR.RData")
+
+# Para subir los archivos nuevamente: no se corre el codigo a menos que en el ambiente no los tengas, y evitas correr todo lo anterior. 
+load("errF.RData")
+load("errR.RData")
+
+##Plot error rates
+plotErrors(errF, nominalQ = TRUE)
+plotErrors(errR, nominalQ = TRUE)
+
+```
+
+# Interferencia de las muestras, ruidos 
+```{r}
+# Forward
+dadaFs_nopool <- dada(filtFs, err=errF, multithread = TRUE,
+                      pool = FALSE)
+save(dadaFs_nopool, file = "dadaFs_nopool.RData")
+
+load("dadaFs_nopool.RData")
+
+#Reverse
+dadaRs_nopool <- dada(filtRs, err=errR, multithread = TRUE,
+                      pool = FALSE)
+save(dadaRs_nopool, file = "dadaRs_nopool.RData")
+
+load("dadaRs_nopool.RData")
+```
+
+# Unión de lecturas forward y reverse 
+```{r}
+mergers <- mergePairs(dadaFs_nopool, filtFs, dadaRs_nopool, filtRs, verbose = TRUE)
+save(mergers, file = "mergers.RData")
+
+# por si cerraron su sesión 
+load("mergers.RData")
+
+# parametros opcionales
+mergers <- mergePairs(dadaFs_nopool, filtFs, dadaRs_nopool, filtRs, 
+                      verbose = TRUE,
+                      minOverlap = 10, # tratar para ver si se incrementan las uniones
+                      maxMismatch = 2, # el parametro default es 0, por lo que tiene que ser una union perfecta, no poner mas de 5 
+                      justConcatenate = TRUE, # une forward y pone NNNNX10 y luego une al reverse
+                      returnRejects = TRUE) # nos muestra una tabla de reads rechazadas al momento de union, para ver si salen muchos mismatches incrementar el mismatch o si se estan uniendo muy poco cambiar en overlap. Se comenzaria con usar este parametro para ver que estamos perdiendo luego usamos mismatch, overlap y al final concatenate.
+
+# Podemos estar perdiendo muchas muestras porque no estan limpias las muestras y tienen mala calidad o pueden venir con primers.
+
+```
+# Tabla de secuecias
+
+```{r}
+### Sequence table
+seqtab <- makeSequenceTable(mergers)
+dim(seqtab) #numero de muestras x numero de ASVs
+
+# Checar la longitud de todas las secuencias 
+table(nchar(getSequences(seqtab)))
+```
+# Quitar quimeras 
+```{r}
+seqtab.nochim <- removeBimeraDenovo(seqtab, method = "consensus",
+                                    multithread=TRUE, verbose = TRUE)
+#identified 197 bimeras out 954 input sequences. Añadir a reporte
+#Basado en esto (dividir 197/*100) 20% de mis secuencias son quimeras 
+
+save(seqtab.nochim, file = "seq_conteos.RData")
+
+## Comparar esta tabla con la original que incluye quimeras 
+dim(seqtab.nochim)
+# Incluyendo abundancias 
+sum(seqtab.nochim)/sum(seqtab) # Tomando en cuenta abundancias en realidad mantuvimos 83% de nuestras lecturas 
+
+load("seq_conteos.RData")
+```
+# Seguimiento del proceso
+
+```{r}
+# Primero crearemos una funcion 
+getN <- function(x) sum(getUniques(x)) #esta funcion va a sumar el nuemro de valores unicos dentro de x (x son nuestos objetos de R ceados en cada paso)
+
+#Creamos una nueva tabla llamada track 
+track <- cbind(out, #Paso 1: filtrardo y corte, #el paso 2 es quitar errores 
+               sapply(dadaFs_nopool, getN),
+               sapply(dadaRs_nopool, getN), #Paso 3: denoising
+               sapply(mergers, getN), #Paso 4: unir muestras 
+               rowSums(seqtab.nochim)) #Paso5: quitar quimeras 
+
+# Nombramos nuestras filas y columnas
+colnames(track) <- c("input", "filtered", "denoisedF", "denoisedR", "merged", "nonchim")
+
+# Guardamos esta tabla 
+write.csv(track, "~/RStudio/CursoInnovak/Agronomia/Materiales//Seguimiento_dada.csv")
+read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/Seguimiento_dada.csv")
+```
+
+# Asignación taxonomica 
+
+```{r}
+#tabla de taxonomia 
+taxa <- assignTaxonomy(seqtab.nochim,
+                       "~/RStudio/CursoInnovak/Secuenciación/Taxa/silva_nr99_v138.1_train_set.fa.gz", multithread = TRUE)
+
+#añadir especies
+taxa <- addSpecies(taxa, "~/RStudio/CursoInnovak/Secuenciación/Taxa/silva_species_assignment_v138.1.fa.gz")
+
+
+save(taxa, file = "taxa.RData")
+write.csv(taxa, "~/RStudio/CursoInnovak/Agronomia/Materiales/taxa.csv")
+
+read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/taxa.csv")
+```
+
+
+# PHYLOSEQ
+
+#librerias
+```{r}
+library(phyloseq)
+
+```
+
+#Preparación de datos
+```{r}
+# Metadatos 
+load("taxa.RData") #identificación taxonomica
+load("seq_conteos.RData") #abundancia ASVs
+```
+
+# Abundancia de ASVs
+```{r}
+# Metadatos
+metadatos <- data.frame(Tratamiento = c("Tratado","Testigo","Testigo",
+                                        "Tratado","Tratado","Testigo"),
+                        Muestreo = c(rep("1er Muestreo",2),rep("2do Muestreo",2),rep("3er Muestreo",2)))
+
+
+row.names(metadatos) <- c("M1", "M5", "M7","M12","M15","M16")
+
+# Renombrar muestras, en este caso no es necesario correr este codigo
+sample_names <- c("M1","M12","M15","M16","M5","M7")
+row.names(seqtab.nochim) <- sample_names 
+
+# Generar codigos aleatorios como nombres de las columnas 
+rando <- function(n = 5000) {
+  a <- do.call(paste0, replicate(5, sample(LETTERS, n, TRUE), FALSE))
+  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
+}
+
+dim(seqtab.nochim) # para revisar cuantas filas y columnas tengo en mi tabla 
+
+seqnames <- rando(757) # este numero lo sacamos del seqname entre []
+
+
+# Guardar las secuencias en otro objeto antes de borrarlas 
+Secuencias <- colnames(seqtab.nochim)
+write.csv(Secuencias, "~/RStudio/CursoInnovak/Agronomia/Materiales/Secuencias.csv")
+
+# Cambiando nombre con codigo
+colnames(seqtab.nochim) <- seqnames
+write.csv(seqtab.nochim,"~/RStudio/CursoInnovak/Agronomia/Materiales/Tabla_ASVs.csv")
+
+```
+
+
+# Tabla de asignación taxonomica 
+```{r}
+row.names(taxa) <- seqnames #esta es para si nos quedamos con los nombres de codigos 
+
+# Cuando decides como lo llamaras lo Guardas...
+write.csv(taxa, "~/RStudio/CursoInnovak/Agronomia/Materiales/taxa.csv")
+```
+
+Ahora si, todo listo para armar nuestro objeto y usarlo para todo tipo de analisis 
+
+```{r}
+Bio <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows = FALSE), #aqui le ponemos que no porque nuestras no estan en las filas estan en las columnas
+                     tax_table(taxa))
+
+
+# y o se olviden de guardar 
+save(Bio, file = "suelo_link.RData")
+```
+
+#  HERRAMIENTAS DE PHYLOSEQ
+
+los primeros pasos se vuelven a repetir de phyloseq, pero en este caso no seria necesario porque lo estamos haciendo en un solo notebook
+
+```{r}
+# Paso 1: Subir tablas de dada
+load("suelo_link.RData") # identficacion taxonomica
+load("seq_conteos.RData") # abundancia ASVs
+
+
+# Paso 6: PASO FINAL
+Bio <- phyloseq(otu_table(seqtab.nochim,
+                               taxa_are_rows = FALSE), 
+                     sample_data(metadatos),
+                     tax_table(taxa))
+
+# y no se olviden de guardarlo
+save(Bio, file = "Bio.RData")
+
+```
+ 
+# Introducción
+ 
+```{r}
+load("Bio.RData")
+
+# Pre-procesamiento de datos 
+## Filtrado
+
+PS_filtered <- filter_taxa(Bio, #objeto de phyloseq
+                           function(OTU) sum(OTU) > 2, #condicion o funcion 
+                           TRUE) # el true es para saber si quieres cortar o no y crear un nuevo objeto, siempre dejarlo en TRUE
+#este es un proceso de filtrado por numero de muestras
+
+# Remover taxa on identificada
+PS_filtered <- subset_taxa(PS_filtered, # objeto
+                           !is.na(Phylum)) #condicion, de los que no tengan nada en phylum me los vas a quitar; es lo que le estamos diciendo en este codigo
+
+```
+
+### Prune vs Subset
+
+```{r}
+# Subset, usa los datos de la tabla de taxonomia (datos de identificacion), quito phylum porque filtra tax_table
+Actino <- subset_taxa(Bio, #objeto
+                      Phylum=="Actinobacteriota") #la condicion puede ser cualquier categoria/nivel de la jerarquia taxonomica por ejemplo genero,etc
+#muestra actino = 873
+
+# Prune, quita muestras, filtra el out_table
+Actino <- prune_samples(sample_sums(Actino)>=50, #condicion
+                        Actino) #objeto
+
+```
+
+## Union o merge
+
+No realizamos unión ya que no vamos a juntar varias tablas, en la que tenemos ya esta toda nuestra secuencia 
+
+## ABUNDANCIA 
+
+```{r}
+Psoil_rel <- transform_sample_counts(PS_filtered, #objeto a tranformar
+                                     function(x) x / sum(x)) # x es mi conteo
+
+
+## GRAFICAS
+
+# 1. Grafico de barras
+Top_phyla <- tax_glom(Psoil_rel,taxrank = "Phylum", NArm = FALSE)
+Top_phyla <- prune_taxa(names(sort(taxa_sums(Top_phyla), TRUE)[1:10]),
+                        Top_phyla) # el objeto que voy a modificar 
+
+plot_bar(Top_phyla, fill = "Phylum")
+plot_heatmap(Top_phyla, taxa.label = "Phylum")
+
+
+```
+
+## ANALISIS TAXONOMICO 
+
+```{r}
+library(phyloseq)
+library(tidyverse)
+library(dplyr)
+library(RColorBrewer)
+library(pheatmap) # Heatmaps
+library(microbiome)
+library(ggsignif)
+library(scales) # Modificar escalas
+library(car)
+library(wesanderson)
+
+load("Bio.RData")
+
+```
+
+# VISUALIZACIÓN A NIVEL PHYLUM
+
+# Heatmap
+```{r}
+Phyla_fun <- tax_glom(Bio, taxrank = "Phylum", NArm = FALSE)
+
+## Extraer datos del objeto phyloseq
+
+OTU_matrix <- as.data.frame(Phyla_fun@otu_table)
+Tax_matrix <- as.data.frame(Phyla_fun@tax_table)
+
+# Renombramos las columnas de nuestras abundancias con el phylum de la tabla taxa
+
+colnames(OTU_matrix) <- Tax_matrix$Phylum 
+
+# Quitar phylum desconocido (SOLO DATOS DE VID)
+
+OTU_matrix <- OTU_matrix[, -c(7)] #aqui paso algo con la tabla por lo cual aparecian en NA y asi no nos sirven por lo cual quitamos esas columans que nos estorban ya que no se puede, sería las columnas que no tengan nombre, pueden ser varias, hay que revisar que posición tienen para poner el numero separado con comas...
+
+# Crear matriz (afuerzas tenemos que trabajar con matrices, por eso creamos la matriz a partir de los OTUs)
+Phyla_matrix <- as.matrix(t(OTU_matrix))
+
+```
+
+# PROCESAMIENTO DE DATOS 
+
+```{r}
+Phyla_matrix <- Phyla_matrix[order(Phyla_matrix[,1], #ese 1 corresponde a la primera columna y eso nos da en el codigo que todas las columnas se van a cambiar de mayor a menos 
+                                   decreasing = TRUE),] # Ordenar de mayor a menor 
+
+# Cambiar el orden de las muestras
+
+sorder <- c("M5", "M1", "M7", "M12", "M16", "M15") # acomodamos asi para tener bioestimulante y bioestumulanta y luego control y control
+
+Phyla_matrix <- Phyla_matrix[,sorder] # con esta funcion unimos los valores 
+
+```
+
+# Heatmap analisis taxonomico 
+
+```{r}
+
+pheatmap(Phyla_matrix,
+         cluster_rows = FALSE, cluster_cols = FALSE) # quitar clusters
+
+## Funcion especificamente para separar nuestros datos en secciones 
+
+quantile_breaks <- function(xs, n = 10) {
+  breaks <- quantile(xs, probs = seq(0, 1, length.out = n))
+  breaks[!duplicated(breaks)]
+} # recordar que la funcion NUNCA se cambia de nombre (osea copiar y pegar siempre entre documentos igual)
+
+
+mat_breaks <- quantile_breaks(Phyla_matrix, #la matriz
+                              n = 10) # el default es 10 pero se puede poner el numero de cortes que quiero en mis datos 
+mat_breaks
+
+#heatmap
+pheatmap(Phyla_matrix,
+         cluster_rows = FALSE, cluster_cols = FALSE,
+         scale = "none", # regresamos a que nos ponga escala
+         color = colorRampPalette(c("snow2","#b3d9ff","#2a52a2","#193366","#990000","#4d0000"))(6),
+         breaks = mat_breaks,
+         fontsize = 8, # tamaño de letra 
+         main = "Taxonomia por Phylum",
+         na_col = "#00FF00",
+         fontsize_row = 6,
+         fontsize_col = 8,
+         angle_col = 0,
+         gaps_col=c(2,4),
+         labels_col = c("Testigo 1ro", "Tratado 1ro","Testigo 2do","Tratado 2do", "Testigo 3ro","Tratado 3ro"))
+
+```
+
+
+## Graficos de barras
+
+Se acuerdan que al ver las funciones que nos daba phyloseq vimos como hacer graficos de barras?, pues bueno ahora vamos a aprender a hacerlos bonitos: 
+
+# Pre- procesamiento de datos 
+
+```{r}
+# Recuerden que este tipo de grafico siempre se hacen con abundancias relativas 
+
+Psoil_rel <- transform_sample_counts(Bio, # objeto a transformar
+                                     function(x) x/ sum(x)) # x es nu conteo
+
+# otra vez juntar phylums
+Top_phyla <- tax_glom(Psoil_rel, taxrank = "Phylum", NArm = FALSE)
+
+# Seleccionar solo los valores top
+Top_phyla <- prune_taxa(names(sort(taxa_sums(Top_phyla), TRUE)[1:10]), Top_phyla) # lo que esta en los corchetes es el top de lo que queremos usar osea el top 10 de mi muestra osea ordenar los nombres con las sumas con orden y solo agarrame los primeros 10 nombres 
+
+```
+
+### El grafrico
+
+Usando la funcion plot_composition que viene del paquete microbiome
+  CUANDO USAMOS GGPLOT TODO SE UNE CON + CUANDO USAMOS HEATMAP SE UNE CON ,
+
+```{r}
+# Grafico base 
+plot_composition(Top_phyla, # objeto en valores relativos
+                 plot.type = "barplot") #tipo de grafrico tambien hace heatmap
+
+# Ahora mas bonito 
+plot_composition(Top_phyla,plot.type = "barplot")+
+  theme_bw()+
+  scale_fill_brewer(palette = "Spectral", name = "Phylum",
+                    labels=c("Acidobacteriota", "Proteobacteria", "Firmicutes", "Actinobacteriota", "Chloroflexi", "WPS-2","Cyanobacteria","Planctomycetota","Nitrospirota","Gemmatimonadota"))+
+  guides(x=guide_axis(angle=90))+# se puede agregar esto con un + scale_x_discrete(labels=c("Balox no Salino", "Control no Salino", "Control Salino", "Balox Salino"))
+  scale_fill_manual(name= "Taxa", values = c("#8c8cd9","#2d2d86","#24478f", "#80bfff","#00cc66","#00994d","#006633","#c4ff4d","#ffff80","#e60000"))
+```
+
+Si bien este grafico ya es hermoso, la forma mas simple de representar abundancia relativa es con porcentajes. Asi que les voy a ensenar la formula de scales te modifica etso facilmente
+
+```{r}
+plot_composition(Top_phyla,plot.type = "barplot")+
+  theme_bw()+
+  ggtitle("Abundancias relativas a nivel Phylum")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"))+
+  xlab("Muestras")+
+  ylab("Abundancia")+
+  scale_fill_manual(name = "Phylum",
+                    labels=c("Acidobacteriota", "Proteobacteria", "Firmicutes", "Actinobacteriota", "Chloroflexi", "WPS-2","Cyanobacteria","Planctomycetota","Nitrospirota","Gemmatimonadota"),
+                    values = c("#8c8cd9","#2d2d86","#24478f", "#80bfff","#00cc66","#00994d","#006633","#c4ff4d","#ffff80","#e60000"))+
+  scale_x_discrete(labels=c("Tratado 1ro","Tratado 2do","Tratado 3ro","Testigo 3ro","Testigo 1ro","Testigo 2do"))+
+  guides(x=guide_axis(angle=0))+
+  scale_y_continuous(breaks = pretty_breaks(n = 10),# numero de separaciones
+                     labels = scales::percent)# representadas en %
+ 
+
+```
+
+Usando estos dos graficos que pueden conclur de sus datos?
+Hay algun phylum que crean que vale la pena revisar a detalle? 
+
+Proteocateria y actinobacteriota por abundancias
+Chloroflexi y Firmicutes por diferencias entre tratamientos
+
+Si bien ya les enseñe a presentar graficos bonitos y definitivamente cualquiera de estos graficos podrian incluirlo en un reporte, la visualizacion tambien nos permite darnos cuenta si existen ciertos patrones en abundancia. De esta manera podemos seleccionar alguno de estos grupos y verlos en la lupa de una manera mas minuciosa.
+
+Por ejemplo, yo de mis datos podria decir que dada la dominancia que tiene Ascomycota tal vez vale la pena revisarla minuciosamente. Sin embargo, el heatmap no nos mostro si habian diferencias entre plantas o tratamientos (porque tal vez no las hay?) por lo que hacer varios loops de analisis estadistico seria muy util para elegirlos
+
+
+# ANALISIS NIVEL PHYLUM 
+
+Para los graficos ya habiamos extraido nuestras tablas de conteos y taxa, pero ahora tambien necesitamos nuestros metadatos
+
+
+# Pre pocesamiento de datos ...esto no se corre a menos que no tengas corrido o de arriba...
+```{r}
+
+Phyla_fun <- tax_glom(Bio, taxrank = "Phylum", NArm = FALSE)
+
+
+# Extraemos datos del objeto 
+OTU_matrix <- as.data.frame(Phyla_fun@otu_table)
+Tax_matrix <- as.data.frame(Phyla_fun@tax_table)
+
+# Extraer metadatos 
+metadata <- as.data.frame(Phyla_fun@sam_data)
+
+# Renombramos las columnas de nuestras abundancias con el phylun de la tabla de taxa 
+colnames(OTU_matrix) <- Tax_matrix$Phylum 
+OTU_matrix <- OTU_matrix[,-7]
+
+# Join phyla with metadatos (unir los phylum con metadatos)
+Bio_phyla <- cbind(metadata,OTU_matrix)
+
+#### Normalización 
+
+# Shapiro test
+for (i in 3:ncol(Bio_phyla)) {
+  shapiro <- shapiro.test(Bio_phyla[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+### Normalize phyla
+
+# transformacion Log
+Norm_Bio <- Bio_phyla[,-c(14:21)] # estamos quitando las celadas que no se normalizaron 
+
+#este lo ignoramos porque no vamos a normalizar...
+for (i in 3:ncol(Norm_Bio)) { #tambien puede ser 6:20 porque vamos de la 6 a la 20, de las 20 que son
+  Norm_Bio[,i] <- abs(log10(Norm_Bio[,i]+1)) # abs es valor absoluto
+}
+
+#este tambien lo ignoramos 
+# Volvemos a correr shapiro
+for (i in 3:ncol(Norm_Bio)) {
+  shapiro <- shapiro.test(Norm_Bio[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+```
+
+## SEGUIMOS CON ANOVA
+
+```{r}
+### For loop de t.test
+# paso 1.- tabla vacia 
+Bio_pvalues <- data.frame(Tratamiento = rep(NA,11),
+                            Muestreo = rep(NA,11)) # en la tabla de norm_bio o bien la ultima el total de columnas menos las dos priemras por ser las variables independientes...en este caso son 13-2 = 11
+                            
+# paso 1.5.- ver si se pueden meter valores por columna 
+objeto_T <- t.test(Proteobacteria ~ Tratamiento, data = vid_stats)# cambiar vid_stats por el objeto de este ejercicio...
+# aqui vimos como llamar al p.value = objeto_T[["p.value"]]
+#otra manera de ver si se puede es asi: 
+#t.test(vid_stats[,3] ~ Tratmiento, data= vid_stats)
+
+# paso 2.- for loop
+for (i in 3:ncol(Norm_Bio)) {
+  T_trat <- t.test(Norm_Bio[,i] ~ Tratamiento, data = Norm_Bio)
+  S_trat <- Anova(aov(Norm_Bio[,i] ~ Muestreo, data = Norm_Bio))
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 osea 1
+  Bio_pvalues$Tratamiento[j] <- T_trat[["p.value"]]# para t.test
+  Bio_pvalues$Muestreo[j] <- S_trat$`Pr(>F)`[1]#para anova en los corchetes es el num de muestreo con anova
+}
+
+# paso 3.- poner los nombres 
+row.names(Bio_pvalues) <- colnames(Norm_Bio[3:13])
+
+# paso 4.- guardar tabla 
+write.csv(Bio_pvalues, "~/RStudio/CursoInnovak/Agronomia/Materiales/Bio_pvalue.csv")
+
+
+```
+Como conclusión obtenemos que Proteobacteria se encuentra muy marginal para la variable Tratamiento por lo cual podria presentar diferencia significativa, asi mismo, WPS-2 tambien podría presentar diferencia significativa pero para la variable Muestreo y por otro lado, Bacteroidota si presenta diferencia sigificativa para la variable Muestreo.
+
+## Visualización a nivel orden
+```{r}
+#volver a cargar 
+load("Bio.RData")
+
+# por abundancia 
+Proteo <- subset_taxa(Bio, Phylum == "Proteobacteria")
+Actino <- subset_taxa(Bio, Phylum == "Actinobacteriota")
+
+Proteo_or <- tax_glom(Proteo,taxrank = "Order", NArm = FALSE) # juntar orden
+Actino_or <- tax_glom(Actino,taxrank = "Order", NArm = FALSE)
+
+# por diferencia
+Firmi <- subset_taxa(Bio, Phylum == "Firmicutes")
+
+Firmi_ord <- tax_glom(Firmi, taxrank = "Order", NArm = FALSE)
+
+### Proteobacteria
+# Barplot
+plot_composition(Proteo_or,plot.type = "barplot")+
+  theme_bw()+
+  ggtitle("Abundancias de Proteobacteria a nivel Orden")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"))+
+  scale_x_discrete(labels=c("Tratado 1ro","Tratado 2do","Tratado 3ro","Testigo 3ro","Testigo 1ro","Testigo 2do"))+
+  xlab("Muestras")+
+  ylab("Abundancia")+# IFOMB8332W = Rhizobiales
+  scale_fill_manual(name= "Taxa", values = c("#8c8cd9","#2d2d86","#24478f", "#80bfff","#00cc66","#00994d","#006633","#c4ff4d","#ffff80","#ffff00","#ffaa00","#ffbb33","#ffcc66","#ffeecc","#ff8080","#ff4d4d","#ff1a1a", "#e60000","#800000"))
+
+plot_composition(Actino_or,plot.type = "barplot")+
+  theme_bw()+
+  ggtitle("Abundancias de Actinobacteriota a nivel Orden")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"))+
+  scale_x_discrete(labels=c("Tratado 1ro","Tratado 2do","Tratado 3ro","Testigo 3ro","Testigo 1ro","Testigo 2do"))+
+  xlab("Muestras")+
+  ylab("Abundancia")# EVAQC6052D = Frankiales, QMNXB7658F = Gaiellales
+  
+
+```
+
+```{r}
+# Heatmap con microbiome
+plot_composition(Proteo_or, plot.type = "heatmap")+
+  theme_bw()+
+  coord_flip()+
+  theme(axis.text = element_text(size = 6))
+# JIQUR4617P
+# este tipo de heatmap osea el de microbiome tarda mas en correr y se ve feo
+
+# Nos quedamos con este heatmap
+# Usando la funcion de phyloseq
+plot_heatmap(Proteo_or, 
+             low = "lightskyblue", high = "#4d0000",
+             na.value = "snow2",
+             taxa.order = names(sort(taxa_sums(Proteo_or)))) # IFOMB8332W = Rhizobiales, TCUJR8786O = Elsterales, ZTTAM2036E = Acetobacterales 
+
+plot_heatmap(Actino_or,
+             low = "lightskyblue", high = "#0F0F43",
+             na.value = "lightyellow",
+             taxa.order = names(sort(taxa_sums(Actino_or)))) # EVAQC6052D = Frankiales, QMNXB7658F = Gaiellales
+
+```
+# Estadistico Nivel Orden 
+
+```{r}
+
+# Proteobacteria por abundancia 
+# Extraemos datos del objeto 
+OTU_matrix <- as.data.frame(Proteo_or@otu_table)
+Tax_matrix <- as.data.frame(Proteo_or@tax_table)
+
+# Extraer metadatos 
+metadata <- as.data.frame(Proteo_or@sam_data)
+
+# Renombramos las columnas de nuestras abundancias con el phylun de la tabla de taxa 
+colnames(OTU_matrix) <- Tax_matrix$Order # cambiamos de phylum a order 
+
+
+# Join phyla with metadatos (unir los phylum con metadatos)
+OTU_matrix <- OTU_matrix[,-c(3)]
+Bio_or <- cbind(metadata,OTU_matrix)
+
+
+## Checar normalidad de los datos 
+#Shapiro en for loop
+for (i in 3:ncol(Bio_or)) {
+  shapiro <- shapiro.test(Bio_or[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+# vamos a quitar el 5:7, 9, 12, 15:19 
+
+## Seleccionamos tabla  vamos a Normalizar la 5,7,9,14....(6,15:19 estos no se van a normalizar)
+Norm_Bio <- Bio_or[,c(5,7,9,14)]
+
+# Normalizamos 
+for (i in 1:ncol(Norm_Bio)) { 
+  Norm_Bio[,i] <- abs(log10(Norm_Bio[,i]+1)) # abs es valor absoluto
+}
+# Volvemos a correr shapiro 
+for (i in 1:ncol(Norm_Bio)) {
+  shapiro <- shapiro.test(Norm_Bio[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+# Juntar para tabla 
+Bio_stats <- cbind(Bio_or[,-c(5:7,9,14:19)],Norm_Bio) # si le ponemos cbind las une horizontalmente si le ponemos rcbind los une verticalmente 
+
+
+### For loop de t.test
+# paso 1.- tabla vacia 
+Ord_pvalues <- data.frame(Tratamiento = rep(NA,11),
+                            Muestreo = rep(NA,11)) # este numero es el numero de datos que tenga, quitanto los metadatos osea en este caso tratamiento y muestreo osea de 13 -2 son 11
+
+# paso 2.- for loop
+for (i in 3:ncol(Bio_stats)) {
+  T_trat <- t.test(Bio_stats[,i] ~ Tratamiento, data = Bio_stats)
+  S_trat <- Anova(aov(Bio_stats[,i] ~ Muestreo, data = Bio_stats))
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 osea 1
+  Ord_pvalues$Tratamiento[j] <- T_trat[["p.value"]]
+  Ord_pvalues$Muestreo[j] <- S_trat$`Pr(>F)`[1]#para anova en los corchetes es el num de muestreo con anova
+}
+
+# paso 3.- poner los nombres 
+row.names(Bio_pvalues) <- colnames(Bio_stats[3:13])
+
+# paso 4.- guardar tabla 
+write.csv(Bio_pvalues, "~/RStudio/CursoInnovak/Agronomia/Materiales/Order_pvalue.csv")
+
+
+```
+
+
+```{r}
+# Firmicutes por diferencia 
+# Extraemos datos del objeto 
+OTU_matrix <- as.data.frame(Firmi_ord@otu_table)
+Tax_matrix <- as.data.frame(Firmi_ord@tax_table)
+
+# Extraer metadatos 
+metadata <- as.data.frame(Firmi_ord@sam_data)
+
+# Renombramos las columnas de nuestras abundancias con el phylun de la tabla de taxa 
+colnames(OTU_matrix) <- Tax_matrix$Order # cambiamos de phylum a order 
+
+
+# Join phyla with metadatos (unir los phylum con metadatos)
+OTU_matrix <- OTU_matrix[,-c(9)]
+OTU_matrix <- OTU_matrix[,-c(11)]
+Bio_or <- cbind(metadata,OTU_matrix)
+
+
+## Checar normalidad de los datos 
+#Shapiro en for loop
+for (i in 3:ncol(Bio_or)) {
+  shapiro <- shapiro.test(Bio_or[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+# solo sale 4 con yes y 3, 5:13 no 
+
+## Seleccionamos tabla  vamos a Normalizar la 3,5,8:10....6,7,11:13 no
+Norm_Bio <- Bio_or[,c(3,5,8:10)]
+# Normalizamos 
+for (i in 1:ncol(Norm_Bio)) { #tambien puede ser 6:20 porque vamos de la 6 a la 20, de las 20 que son
+  Norm_Bio[,i] <- abs(log10(Norm_Bio[,i]+1)) # abs es valor absoluto
+}
+# Volvemos a correr shapiro 
+for (i in 1:ncol(Norm_Bio)) {
+  shapiro <- shapiro.test(Norm_Bio[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}# se normaizan 3 y 5  
+
+#union de tablas 
+Bio_stats <- cbind(Bio_or[,-c(3,5:13)],Norm_Bio[,-c(3:5)]) # si le ponemos cbind las une horizontalmente si le ponemos rcbind los une verticalmente 
+
+
+### For loop de t.test
+# paso 1.- tabla vacia 
+Ord_pvalues <- data.frame(Tratamiento = rep(NA,3),
+                            Muestreo = rep(NA,3)) # este numero es el numero de datos que tenga quitanto los metadatos osea en este caso tratamiento y suelo osea de 45 -2 son 43
+# vamos a hacer dos t.test uno para cada variable por eso dos columnas 
+
+
+# paso 2.- for loop
+for (i in 3:ncol(Bio_stats)) {
+  T_trat <- t.test(Bio_stats[,i] ~ Tratamiento, data = Bio_stats)
+  S_trat <- Anova(aov(Bio_stats[,i] ~ Muestreo, data = Bio_stats))
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 osea 1
+  Ord_pvalues$Tratamiento[j] <- T_trat[["p.value"]]
+  Ord_pvalues$Muestreo[j] <- S_trat$`Pr(>F)`[1]#para anova en los corchetes es el num de muestreo con anova
+}
+
+# paso 3.- poner los nombres 
+row.names(Ord_pvalues) <- colnames(Bio_stats[3:5])
+
+# paso 4.- guardar tabla 
+#write.csv(Ord_pvalues, "~/RStudio/CursoInnovak/Agronomia/Materiales/Order_chloro_pvalue.csv")
+
+
+
+# Intentemos con Chloroflexi
+load("Bio.RData")
+Chloro <- subset_taxa(Bio, Phylum == "Chloroflexi")
+
+Chloro_ord <- tax_glom(Chloro, taxrank = "Order", NArm = FALSE)
+
+# Extraemos datos del objeto 
+OTU_matrix <- as.data.frame(Chloro_ord@otu_table)
+Tax_matrix <- as.data.frame(Chloro_ord@tax_table)
+
+# Extraer metadatos 
+metadata <- as.data.frame(Chloro_ord@sam_data)
+
+# Renombramos las columnas de nuestras abundancias con el phylun de la tabla de taxa 
+colnames(OTU_matrix) <- Tax_matrix$Order # cambiamos de phylum a order 
+
+
+# Join phyla with metadatos (unir los phylum con metadatos)
+OTU_matrix <- OTU_matrix[,-c(1)]
+OTU_matrix <- OTU_matrix[,-c(2)]
+Bio_or <- cbind(metadata,OTU_matrix)
+
+
+## Checar normalidad de los datos 
+#Shapiro en for loop
+for (i in 3:ncol(Bio_or)) {
+  shapiro <- shapiro.test(Bio_or[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+# 3:6, 8, 10, 14 con yes y 7, 9, 11:13, 15:19 no 
+
+## Seleccionamos tabla  vamos a Normalizar 18
+Norm_Bio <- Bio_or[,c(15:19)]
+# Normalizamos 
+for (i in 1:ncol(Norm_Bio)) { #tambien puede ser 6:20 porque vamos de la 6 a la 20, de las 20 que son
+  Norm_Bio[,i] <- abs(log10(Norm_Bio[,i]+1)) # abs es valor absoluto
+}
+
+for (i in 1:ncol(Norm_Bio)) {
+  shapiro <- shapiro.test(Norm_Bio[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+} 
+
+# como no se pueden normalizar no se va a juntar tablas, si no que vamos a crear otra donde no aparezcan esos que se trataron de normalizar  
+Bio_stats <- Bio_or[,-c(7,9,11:13,15:19)] # si le ponemos cbind las une horizontalmente si le ponemos rcbind los une verticalmente 
+
+
+### For loop de t.test
+# paso 1.- tabla vacia 
+Ord_pvalues <- data.frame(Tratamiento = rep(NA,7),
+                            Muestreo = rep(NA,7)) # este numero es el numero de datos que tenga quitanto los metadatos osea en este caso tratamiento y suelo osea de 45 -2 son 43
+# vamos a hacer dos t.test uno para cada variable por eso dos columnas 
+
+
+# paso 2.- for loop
+for (i in 3:ncol(Bio_stats)) {
+  T_trat <- t.test(Bio_stats[,i] ~ Tratamiento, data = Bio_stats)
+  S_trat <- Anova(aov(Bio_stats[,i] ~ Muestreo, data = Bio_stats))
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 osea 1
+  Ord_pvalues$Tratamiento[j] <- T_trat[["p.value"]]
+  Ord_pvalues$Muestreo[j] <- S_trat$`Pr(>F)`[1]#para anova en los corchetes es el num de muestreo con anova
+}
+
+# paso 3.- poner los nombres 
+row.names(Ord_pvalues) <- colnames(Bio_stats[3:9])
+
+# paso 4.- guardar tabla 
+write.csv(Ord_pvalues, "~/RStudio/CursoInnovak/Agronomia/Materiales/Order_chloro_pvalue.csv")
+
+
+# ultimo intento con Bacteroidota
+load("Bio.RData")
+Bacter <- subset_taxa(Bio, Phylum == "Bacteroidota")
+
+Bacter_ord <- tax_glom(Bacter, taxrank = "Order", NArm = FALSE)
+
+# Extraemos datos del objeto 
+OTU_matrix <- as.data.frame(Bacter_ord@otu_table)
+Tax_matrix <- as.data.frame(Bacter_ord@tax_table)
+
+# Extraer metadatos 
+metadata <- as.data.frame(Bacter_ord@sam_data)
+
+# Renombramos las columnas de nuestras abundancias con el phylun de la tabla de taxa 
+colnames(OTU_matrix) <- Tax_matrix$Order # cambiamos de phylum a order 
+
+
+# Join phyla with metadatos (unir los phylum con metadatos)
+OTU_matrix <- OTU_matrix[,-c(1)] #no se necesita correr porque no hay vacias 
+OTU_matrix <- OTU_matrix[,-c(2)] # no se necesita correr porque no hay vacias 
+Bio_or <- cbind(metadata,OTU_matrix)
+
+
+## Checar normalidad de los datos 
+#Shapiro en for loop
+for (i in 3:ncol(Bio_or)) {
+  shapiro <- shapiro.test(Bio_or[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+# 3 con yes y 4:6 no 
+
+## Seleccionamos tabla  vamos a Normalizar 
+Norm_Bio <- Bio_or[,c(4:6)]
+# Normalizamos 
+for (i in 1:ncol(Norm_Bio)) { #tambien puede ser 6:20 porque vamos de la 6 a la 20, de las 20 que son
+  Norm_Bio[,i] <- abs(sqrt(Norm_Bio[,i]+1)) # abs es valor absoluto
+} # no se normaliza con log10, ni con sqrt
+
+for (i in 1:ncol(Norm_Bio)) {
+  shapiro <- shapiro.test(Norm_Bio[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+} # por lo tanto solo tenemos 1 sin diferencia significativa 
+
+
+
+```
+
+# Visualización a nivel Genero / Especie 
+
+```{r}
+load("Bio.RData")
+Baci <- subset_taxa(Bio, Genus == "Bacillus") # hay 17
+Strep <- subset_taxa(Bio, Genus == "Streptomyces") # no hay
+Pseudo <- subset_taxa(Bio, Genus == "Pseudomonas") # hay 1 
+Rubro <- subset_taxa(Bio, Genus == "Rubrobacter") # no hay
+Rhizo <- subset_taxa(Bio, Genus == "Rhizobium") # no hay 
+Clavi <- subset_taxa(Bio, Genus == "Clavibacter") # no hay 
+Azos <- subset_taxa(Bio, Genus == "Azospirillum") # no hay
+Azot <- subset_taxa(Bio, Genus == "Azotobacter") #no hay
+
+
+# Pre-procesamiento de datos 
+## Extract matrix 
+OTU_matrix <- as.data.frame(Baci@otu_table)
+## Extract metadata
+metadata <- as.data.frame(Baci@sam_data)
+
+Bacillus <- cbind(metadata,OTU_matrix)
+
+# esta funcion es para boxplot
+Bacillus_box <- reshape2::melt(Bacillus)
+
+
+# grafico
+ggplot(Bacillus_box, aes(x = Tratamiento, y= value, col = Muestreo))+
+  geom_boxplot(fill= "snow2", lwd= 0.5)+
+  theme_bw(base_size = 12)+
+  xlab("Tratamiento") + ylab("Value")+
+  ylim(c(0,200))+
+  ggtitle("Abundancia de Bacillus en muestras de limón")+
+  theme(plot.title = element_text(hjust = 0.6, size= 20, face = "bold"))
+
+# en este caso a nivel estadistico hay diferencia en el muestreo 2...
+```
+
+# Diversidad alfa 
+
+
+```{r}
+## Librerias 
+library(phyloseq)
+library(ggplot2)
+library(RColorBrewer)
+library(tidyverse)
+library(dplyr)
+library(car)
+library(breakaway)
+library(microbiome)
+
+load("Bio.RData")
+```
+
+```{r}
+# Funcion de phyloseq
+alphadiv <- estimate_richness(Bio, # objeto
+                              split = TRUE, #default
+                              measures = NULL) # elegir el tipo de indicie 
+# el default es NULL y te da como resultado 7 indices diferentes 
+
+# Separar metadatos para ponerlos en la tabla de div alfa
+samplemeta <- as.data.frame(Bio@sam_data)
+alphadiv <- cbind(samplemeta,alphadiv) #unir metadatos a tabla original 
+
+estimate_richness(Bio, split = TRUE,
+                  measures = c("Observed", "Chao1", "Shanoon", "Simpson"))
+
+
+```
+# Graficando diversidad alfa 
+
+```{r}
+# Grafico usando funcion de phyloseq
+Graf_alfa <- plot_richness(Bio, # objeto
+                           x= "Tratamiento", # variable independiente 1 
+                           measures = c("Simpson","Chao1"),
+                           color = "Muestreo") +# variable independiente 2
+  scale_color_manual(values = c("#0000EE","#FF7F00","green4"), # num de tipos de muestreo
+                     name = "Muestreo", # nombre de variable independiente 2
+                     labels = c("1er Muestreo", "2do Muestreo", "3er Muestreo")) +
+  theme_gray()
+Graf_alfa
+
+Graf_alfa$layers <- Graf_alfa$layers[-1]
+Graf_alfa <- Graf_alfa + geom_point(size= 4, alpha= 0.3)
+Graf_alfa
+
+# ES MUY IMPORTANTE QUE CUANDO VAMOS A MODIFICAR ALGO DE LA GRAFICA PRIMERO BORREMOS EL OBJETO CON rm Y VOMEMOS A CORRER TODO CON LA MODIFICACIÓN
+
+
+## Primero revisamos normaliad
+
+# Shapiro
+for (i in 3:11) { # cambia dependiendo de sus datos 
+  shapiro <- shapiro.test(alphadiv[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05, "YES", "NO")
+  print(c(i,normal))
+}
+
+# histogramas; si es que no eran normales
+for (i in 3:16) {
+  hist(alphadiv[,i],
+       main = 1)
+}
+
+
+
+# Revisar homogeneidad de varianza
+
+for(i in 3:col(alphadiv)){ # empieza en la col que terminan metadatos
+  Lev_ex <- leveneTest(alphadiv[,i]~ Tratamiento * Muestreo, # vari. indep
+                       data = alphadiv)
+  levene <- ifelse(Lev_ex[["Pr(>F)"]]>0.05, "YES", "NO")
+  print(c(i,levene))
+}
+
+leveneTest(Chao1~ Tratamiento * Muestreo, # vari. indep
+                       data = alphadiv)
+# Como solo tenemos una muestra no hay varianza por lo que no se puede calcular el test levene
+
+
+
+```
+
+```{r}
+load("Bio.RData")
+
+# Funcion de phyloseq
+alphadiv <- estimate_richness(Bio, # objeto
+                              split = TRUE, #default
+                              measures = c("Chao1", "Shannon")) # elegir el tipo de indicie 
+
+# Separar metadatos para ponerlos en la tabla de div alfa
+samplemeta <- as.data.frame(Bio@sam_data)
+alphadiv <- cbind(samplemeta,alphadiv) #unir metadatos a tabla original 
+
+
+estimate_richness(Bio, split = TRUE,
+                  measures = c("Chao1","Simpson"))
+
+Evenness <- evenness(Bio, # objeto
+                     index = "all", #me va a dar todos 
+                     zeroes = TRUE, detection = 0) #valores defaul
+
+
+# Grafico usando funcion de phyloseq
+plot_richness(Bio, 
+              x= "Tratamiento",  
+              measures = c("Simpson","Chao1"),
+              color = "Muestreo") +
+  scale_color_manual(values = c("pink3","orange3","seagreen1"), 
+                     name = "Tipos de muestras", 
+                     labels = c("1er Muestreo","2do Muestreo","3er Muestreo")) +
+  theme_gray()
+
+
+# ES MUY IMPORTANTE QUE CUANDO VAMOS A MODIFICAR ALGO DE LA GRAFICA PRIMERO BORREMOS EL OBJETO CON rm Y VOMEMOS A CORRER TODO CON LA MODIFICACIÓN
+
+```
+
+
+# Analisis estadistico 
+
+Como con los datos que vimos durante el modulo estadistico, el analisis estadistico seguira el mismo flujo de trabajo que vimos y lo debran elegir dependiendo de su numero de muestras, tratamientos, etc. 
+
+```{r}
+## Primero revisamos normaliad
+
+# Shapiro
+for (i in 3:16) { # cambia dependiendo de sus datos 
+  shapiro <- shapiro.test(alphadiv[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05, "YES", "NO")
+  print(c(i,normal))
+}
+
+# histogramas; si es que no eran normales
+for (i in 3:16) {
+  hist(alphadiv[,i],
+       main = 1)
+}
+
+
+```
+Dado que yo tengo 2 tipos de variables independientes (tratamientos y tipos de planta), para mi analisis usare una ANOVA de 2 vias: "esto es en el caso de Isabel osea con sus muestras, en nuestro caso solo tenemos una muestra por persona por lo cual no podriamos usar un ANOVA de 2 vias"
+
+```{r}
+## Revisar homogeneidad de varianza
+
+for(i in 3:col(alphadiv)){ # empieza en la col que terminan metadatos
+  Lev_ex <- leveneTest(alphadiv[,i]~ Tratamiento * Suelo, # vari. indep
+                       data = alphadiv)
+  levene <- ifelse(Lev_ex[["Pr(>F)"]]>0.05, "YES", "NO")
+  print(c(i,levene))
+}
+
+leveneTest(Observed~ Tratamiento * Suelo, # vari. indep
+                       data = alphadiv)
+# Como solo tenemos una muestra no hay varianza por lo que no se puede calcular el test levene
+
+```
+
+## Analisis Funcional 
+
+```{r}
+library(phyloseq)
+library(pheatmap)
+library(RColorBrewer)
+library(car)
+
+load("Bio.RData")
+```
+
+
+# Pre- procesamiento de datos 
+
+Antes que nada tenemos que preparar los datos par asubirlo al servidor:
+
+1.- Primero que nada tenemos que aglomerar los datos por genero (genus) porque el software no acepta identificacion taxonomica repetida:
+
+```{r}
+Phyla_Bio <- tax_glom(Bio,taxrank = "Genus", NArm = FALSE)
+
+# Extraer
+OTU_matrix <- as.data.frame(Phyla_Bio@otu_table)
+Tax_matrix <- as.data.frame(Phyla_Bio@tax_table)
+metadata <- as.data.frame(Phyla_Bio@sam_data)
+# no podemos guardar en materiales porque no lo lee como tabla por lo tanto tenemos que realizar estos pasos para cambiarla a tabla y poder guardarla 
+metadata <- as.matrix(metadata) 
+metadata <- as.data.frame(metadata)
+
+# Guardar en materiales
+write.csv(OTU_matrix,"~/RStudio/CursoInnovak/Agronomia/Materiales/limon_OTUs.csv")
+write.csv(Tax_matrix,"~/RStudio/CursoInnovak/Agronomia/Materiales/limon_taxa.csv")
+write.csv(metadata,"~/RStudio/CursoInnovak/Agronomia/Materiales/limon_meta.csv")
+```
+
+# Trabajando con los datos descargados
+
+## Subir datos
+
+
+```{r}
+metabolismo <- read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/METABOLISM.filtered.csv")
+energia <- read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/ENERGYSOURCE.filtered.csv")
+```
+
+# Pre-procesamiento de datos 
+
+```{r}
+### METABOLISMO 
+
+# renombrar filas y quitar sample ID
+row.names(metabolismo) <- metabolismo[,1]
+metabolismo <- metabolismo[,-1] # ES MUY IMPORTANTE NO CORRER ESTE CODIGO 2 VECES
+metabolismo <- metabolismo[-c(18:99)]
+
+# siempre cambiar a matriz 
+metabolismo <- data.matrix(t(metabolismo)) # lo cambiamos para luego usarlo en un heatmap, lo ponemos en transpouse para que cambie las filas y columnas 
+
+# cambiar el orden 
+metabolismo <- metabolismo[order(metabolismo[,1],
+                                 decreasing = TRUE),] #parece que ya vienen en orden pero aun asi lo corremos 
+
+sorder <- c("M5", "M1", "M7", "M12","M16","M15")
+#M1 tratado, m5 testigo
+
+metabolismo <- metabolismo[ , sorder]
+
+
+
+```
+
+```{r}
+# Funcion para breaks
+quantile_breaks <- function(xs, n = 10) {
+  breaks <- quantile(xs, probs = seq(0, 1, length.out = n))
+  breaks[!duplicated(breaks)]
+} # recordar que la funcion NUNCA se cambia de nombre (osea copiar y pegar siempre entre documentos igual)
+
+
+mat_breaks <- quantile_breaks(metabolismo, #la matriz
+                              n = 10) # el default es 10 pero se puede poner el numero de cortes que quiero en mis datos 
+mat_breaks
+
+pheatmap(metabolismo,
+         cluster_rows = FALSE, cluster_cols = FALSE,
+         scale = "none",
+         main = "Análisis Funcional por Metabolismo",
+         breaks = mat_breaks,
+         color = colorRampPalette(c("snow2", "cadetblue1", "dodgerblue3", "royalblue4","blue","black"))(9), #mat_breaks
+         gaps_col = c(2,4),
+         fontsize = 12,
+         angle_col = 0,
+         labels_col = c("Testigo 1ro", "Tratado 1ro","Testigo 2do","Tratado 2do", "Testigo 3ro","Tratado 3ro"))
+
+```
+
+### Energia 
+
+```{r}
+# renombrar filas y quitar sample ID
+row.names(energia) <- energia[,1]
+energia <- energia[,-1] # ES MUY IMPORTANTE NO CORRER ESTE CODIGO 2 VECES
+energia <- energia[-c(10:22,24:27)]
+
+# siempre cambiar a matriz 
+energia <- data.matrix(t(energia)) # lo cambiamos para luego usarlo en un heatmap, lo ponemos en transpouse para que cambie las filas y columnas 
+
+# cambiar el orden 
+energia <- energia[order(energia[,1],
+                                 decreasing = TRUE),] #parece que ya vienen en orden pero aun asi lo corremos 
+
+sorder <- c("M5", "M1", "M7", "M12","M16","M15")
+#M1 tratado, m5 testigo
+
+energia <- energia[ , sorder]
+
+```
+
+```{r}
+# Funcion para breaks
+quantile_breaks <- function(xs, n = 10) {
+  breaks <- quantile(xs, probs = seq(0, 1, length.out = n))
+  breaks[!duplicated(breaks)]
+} # recordar que la funcion NUNCA se cambia de nombre (osea copiar y pegar siempre entre documentos igual)
+
+
+mat_breaks <- quantile_breaks(energia, #la matriz
+                              n = 10) # el default es 10 pero se puede poner el numero de cortes que quiero en mis datos 
+mat_breaks
+
+pheatmap(energia,
+         cluster_rows = FALSE, cluster_cols = FALSE,
+         scale = "none",
+         main = "Análisis Funcional por Fuente de Energía",
+         breaks = mat_breaks,
+         color = colorRampPalette(c("snow2","#b3d9ff","#2a52a2","#24478f","#b30000","#4d0000"))(9), #mat_breaks
+         gaps_col = c(2,4),
+         fontsize = 12,
+         angle_col = 0,
+         labels_col = c("Testigo 1ro", "Tratado 1ro","Testigo 2do","Tratado 2do", "Testigo 3ro","Tratado 3ro"))
+
+
+
+```
+
+El proceso de analisis es exactamente igual al que usamos para el analisis taxonomico 
+
+# Resultado estadistico metabolismo
+
+```{r}
+#### primero correr pre procesamiento
+# poner los grupos como columnas 
+metab_stats <- t(metabolismo)
+
+# unir metadatos 
+metadata <- data.frame(Tratamiento= c("Testigo","Tratado","Testigo",
+                                      "Tratado","Testigo","Tratado"),
+                       Muestreo= c("Primero","Primero","Segundo",
+                                   "Segundo","Tercero","Tercero")) #cambiamos de orden basados en el objeto sorder para que muestras y metadatos coincidan
+
+metab_stats <- cbind(metadata,metab_stats)
+metab_stats <- metab_stats[-c(18,19)]
+
+
+### Checamos Normalidad 
+for (i in 3:ncol(metab_stats)) {
+  shapiro <- shapiro.test(metab_stats[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+metab_stats <- metab_stats[-c(14,17)]
+
+for (i in 3:ncol(metab_stats)) {
+  shapiro <- shapiro.test(metab_stats[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+} #otra vez corremos shapiro
+
+Norm_metab <- metab_stats[,c(4,11,12,13,15)]
+
+# Transforammos con log
+for(i in 1:ncol(Norm_metab)){
+  Norm_metab[,i] <- abs(log10(Norm_metab[,i]+1))
+}
+
+#  Volvemos a correr shampiro ya transformados 
+
+for (i in 3:ncol(Norm_metab)) {
+  shapiro <- shapiro.test(Norm_metab[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+} 
+
+# Juntar tabla 
+stats <- cbind(metab_stats[-c(4,11,12,13,15)],Norm_metab)
+
+## For loop para t.test
+# paso 1.- tabla vacia 
+metab_pvalues <- data.frame(Tratamiento = rep(NA,13),
+                            Muestreo = rep(NA,13)) # se resta 2 del total de variables que salen en el ambiente
+ 
+                            
+for (i in 3:ncol(stats)) {
+  T_trat <- t.test(stats[,i] ~ Tratamiento, data = stats)
+  S_trat <- Anova(aov(stats[,i] ~ Muestreo, data = stats))
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 = 1
+  metab_pvalues$Tratamiento[j] <- T_trat[["p.value"]]
+  metab_pvalues$Muestreo[j] <- S_trat$`Pr(>F)`[1]
+}
+
+# paso 3.- poner los nombres 
+row.names(metab_pvalues) <- colnames(stats[3:15])
+
+
+# paso 4.- guardar tabla 
+write.csv(metab_pvalues, "~/RStudio/CursoInnovak/Agronomia/Materiales/metab_pvalue.csv")
+
+```
+
+# Resultados estadisticos energia 
+
+```{r}
+### primero correr pre procesamiento
+# poner los grupos como columnas 
+ener_stats <- t(energia)
+
+# unir metadatos 
+metadata <- data.frame(Tratamiento= c("Testigo","Tratado","Testigo",
+                                      "Tratado","Testigo","Tratado"),
+                       Muestreo= c("Primero","Primero","Segundo",
+                                   "Segundo","Tercero","Tercero")) #cambiamos de orden basados en el objeto sorder para que muestras y metadatos coincidan
+
+ener_stats <- cbind(metadata,ener_stats)
+
+### Checamos Normalidad 
+for (i in 3:ncol(ener_stats)) {
+  shapiro <- shapiro.test(ener_stats[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+}
+
+ener_stats <- ener_stats[-c(11,12)] # quitamos las que no se van a normalizar 
+
+Norm_ener <- ener_stats[,c(10)]
+
+# Transforammos con log
+for(i in 1:ncol(Norm_ener)){
+  Norm_ener[,i] <- abs(log10(Norm_ener[,i]+1))
+} # no se nromaliza
+
+#  Volvemos a correr shampiro ya transformados en este caso no se transforma 
+
+for (i in 3:ncol(Norm_ener)) {
+  shapiro <- shapiro.test(Norm_ener[,i])
+  normal <- ifelse(shapiro[["p.value"]]>0.05,"YES", "NO")
+  print(c(i,normal))
+} 
+
+ener_stats <- ener_stats[-c(10)]
+
+## For loop para t.test
+# paso 1.- tabla vacia 
+ener_pvalues <- data.frame(Tratamiento = rep(NA,7),
+                            Muestreo = rep(NA,7)) # se resta 2 del total de variables que salen en el ambiente
+ 
+                            
+for (i in 3:ncol(ener_stats)) {
+  T_trat <- t.test(ener_stats[,i] ~ Tratamiento, data = ener_stats)
+  S_trat <- Anova(aov(ener_stats[,i] ~ Muestreo, data = ener_stats))
+  j <- i-2 # para que empiece a llenar desde la fila 1 osea i in 3, i-2 = 1
+  ener_pvalues$Tratamiento[j] <- T_trat[["p.value"]]
+  ener_pvalues$Muestreo[j] <- S_trat$`Pr(>F)`[1]
+}
+
+# paso 3.- poner los nombres 
+row.names(ener_pvalues) <- colnames(ener_stats[3:9])
+
+
+# paso 4.- guardar tabla 
+write.csv(ener_pvalues, "~/RStudio/CursoInnovak/Agronomia/Materiales/ener_pvalue.csv")
+
+```
+
+# Graficos solicitados por Fco...
+
+```{r}
+tabla <- read.csv("~/RStudio/CursoInnovak/Agronomia/Materiales/genus_filtered_modi.csv")
+
+ggplot(tabla,aes(Muestra, Abundancia, fill = Genero))+
+  geom_bar(stat = "summary", fun = "mean")+
+  scale_x_discrete(labels=c("Tratado 1ro","Tratado 2do","Tratado 3ro","Testigo 3ro", "Testigo 1ro", "Testigo 2do"))+
+  ggtitle("Abundancias a nivel Género")+
+  theme(plot.title = element_text(hjust = 0.5, size = 15, face ="bold"))+
+  scale_fill_manual(name = "Tipo", values = c("#b3b3e6","#9f9fdf", "#8c8cd9", "#7979d2","#6666cc", "#5353c6", "#4040bf", "#3939ac","#2d2d86", "#193366", "#1f3d7a","#24478f", "#004d99", "#0066cc","#0073e6", "#1a8cff", 
+                                              "#4da6ff", "#80bfff", "#99ccff", "#b3d9ff", "#ccebff", "#b3ffd9","#99ffcc", "#80ffbf", "#4dffa6", "#1aff8c","#00e673","#00cc66","#00b359","#00994d", "#008040","#006633",
+                                              "#446600", "#669900", "#99e600", "#bbff33","#c4ff4d", "#ccff66", "#dfff80", "#ffff80", "#ffff66", "#ffff4d", "#ffff33" ,"#ffff00","#ffaa00","#ffb31a","#ffbb33", "#ffc34d",
+                                              "#ffcc66","#ffd480","#ffdd99", "#ffeecc","#ff9999", "#ff8080", "#ff6666", "#ff4d4d", "#ff3333","#ff1a1a", "#ff0000", "#e60000","#cc0000", "#b30000", "#990000", "#800000"))
+
+```
+
