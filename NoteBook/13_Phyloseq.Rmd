@@ -46,7 +46,7 @@ row.names(metadatos) <- sample_names
 
 ## Preparando los datos 
 
-Si bien nuestras matrices ya estan listas para usarse hay algunas modificaciones que son necesarias para cear nuestro objeto de phyloseq
+Si bien nuestras matrices ya estan listas para usarse hay algunas modificaciones que son necesarias para crear nuestro objeto de phyloseq
 
 ### Abundancia de ASVs
 
@@ -66,7 +66,7 @@ rando <- function(n = 5000) {
 }
 
 dim(seqtab.nochim) # para revisar cuantas filas y columnas tengo en mi tabla 
-seqnames <- rando(1609)
+seqnames <- rando(1609) # este numero lo sacamos del seqname entre []
 
 # Guardar las secuencias en otro objeto antes de borrarlas 
 Secuencias <- colnames(seqtab.nochim)
@@ -109,5 +109,4 @@ suelo_ch <- phyloseq(otu_table(seqtab.nochim, taxa_are_rows = FALSE), #aqui le p
 # y o se olviden de guardar 
 save(suelo_ch, file = "Suelos_chiapas.RData")
 ```
-
 

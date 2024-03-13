@@ -83,7 +83,7 @@ Si bien con estos datos ya podemos realizar graficos que nos acercan mas al anal
 PS_filtered <- filter_taxa(vid_bio, #objeto de phyloseq
                            function(OUT) sum(OUT) > 2, #condicion o funcion 
                            TRUE) # el true es para saber si quieres cortar o no y crear un nuevo objeto, siempre dejarlo en TRUE
-#este es un proceso de fultrado por numero de muestras
+#este es un proceso de filtrado por numero de muestras
 
 #En este caso son 2 muestras porque fueron 2 replicas, para que sea significativo y no por obra de Dios
 
